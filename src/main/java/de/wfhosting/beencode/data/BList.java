@@ -21,7 +21,6 @@ import de.wfhosting.common.R;
  * followed by an 'e'. For example l4:spam4:eggse corresponds to ['spam', 'eggs'].
  * </code>
  * 
- * @author BK1989 @ quorks.net
  * @since 0.1
  */
 public final class BList extends BNode<List<BNode<?>>> implements Serializable,

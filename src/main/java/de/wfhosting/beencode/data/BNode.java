@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 
 /**
  * Abstract super-class for all types of beencoded-data.<br>
  * Defines basic methods to work with a node, regardless which data it stores.
  * 
- * @author BK1989 @ quorks.net
  * @since 0.1
  * 
  * @param <T>
@@ -21,9 +19,6 @@ public abstract class BNode<T> implements Cloneable, Serializable { // NOPMD
 
 	/** each level to indent is represented by this sequence of chars. */
 	public static final String INDENTS = "  ";
-
-	/** the default output charset when the toString() is used */
-	public static final Charset CHARSET = Charset.forName("ASCII");
 
 	/** the value for this node */
 	protected T value;

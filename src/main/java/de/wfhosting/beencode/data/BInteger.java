@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import de.wfhosting.beencode.util.LanguageFields;
+import de.wfhosting.beencode.util.Tools;
 import de.wfhosting.common.R;
 
 /**
@@ -21,7 +22,6 @@ import de.wfhosting.common.R;
  * corresponds to 0.
  * </code>
  * 
- * @author BK1989 @ quorks.net
  * @since 0.1
  */
 public final class BInteger extends BNode<Long> implements Serializable,
@@ -80,9 +80,9 @@ public final class BInteger extends BNode<Long> implements Serializable,
 				/* switch flag, number successfully read */
 				finished = started;
 				break;
-			} else if (isDigit(buf)) {
+			} else if (Tools.isDigit(buf)) {
 				/* check for preceeding 0s */
-				checkLeadingZero(started, buf);
+				Tools.checkLeadingZero(started, buf);
 
 				/* append the read digit to the result */
 				number = number * 10 + buf - 0x30;
@@ -101,17 +101,6 @@ public final class BInteger extends BNode<Long> implements Serializable,
 
 		/* return the parsed data */
 		return checkResult(finished, negative, number);
-	}
-
-	private void checkLeadingZero(boolean started, int digit)
-			throws IOException {
-		if (!started && digit == '0') {
-			throw new IOException(R.t(LanguageFields.ERROR_LEADING_ZERO));
-		}
-	}
-	
-	private boolean isDigit(int code) {
-		return code >= '0' && code <= '9';
 	}
 
 	private long checkResult(boolean finished, boolean negative, long number)
@@ -140,7 +129,7 @@ public final class BInteger extends BNode<Long> implements Serializable,
 		out.write(PREFIX);
 
 		/* write the number */
-		out.write(String.valueOf(value).getBytes(CHARSET));
+		out.write(String.valueOf(value).getBytes(Tools.UTF8));
 
 		/* write the suffix */
 		out.write(SUFFIX);

@@ -30,7 +30,6 @@ import de.wfhosting.common.R;
  * and appear in sorted order (sorted as raw strings, not alphanumerics).
  * </code>
  * 
- * @author BK1989 @ quorks.net
  * @since 0.1
  */
 public final class BDict extends BNode<Map<BString, BNode<?>>> implements

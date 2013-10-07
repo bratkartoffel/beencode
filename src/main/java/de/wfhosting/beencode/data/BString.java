@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import de.wfhosting.beencode.util.LanguageFields;
+import de.wfhosting.beencode.util.Tools;
 import de.wfhosting.common.R;
 
 /**
@@ -19,7 +19,6 @@ import de.wfhosting.common.R;
  * For example 4:spam corresponds to 'spam'.
  * </code>
  * 
- * @author BK1989 @ quorks.net
  * @since 0.1
  */
 public final class BString extends BNode<byte[]> implements Serializable,
@@ -36,7 +35,7 @@ public final class BString extends BNode<byte[]> implements Serializable,
 	 *          The value
 	 */
 	public BString(String value) {
-		super(value.getBytes(Charset.forName("UTF-8")));
+		super(value.getBytes(Tools.UTF8));
 	}
 
 	/**
@@ -76,11 +75,9 @@ public final class BString extends BNode<byte[]> implements Serializable,
 				/* the number is finished. if nothing was else was read, abort */
 				finished = started;
 				break;
-			} else if (buf >= '0' && buf <= '9') {
+			} else if (Tools.isDigit(buf)) {
 				/* check for preceeding 0s */
-				if (!started && buf == '0') {
-					throw new IOException(R.t(LanguageFields.ERROR_LEADING_ZERO));
-				}
+				Tools.checkLeadingZero(started, buf);
 
 				/* append the read digit to the result */
 				number = number * 10 + buf - 0x30;
@@ -139,7 +136,7 @@ public final class BString extends BNode<byte[]> implements Serializable,
 	@Override
 	public void write(OutputStream out) throws IOException {
 		/* write the length of the data */
-		out.write(String.valueOf(value.length).getBytes(CHARSET));
+		out.write(String.valueOf(value.length).getBytes(Tools.UTF8));
 
 		/* write the seperator */
 		out.write(SEPERATOR);
@@ -183,7 +180,7 @@ public final class BString extends BNode<byte[]> implements Serializable,
 		buf.append('"');
 
 		/* append string */
-		buf.append(new String(value, Charset.forName("UTF-8")));
+		buf.append(new String(value, Tools.UTF8));
 
 		/* append seperator */
 		buf.append('"');

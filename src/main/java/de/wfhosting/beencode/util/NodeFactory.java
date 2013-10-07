@@ -14,7 +14,6 @@ import de.wfhosting.common.R;
  * Helper class to create new nodes.<br>
  * This class does not need to be instanced.
  * 
- * @author BK1989 @ quorks.net
  * @since 0.1
  */
 public final class NodeFactory {
