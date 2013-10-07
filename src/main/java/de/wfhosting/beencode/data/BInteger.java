@@ -80,11 +80,9 @@ public final class BInteger extends BNode<Long> implements Serializable,
 				/* switch flag, number successfully read */
 				finished = started;
 				break;
-			} else if (buf >= '0' && buf <= '9') {
+			} else if (isDigit(buf)) {
 				/* check for preceeding 0s */
-				if (!started && buf == '0') {
-					throw new IOException(R.t(LanguageFields.ERROR_LEADING_ZERO));
-				}
+				checkLeadingZero(started, buf);
 
 				/* append the read digit to the result */
 				number = number * 10 + buf - 0x30;
@@ -93,7 +91,6 @@ public final class BInteger extends BNode<Long> implements Serializable,
 			} else if (buf == '-' && !started) {
 				/* if nothing else was read so far, we set the negative bit */
 				negative = true;
-				number = 0;
 				continue;
 			}
 
@@ -102,6 +99,23 @@ public final class BInteger extends BNode<Long> implements Serializable,
 					inp.available() == 0));
 		}
 
+		/* return the parsed data */
+		return checkResult(finished, negative, number);
+	}
+
+	private void checkLeadingZero(boolean started, int digit)
+			throws IOException {
+		if (!started && digit == '0') {
+			throw new IOException(R.t(LanguageFields.ERROR_LEADING_ZERO));
+		}
+	}
+	
+	private boolean isDigit(int code) {
+		return code >= '0' && code <= '9';
+	}
+
+	private long checkResult(boolean finished, boolean negative, long number)
+			throws IOException {
 		/* if end of stream was reached without completing the integer, abort */
 		if (!finished) {
 			throw new IOException(R.t(LanguageFields.ERROR_UNEXPECTED_END));
@@ -114,11 +128,10 @@ public final class BInteger extends BNode<Long> implements Serializable,
 
 		/* if the negative flag is set, turn the result */
 		if (negative) {
-			number = -number;
+			return -number;
+		} else {
+			return number;
 		}
-
-		/* return the parsed data */
-		return number;
 	}
 
 	@Override
