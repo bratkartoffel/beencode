@@ -65,8 +65,8 @@ public final class NodeFactory {
 				break;
 			default:
 				/* unknown prefix for value */
-				throw new IOException(R.t(LanguageFields.ERROR_INVALID_PREFIX, "BNode",
-						prefix, "d,l,i,0-9"));
+				throw new IOException(R.t(LanguageFields.ERROR_INVALID_PREFIX,
+						BNode.class.getSimpleName(), prefix, "d,l,i,0-9"));
 		}
 
 		/* node successfully parsed, return it */

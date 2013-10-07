@@ -137,7 +137,8 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 		/* abort when wrong prefix is given */
 		if (prefix != PREFIX) {
 			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX, prefix, PREFIX));
+					LanguageFields.ERROR_INVALID_PREFIX,
+					BDict.class.getSimpleName(), prefix, PREFIX));
 		}
 
 		/* prepare buffer for reading */

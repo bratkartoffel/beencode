@@ -77,7 +77,8 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 		/* abort when wrong prefix is given */
 		if (prefix != PREFIX) {
 			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX, prefix, PREFIX));
+					LanguageFields.ERROR_INVALID_PREFIX,
+					BList.class.getSimpleName(), prefix, PREFIX));
 		}
 
 		/* prepare buffer for reading */

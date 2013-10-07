@@ -56,7 +56,8 @@ public final class BInteger extends BNode<Long> implements Serializable,
 		/* abort when wrong prefix is given */
 		if (prefix != PREFIX) {
 			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX, prefix, PREFIX));
+					LanguageFields.ERROR_INVALID_PREFIX,
+					BInteger.class.getSimpleName(), prefix, PREFIX));
 		}
 
 		/* prepare buffer for reading */
