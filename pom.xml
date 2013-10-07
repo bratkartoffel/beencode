@@ -1,0 +1,228 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>de.wfh</groupId>
+	<artifactId>beencode</artifactId>
+	<packaging>jar</packaging>
+	<version>0.1</version>
+
+	<name>beencode</name>
+
+	<scm>
+		<url>https://github.com/bratkartoffel/beencode</url>
+	</scm>
+
+	<repositories>
+		<repository>
+			<id>mvn2-wfh</id>
+			<name>WF Hosting Repository</name>
+			<url>http://mvn2.wf-hosting.de/</url>
+		</repository>
+	</repositories>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>check-pmd</id>
+						<phase>package</phase>
+						<goals>
+							<goal>pmd</goal>
+						</goals>
+						<configuration>
+							<linkXref>false</linkXref>
+							<sourceEncoding>utf-8</sourceEncoding>
+							<minimumTokens>100</minimumTokens>
+							<targetJdk>1.7</targetJdk>
+							<rulesets>
+								<ruleset>rulesets/java/basic.xml</ruleset>
+								<ruleset>rulesets/java/braces.xml</ruleset>
+								<ruleset>rulesets/java/codesize.xml</ruleset>
+								<ruleset>rulesets/java/typeresolution.xml</ruleset>
+								<ruleset>rulesets/java/design.xml</ruleset>
+								<ruleset>rulesets/java/finalizers.xml</ruleset>
+								<ruleset>rulesets/java/imports.xml</ruleset>
+								<ruleset>rulesets/java/logging-java.xml</ruleset>
+								<ruleset>rulesets/java/migrating.xml</ruleset>
+								<ruleset>rulesets/java/naming.xml</ruleset>
+								<ruleset>rulesets/java/strings.xml</ruleset>
+								<ruleset>rulesets/java/unusedcode.xml</ruleset>
+							</rulesets>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>2.5.2</version>
+				<executions>
+					<execution>
+						<id>check-findbugs</id>
+						<phase>package</phase>
+						<goals>
+							<goal>findbugs</goal>
+						</goals>
+						<configuration>
+							<xmlOutput>true</xmlOutput>
+							<xmlOutputDirectory>target/</xmlOutputDirectory>
+							<effort>Max</effort>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.8</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>de.wfh.util</groupId>
+									<artifactId>propertygenerator</artifactId>
+									<version>0.1</version>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/</outputDirectory>
+									<destFileName>property-generator.jar</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>build-config-files</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<property name="compile_classpath" refid="maven.compile.classpath" />
+
+								<java classname="de.wfhosting.generators.Application" fork="true"
+									failonerror="true"
+									classpath="target/property-generator.jar;${compile_classpath}">
+									<arg value="config" />
+									<arg value="langs/german.properties" />
+									<arg
+										value="src/main/java/de/wfhosting/beencode/util/LanguageFields.java" />
+									<arg value="de.wfhosting.beencode.util" />
+									<arg value="public" />
+								</java>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-dependency-plugin
+										</artifactId>
+										<versionRange>
+											[2.8,)
+										</versionRange>
+										<goals>
+											<goal>copy</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-antrun-plugin
+										</artifactId>
+										<versionRange>
+											[1.7,)
+										</versionRange>
+										<goals>
+											<goal>run</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>de.wfh.util</groupId>
+			<artifactId>wfhcommon</artifactId>
+			<version>0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>
