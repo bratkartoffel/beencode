@@ -3,6 +3,8 @@ beencode
 
 Some java helper classes to deal with binary encoded data strings.
 This class collection can be used to parse, alter and generate these beencoded strings.
+The be-encoding is primary used by the torrent protocol, but is free to use elsewhere.
+For details see [the beencode specification](https://wiki.theory.org/BitTorrentSpecification#Bencoding).
 
 To read a beencoded file:
 -------------
@@ -45,7 +47,7 @@ BInteger myint = new BInteger(1337);
 
 // Lists:
 BList mylist = new BList();
-BList mylist2 = new BList(new List<BNode<?>>);
+BList mylist2 = new BList(new ArrayList<BNode<?>>());
 
 // manipulate list:
 mylist.getList().add(mystring);
