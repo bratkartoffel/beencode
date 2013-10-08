@@ -6,7 +6,7 @@
 	<groupId>de.wfh</groupId>
 	<artifactId>beencode</artifactId>
 	<packaging>jar</packaging>
-	<version>0.1</version>
+	<version>0.2</version>
 
 	<name>beencode</name>
 
