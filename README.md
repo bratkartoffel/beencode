@@ -5,7 +5,7 @@ Some java helper classes to deal with binary encoded data strings.
 This class collection can be used to parse, alter and generate these beencoded strings.
 
 To read a beencoded file:
-=====
+-------------
 ```java
 BNode<?> bi = null;
 try (FileInputStream fstream = new FileInputStream(new File("test.dat"))) {
@@ -16,7 +16,7 @@ try (FileInputStream fstream = new FileInputStream(new File("test.dat"))) {
 ```
 
 To write a beencoded file:
-=====
+-------------
 ```java
 List<BNode> list = new ArrayList<>();
 
@@ -35,7 +35,7 @@ try (FileOutputStream fos = new FileOutputStream(new File("test.dat"))) {
 ```
 
 Valid data types and usage:
-=====
+-------------
 ```java
 // Strings:
 BString mystring = new BString("this is an example");
@@ -61,5 +61,5 @@ mydict.get(mylist);
 ```
 
 Usage:
-=====
+-------------
 As usual, the JUnit Testcases act as examples.
