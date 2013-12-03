@@ -35,29 +35,89 @@ public final class BInteger extends BNode<Long> implements Serializable,
 	public static final byte SUFFIX = 'e';
 
 	/**
+	 * @see BNode#BNode(InputStream, byte)
+	 */
+	public BInteger(final InputStream inp, final byte prefix) throws IOException {
+		super(inp, prefix);
+	}
+
+	/**
 	 * Create a new beencoded integer.
 	 * 
 	 * @param value
 	 *          The value
 	 */
-	public BInteger(long value) {
+	public BInteger(final long value) {
 		super(value);
 	}
 
-	/**
-	 * @see BNode#BNode(InputStream, byte)
-	 */
-	public BInteger(InputStream inp, byte prefix) throws IOException {
-		super(inp, prefix);
+	private long checkResult(final boolean finished, final boolean negative,
+			final long number) throws IOException {
+		/* if end of stream was reached without completing the integer, abort */
+		if (!finished) {
+			throw new IOException(R.t(LanguageFields.ERROR_UNEXPECTED_END));
+		}
+
+		/* negative zero is not allowed per definition */
+		if (negative && number == 0) {
+			throw new IOException(R.t(LanguageFields.ERROR_NEGATIVE_ZERO));
+		}
+
+		/* if the negative flag is set, turn the result */
+		if (negative) {
+			return -number;
+		} else {
+			return number;
+		}
 	}
 
 	@Override
-	protected Long read(InputStream inp, byte prefix) throws IOException {
+	public Object clone() {
+		/* create a new BInteger with the same value */
+		return new BInteger(value);
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		boolean result = false;
+
+		if (obj instanceof BInteger) {
+			/* compare the value */
+			result = Objects.equals(((BInteger) obj).getValue(), value);
+		}
+
+		/* return result */
+		return result;
+	}
+
+	@Override
+	protected String getReadableString(final int level) {
+		/* initialize buffer */
+		final StringBuilder buf = new StringBuilder();
+
+		/* indent */
+		indent(buf, level);
+
+		/* write number */
+		buf.append(value.toString());
+
+		/* return result */
+		return buf.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return value.intValue();
+	}
+
+	@Override
+	protected Long read(final InputStream inp, final byte prefix)
+			throws IOException {
 		/* abort when wrong prefix is given */
 		if (prefix != PREFIX) {
 			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX,
-					BInteger.class.getSimpleName(), prefix, PREFIX));
+					LanguageFields.ERROR_INVALID_PREFIX, BInteger.class.getSimpleName(),
+					prefix, PREFIX));
 		}
 
 		/* prepare buffer for reading */
@@ -104,28 +164,13 @@ public final class BInteger extends BNode<Long> implements Serializable,
 		return checkResult(finished, negative, number);
 	}
 
-	private long checkResult(boolean finished, boolean negative, long number)
-			throws IOException {
-		/* if end of stream was reached without completing the integer, abort */
-		if (!finished) {
-			throw new IOException(R.t(LanguageFields.ERROR_UNEXPECTED_END));
-		}
-
-		/* negative zero is not allowed per definition */
-		if (negative && number == 0) {
-			throw new IOException(R.t(LanguageFields.ERROR_NEGATIVE_ZERO));
-		}
-
-		/* if the negative flag is set, turn the result */
-		if (negative) {
-			return -number;
-		} else {
-			return number;
-		}
+	@Override
+	public String toString() {
+		return getReadableString();
 	}
 
 	@Override
-	public void write(OutputStream out) throws IOException {
+	public void write(final OutputStream out) throws IOException {
 		/* write the prefix */
 		out.write(PREFIX);
 
@@ -134,49 +179,5 @@ public final class BInteger extends BNode<Long> implements Serializable,
 
 		/* write the suffix */
 		out.write(SUFFIX);
-	}
-
-	@Override
-	public String toString() {
-		return getReadableString();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		boolean result = false;
-
-		if (obj instanceof BInteger) {
-			/* compare the value */
-			result = Objects.equals(((BInteger) obj).getValue(), value);
-		}
-
-		/* return result */
-		return result;
-	}
-
-	@Override
-	public int hashCode() {
-		return value.intValue();
-	}
-
-	@Override
-	protected String getReadableString(int level) {
-		/* initialize buffer */
-		final StringBuilder buf = new StringBuilder();
-
-		/* indent */
-		indent(buf, level);
-
-		/* write number */
-		buf.append(value.toString());
-
-		/* return result */
-		return buf.toString();
-	}
-
-	@Override
-	public Object clone() {
-		/* create a new BInteger with the same value */
-		return new BInteger(value);
 	}
 }

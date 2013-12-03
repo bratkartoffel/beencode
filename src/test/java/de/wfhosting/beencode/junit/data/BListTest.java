@@ -27,42 +27,24 @@ public class BListTest {
 		R.load("english");
 	}
 
-	@Test
-	public void testNewByString() {
-		BList bi = new BList();
-
-		bi.getList().add(new BInteger(13));
-		bi.getList().add(new BString("test"));
-
-		assertEquals("[\n  13\n  \"test\"\n]", bi.toString());
-	}
-
-	@Test
-	public void testNewEmptyString() {
-		BList bi = new BList();
-
-		assertEquals("[\n]", bi.toString());
-	}
-
-	@Test
-	public void testNewByStreamExtraData() throws IOException {
+	@Test(expected = IOException.class)
+	public void testInvalidStreamEmpty() throws IOException {
 		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "blist_extra_data.dat"))) {
+				Config.getString("junit.tests") + "blist_invalid_empty.dat"))) {
+			new BList(fstream, (byte) 'l');
+
+			fail("This method should not complete!");
+		}
+	}
+
+	@Test(expected = IOException.class)
+	public void testInvalidStreamEnd() throws IOException {
+		try (FileInputStream fstream = new FileInputStream(new File(
+				Config.getString("junit.tests") + "blist_invalid_end.dat"))) {
 			fstream.skip(1);
-			BList bi = new BList(fstream, (byte) 'l');
+			new BList(fstream, (byte) 'l');
 
-			for (BNode<?> node : bi.getValue()) {
-				if (node instanceof BInteger) {
-					assertEquals(Long.valueOf(13), ((BInteger) node).getValue());
-				}
-
-				if (node instanceof BString) {
-					if (!Arrays.equals("test".getBytes(), (byte[]) node.getValue())) {
-						fail("Result did not match. Got: "
-								+ new String((byte[]) node.getValue()));
-					}
-				}
-			}
+			fail("This method should not complete!");
 		}
 	}
 
@@ -88,24 +70,42 @@ public class BListTest {
 		}
 	}
 
-	@Test(expected = IOException.class)
-	public void testInvalidStreamEnd() throws IOException {
+	@Test
+	public void testNewByStreamExtraData() throws IOException {
 		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "blist_invalid_end.dat"))) {
+				Config.getString("junit.tests") + "blist_extra_data.dat"))) {
 			fstream.skip(1);
-			new BList(fstream, (byte) 'l');
+			BList bi = new BList(fstream, (byte) 'l');
 
-			fail("This method should not complete!");
+			for (BNode<?> node : bi.getValue()) {
+				if (node instanceof BInteger) {
+					assertEquals(Long.valueOf(13), ((BInteger) node).getValue());
+				}
+
+				if (node instanceof BString) {
+					if (!Arrays.equals("test".getBytes(), (byte[]) node.getValue())) {
+						fail("Result did not match. Got: "
+								+ new String((byte[]) node.getValue()));
+					}
+				}
+			}
 		}
 	}
 
-	@Test(expected = IOException.class)
-	public void testInvalidStreamEmpty() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "blist_invalid_empty.dat"))) {
-			new BList(fstream, (byte) 'l');
+	@Test
+	public void testNewByString() {
+		BList bi = new BList();
 
-			fail("This method should not complete!");
-		}
+		bi.getList().add(new BInteger(13));
+		bi.getList().add(new BString("test"));
+
+		assertEquals("[\n  13\n  \"test\"\n]", bi.toString());
+	}
+
+	@Test
+	public void testNewEmptyString() {
+		BList bi = new BList();
+
+		assertEquals("[\n]", bi.toString());
 	}
 }

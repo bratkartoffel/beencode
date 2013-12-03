@@ -32,7 +32,7 @@ public final class NodeFactory {
 	 * 
 	 * @return The created node
 	 */
-	public static BNode<?> parseByPrefix(int prefix, InputStream inp)
+	public static BNode<?> parseByPrefix(final int prefix, final InputStream inp)
 			throws IOException {
 		/* the value to return */
 		BNode<?> value;

@@ -26,20 +26,9 @@ public class BDictTest {
 		R.load("english");
 	}
 
-	@Test
-	public void testNewByString() {
-		BDict bi = new BDict();
-
-		bi.put(new BString("foo"), new BInteger(13));
-
-		assertEquals("{\n  \"foo\" => 13\n}", bi.toString());
-	}
-
-	@Test
-	public void testNewEmptyString() {
-		BDict bi = new BDict();
-
-		assertEquals("{\n}", bi.toString());
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidPrefix() throws IllegalArgumentException, IOException {
+		new BDict(null, (byte) 's');
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -47,9 +36,36 @@ public class BDictTest {
 		new BDict(null, (byte) 'd');
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testInvalidPrefix() throws IllegalArgumentException, IOException {
-		new BDict(null, (byte) 's');
+	@Test(expected = IOException.class)
+	public void testInvalidStreamEmpty() throws IOException {
+		try (FileInputStream fstream = new FileInputStream(new File(
+				Config.getString("junit.tests") + "bdict_invalid_empty.dat"))) {
+			new BDict(fstream, (byte) 'd');
+
+			fail("This method should not complete!");
+		}
+	}
+
+	@Test(expected = IOException.class)
+	public void testInvalidStreamEnd() throws IOException {
+		try (FileInputStream fstream = new FileInputStream(new File(
+				Config.getString("junit.tests") + "bdict_invalid_end.dat"))) {
+			fstream.skip(1);
+			new BDict(fstream, (byte) 'd');
+
+			fail("This method should not complete!");
+		}
+	}
+
+	@Test(expected = IOException.class)
+	public void testInvalidStreamIntegerKey() throws IOException {
+		try (FileInputStream fstream = new FileInputStream(new File(
+				Config.getString("junit.tests") + "bdict_invalid_int_key.dat"))) {
+			fstream.skip(1);
+			new BDict(fstream, (byte) 'd');
+
+			fail("This method should not complete!");
+		}
 	}
 
 	@Test
@@ -76,35 +92,19 @@ public class BDictTest {
 		}
 	}
 
-	@Test(expected = IOException.class)
-	public void testInvalidStreamEnd() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bdict_invalid_end.dat"))) {
-			fstream.skip(1);
-			new BDict(fstream, (byte) 'd');
+	@Test
+	public void testNewByString() {
+		BDict bi = new BDict();
 
-			fail("This method should not complete!");
-		}
+		bi.put(new BString("foo"), new BInteger(13));
+
+		assertEquals("{\n  \"foo\" => 13\n}", bi.toString());
 	}
 
-	@Test(expected = IOException.class)
-	public void testInvalidStreamIntegerKey() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bdict_invalid_int_key.dat"))) {
-			fstream.skip(1);
-			new BDict(fstream, (byte) 'd');
+	@Test
+	public void testNewEmptyString() {
+		BDict bi = new BDict();
 
-			fail("This method should not complete!");
-		}
-	}
-
-	@Test(expected = IOException.class)
-	public void testInvalidStreamEmpty() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bdict_invalid_empty.dat"))) {
-			new BDict(fstream, (byte) 'd');
-
-			fail("This method should not complete!");
-		}
+		assertEquals("{\n}", bi.toString());
 	}
 }

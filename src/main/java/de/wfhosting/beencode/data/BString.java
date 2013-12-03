@@ -34,8 +34,15 @@ public final class BString extends BNode<byte[]> implements Serializable,
 	 * @param value
 	 *          The value
 	 */
-	public BString(String value) {
-		super(value.getBytes(Tools.UTF8));
+	public BString(final byte[] value) {
+		super(value);
+	}
+
+	/**
+	 * @see BNode#BNode(InputStream, byte)
+	 */
+	public BString(final InputStream inp, final byte prefix) throws IOException {
+		super(inp, prefix);
 	}
 
 	/**
@@ -44,61 +51,58 @@ public final class BString extends BNode<byte[]> implements Serializable,
 	 * @param value
 	 *          The value
 	 */
-	public BString(byte[] value) {
-		super(value);
-	}
-
-	/**
-	 * @see BNode#BNode(InputStream, byte)
-	 */
-	public BString(InputStream inp, byte prefix) throws IOException {
-		super(inp, prefix);
-	}
-
-	private long readLength(InputStream inp, byte prefix) throws IOException {
-		/* prepare buffer for reading */
-		int buf = prefix;
-
-		/* prepare result */
-		long number = 0;
-
-		/* read and parsed data are valid? */
-		boolean finished = false;
-		
-		/* started yet? */
-		boolean started = false;
-
-		/* first interprete the prefix, then read the next byte */
-		do {
-			/* interprete the read byte */
-			if (buf == SEPERATOR) {
-				/* the number is finished. if nothing was else was read, abort */
-				finished = started;
-				break;
-			} else if (Tools.isDigit(buf)) {
-				/* check for preceeding 0s */
-				Tools.checkLeadingZero(started, buf);
-
-				/* append the read digit to the result */
-				number = number * 10 + buf - 0x30;
-				started = true;
-			} else {
-				break;
-			}
-		} while (!finished && (buf = inp.read()) != 1);
-		/* as long as we have more data to read and the integer was not finished */
-
-		/* if end of stream was reached without completing the integer, abort */
-		if (!finished) {
-			throw new IOException(R.t(LanguageFields.ERROR_INTEGER_INVALID_DATA, buf,
-					inp.available() == 0));
-		}
-
-		return number;
+	public BString(final String value) {
+		super(value.getBytes(Tools.UTF8));
 	}
 
 	@Override
-	protected byte[] read(InputStream inp, byte prefix) throws IOException {
+	public Object clone() {
+		/* create a new BString */
+		return new BString(value);
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		boolean result = false;
+
+		if (obj instanceof BString) {
+			/* compare the values */
+			result = Arrays.equals(value, ((BString) obj).getValue());
+		}
+
+		/* return result */
+		return result;
+	}
+
+	@Override
+	protected String getReadableString(final int level) {
+		/* initialize buffer */
+		final StringBuilder buf = new StringBuilder();
+
+		/* indent */
+		indent(buf, level);
+
+		/* append seperator */
+		buf.append('"');
+
+		/* append string */
+		buf.append(new String(value, Tools.UTF8));
+
+		/* append seperator */
+		buf.append('"');
+
+		/* return result */
+		return buf.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(value);
+	}
+
+	@Override
+	protected byte[] read(final InputStream inp, final byte prefix)
+			throws IOException {
 		/* prepare result */
 		long result = readLength(inp, prefix);
 
@@ -133,16 +137,47 @@ public final class BString extends BNode<byte[]> implements Serializable,
 		return str;
 	}
 
-	@Override
-	public void write(OutputStream out) throws IOException {
-		/* write the length of the data */
-		out.write(String.valueOf(value.length).getBytes(Tools.UTF8));
+	private long readLength(final InputStream inp, final byte prefix)
+			throws IOException {
+		/* prepare buffer for reading */
+		int buf = prefix;
 
-		/* write the seperator */
-		out.write(SEPERATOR);
+		/* prepare result */
+		long number = 0;
 
-		/* write the data */
-		out.write(value);
+		/* read and parsed data are valid? */
+		boolean finished = false;
+
+		/* started yet? */
+		boolean started = false;
+
+		/* first interprete the prefix, then read the next byte */
+		do {
+			/* interprete the read byte */
+			if (buf == SEPERATOR) {
+				/* the number is finished. if nothing was else was read, abort */
+				finished = started;
+				break;
+			} else if (Tools.isDigit(buf)) {
+				/* check for preceeding 0s */
+				Tools.checkLeadingZero(started, buf);
+
+				/* append the read digit to the result */
+				number = number * 10 + buf - 0x30;
+				started = true;
+			} else {
+				break;
+			}
+		} while (!finished && (buf = inp.read()) != 1);
+		/* as long as we have more data to read and the integer was not finished */
+
+		/* if end of stream was reached without completing the integer, abort */
+		if (!finished) {
+			throw new IOException(R.t(LanguageFields.ERROR_INTEGER_INVALID_DATA, buf,
+					inp.available() == 0));
+		}
+
+		return number;
 	}
 
 	@Override
@@ -151,47 +186,14 @@ public final class BString extends BNode<byte[]> implements Serializable,
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		boolean result = false;
+	public void write(final OutputStream out) throws IOException {
+		/* write the length of the data */
+		out.write(String.valueOf(value.length).getBytes(Tools.UTF8));
 
-		if (obj instanceof BString) {
-			/* compare the values */
-			result = Arrays.equals(value, ((BString) obj).getValue());
-		}
+		/* write the seperator */
+		out.write(SEPERATOR);
 
-		/* return result */
-		return result;
-	}
-
-	@Override
-	public int hashCode() {
-		return Arrays.hashCode(value);
-	}
-
-	@Override
-	protected String getReadableString(int level) {
-		/* initialize buffer */
-		final StringBuilder buf = new StringBuilder();
-
-		/* indent */
-		indent(buf, level);
-
-		/* append seperator */
-		buf.append('"');
-
-		/* append string */
-		buf.append(new String(value, Tools.UTF8));
-
-		/* append seperator */
-		buf.append('"');
-
-		/* return result */
-		return buf.toString();
-	}
-
-	@Override
-	public Object clone() {
-		/* create a new BString */
-		return new BString(value);
+		/* write the data */
+		out.write(value);
 	}
 }

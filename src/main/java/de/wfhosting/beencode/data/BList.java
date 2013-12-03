@@ -41,13 +41,6 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 	}
 
 	/**
-	 * @see BNode#BNode(Object)
-	 */
-	public BList(List<BNode<?>> value) {
-		super(value);
-	}
-
-	/**
 	 * Create a new list according to the data in the given stream.
 	 * 
 	 * @param inp
@@ -60,8 +53,44 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 	 * @throws IllegalArgumentException
 	 *           If the given prefix is not the {@link #PREFIX}
 	 */
-	public BList(InputStream inp, byte prefix) throws IOException {
+	public BList(final InputStream inp, final byte prefix) throws IOException {
 		super(inp, prefix);
+	}
+
+	/**
+	 * @see BNode#BNode(Object)
+	 */
+	public BList(final List<BNode<?>> value) {
+		super(value);
+	}
+
+	@Override
+	public Object clone() {
+		/* create a new list */
+		final List<BNode<?>> neu = new ArrayList<>();
+
+		synchronized (this) {
+			/* clone all elements */
+			for (final BNode<?> node : value) {
+				neu.add((BNode<?>) node.clone());
+			}
+		}
+
+		/* create a new list with the cloned values */
+		return new BList(neu);
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		boolean result = false;
+
+		if (obj instanceof BList) {
+			/* compare the lists */
+			result = ((BList) obj).getValue().equals(value);
+		}
+
+		/* return result */
+		return result;
 	}
 
 	/**
@@ -72,13 +101,48 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 	}
 
 	@Override
-	protected List<BNode<?>> read(InputStream inp, byte prefix)
+	protected String getReadableString(final int level) {
+		/* initialize buffer */
+		final StringBuilder buf = new StringBuilder();
+
+		/* indent level */
+		final int i_level = indent(buf, level);
+
+		/* append prefix */
+		buf.append("[\n");
+
+		/* iterate over all elements */
+		for (final BNode<?> node : value) {
+			/* write value */
+			buf.append(node.getReadableString(i_level + 1));
+
+			/* write line break */
+			buf.append('\n');
+		}
+
+		/* indent */
+		indent(buf, i_level);
+
+		/* append suffix */
+		buf.append(']');
+
+		/* return result */
+		return buf.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return value.hashCode();
+	}
+
+	@Override
+	protected List<BNode<?>> read(final InputStream inp, final byte prefix)
 			throws IOException {
 		/* abort when wrong prefix is given */
 		if (prefix != PREFIX) {
 			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX,
-					BList.class.getSimpleName(), prefix, PREFIX));
+					LanguageFields.ERROR_INVALID_PREFIX, BList.class.getSimpleName(),
+					prefix, PREFIX));
 		}
 
 		/* prepare buffer for reading */
@@ -112,7 +176,12 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 	}
 
 	@Override
-	public void write(OutputStream out) throws IOException {
+	public String toString() {
+		return getReadableString();
+	}
+
+	@Override
+	public void write(final OutputStream out) throws IOException {
 		/* write prefix */
 		out.write(PREFIX);
 
@@ -123,74 +192,5 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 
 		/* write the suffix */
 		out.write(SUFFIX);
-	}
-
-	@Override
-	public String toString() {
-		return getReadableString();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		boolean result = false;
-
-		if (obj instanceof BList) {
-			/* compare the lists */
-			result = ((BList) obj).getValue().equals(value);
-		}
-
-		/* return result */
-		return result;
-	}
-
-	@Override
-	public int hashCode() {
-		return value.hashCode();
-	}
-
-	@Override
-	protected String getReadableString(int level) {
-		/* initialize buffer */
-		final StringBuilder buf = new StringBuilder();
-
-		/* indent level */
-		final int i_level = indent(buf, level);
-
-		/* append prefix */
-		buf.append("[\n");
-
-		/* iterate over all elements */
-		for (final BNode<?> node : value) {
-			/* write value */
-			buf.append(node.getReadableString(i_level + 1));
-
-			/* write line break */
-			buf.append('\n');
-		}
-
-		/* indent */
-		indent(buf, i_level);
-
-		/* append suffix */
-		buf.append(']');
-
-		/* return result */
-		return buf.toString();
-	}
-
-	@Override
-	public Object clone() {
-		/* create a new list */
-		final List<BNode<?>> neu = new ArrayList<BNode<?>>();
-
-		synchronized (this) {
-			/* clone all elements */
-			for (final BNode<?> node : value) {
-				neu.add((BNode<?>) node.clone());
-			}
-		}
-
-		/* create a new list with the cloned values */
-		return new BList(neu);
 	}
 }

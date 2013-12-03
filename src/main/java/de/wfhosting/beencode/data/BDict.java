@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +11,7 @@ import java.util.Map;
 
 import de.wfhosting.beencode.util.LanguageFields;
 import de.wfhosting.beencode.util.NodeFactory;
+import de.wfhosting.beencode.util.Tools;
 import de.wfhosting.common.R;
 
 /**
@@ -50,13 +50,6 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	}
 
 	/**
-	 * @see BNode#BNode(Object)
-	 */
-	public BDict(Map<BString, BNode<?>> value) {
-		super(value);
-	}
-
-	/**
 	 * Create a new dictionary according to the data in the given stream.
 	 * 
 	 * @param inp
@@ -69,35 +62,66 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	 * @throws IllegalArgumentException
 	 *           If the given prefix is not the {@link #PREFIX}
 	 */
-	public BDict(InputStream inp, byte prefix) throws IOException {
+	public BDict(final InputStream inp, final byte prefix) throws IOException {
 		super(inp, prefix);
 	}
 
 	/**
-	 * @see Map#put(Object, Object)
+	 * @see BNode#BNode(Object)
 	 */
-	public BNode<?> put(BString key, BNode<?> value) {
-		return this.value.put(key, value);
+	public BDict(final Map<BString, BNode<?>> value) {
+		super(value);
+	}
+
+	@Override
+	public Object clone() {
+		/* create a new map */
+		final Map<BString, BNode<?>> neu = new HashMap<>();
+
+		synchronized (this) {
+			/* prepare nodes */
+			BString keyClone;
+			BNode<?> valClone;
+
+			/* clone all elements */
+			for (final BString key : value.keySet()) {
+				/* clone key */
+				keyClone = (BString) key.clone();
+
+				/* clone value */
+				valClone = (BNode<?>) value.get(key).clone();
+
+				/* put cloned values into map */
+				neu.put(keyClone, valClone);
+			}
+		}
+
+		/* create a new dict with the created map */
+		return new BDict(neu);
+	}
+
+	@Override
+	public boolean equals(final Object otherObj) {
+		boolean result = false;
+
+		if (otherObj instanceof BDict) {
+			result = internalEquals((BDict) otherObj);
+		}
+
+		return result;
 	}
 
 	/**
 	 * Wrapper for the {@link #get(byte[])}
 	 */
-	public BNode<?> get(String key) {
-		return get(key.getBytes(Charset.forName("UTF-8")));
-	}
-
-	/**
-	 * Wrapper for the {@link #get(byte[])}
-	 */
-	public BNode<?> get(BString key) {
+	public BNode<?> get(final BString key) {
 		return get(key.getValue());
 	}
 
 	/**
 	 * @see Map#get(Object)
 	 */
-	public BNode<?> get(byte[] key) {
+	public BNode<?> get(final byte[] key) {
 		final Iterator<BString> iter = value.keySet().iterator();
 		BNode<?> result = null;
 
@@ -113,32 +137,92 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 		return result;
 	}
 
-	@Override
-	public void write(OutputStream out) throws IOException {
-		/* write prefix */
-		out.write(PREFIX);
-
-		/* write each element in the dict */
-		for (final BString key : value.keySet()) {
-			/* first write the key */
-			key.write(out);
-
-			/* then write the value */
-			value.get(key).write(out);
-		}
-
-		/* write the suffix */
-		out.write(SUFFIX);
+	/**
+	 * Wrapper for the {@link #get(byte[])}
+	 */
+	public BNode<?> get(final String key) {
+		return get(key.getBytes(Tools.UTF8));
 	}
 
 	@Override
-	protected Map<BString, BNode<?>> read(InputStream inp, byte prefix)
+	protected String getReadableString(final int level) {
+		/* initialize buffer */
+		final StringBuilder buf = new StringBuilder();
+
+		/* indent level */
+		final int i_level = indent(buf, level);
+
+		/* append prefix */
+		buf.append("{\n");
+
+		/* iterate over all keys */
+		for (BString key : value.keySet()) {
+			/* get value for key */
+			final BNode<?> val = value.get(key);
+
+			/* write key */
+			buf.append(key.getReadableString(i_level + 1));
+
+			/* write seperator between key and value */
+			buf.append(" => ");
+
+			/* write value */
+			buf.append(val.getReadableString(-(i_level + 1)));
+
+			/* write line break */
+			buf.append('\n');
+		}
+
+		/* indent */
+		indent(buf, i_level);
+
+		/* append suffix */
+		buf.append('}');
+
+		/* return result */
+		return buf.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return value.hashCode();
+	}
+
+	private boolean internalEquals(final BDict other) {
+		boolean result = value.size() == other.value.size();
+
+		if (result) {
+			for (BString key : value.keySet()) {
+				if (!other.value.containsKey(key)) {
+					result = false;
+					break;
+				}
+
+				if (!value.get(key).equals(other.get(key))) {
+					result = false;
+					break;
+				}
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * @see Map#put(Object, Object)
+	 */
+	public BNode<?> put(final BString key, final BNode<?> value) {
+		return this.value.put(key, value);
+	}
+
+	@Override
+	protected Map<BString, BNode<?>> read(final InputStream inp, final byte prefix)
 			throws IOException {
 		/* abort when wrong prefix is given */
 		if (prefix != PREFIX) {
 			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX,
-					BDict.class.getSimpleName(), prefix, PREFIX));
+					LanguageFields.ERROR_INVALID_PREFIX, BDict.class.getSimpleName(),
+					prefix, PREFIX));
 		}
 
 		/* prepare buffer for reading */
@@ -186,104 +270,20 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	}
 
 	@Override
-	public boolean equals(Object otherObj) {
-		boolean result = false;
+	public void write(final OutputStream out) throws IOException {
+		/* write prefix */
+		out.write(PREFIX);
 
-		if (otherObj instanceof BDict) {
-			result = internalEquals((BDict) otherObj);
+		/* write each element in the dict */
+		for (final BString key : value.keySet()) {
+			/* first write the key */
+			key.write(out);
+
+			/* then write the value */
+			value.get(key).write(out);
 		}
 
-		return result;
-	}
-
-	private boolean internalEquals(BDict other) {
-		boolean result = value.size() == other.value.size();
-
-		if (result) {
-			for (BString key : value.keySet()) {
-				if (!other.value.containsKey(key)) {
-					result = false;
-					break;
-				}
-
-				if (!value.get(key).equals(other.get(key))) {
-					result = false;
-					break;
-				}
-			}
-		}
-
-		return result;
-	}
-
-	@Override
-	public int hashCode() {
-		return value.hashCode();
-	}
-
-	@Override
-	protected String getReadableString(int level) {
-		/* initialize buffer */
-		final StringBuilder buf = new StringBuilder();
-
-		/* indent level */
-		final int i_level = indent(buf, level);
-
-		/* append prefix */
-		buf.append("{\n");
-
-		/* iterate over all keys */
-		for (BString key : value.keySet()) {
-			/* get value for key */
-			final BNode<?> val = value.get(key);
-
-			/* write key */
-			buf.append(key.getReadableString(i_level + 1));
-
-			/* write seperator between key and value */
-			buf.append(" => ");
-
-			/* write value */
-			buf.append(val.getReadableString(-(i_level + 1)));
-
-			/* write line break */
-			buf.append('\n');
-		}
-
-		/* indent */
-		indent(buf, i_level);
-
-		/* append suffix */
-		buf.append('}');
-
-		/* return result */
-		return buf.toString();
-	}
-
-	@Override
-	public Object clone() {
-		/* create a new map */
-		final Map<BString, BNode<?>> neu = new HashMap<BString, BNode<?>>();
-
-		synchronized (this) {
-			/* prepare nodes */
-			BString keyClone;
-			BNode<?> valClone;
-
-			/* clone all elements */
-			for (final BString key : value.keySet()) {
-				/* clone key */
-				keyClone = (BString) key.clone();
-
-				/* clone value */
-				valClone = (BNode<?>) value.get(key).clone();
-
-				/* put cloned values into map */
-				neu.put(keyClone, valClone);
-			}
-		}
-
-		/* create a new dict with the created map */
-		return new BDict(neu);
+		/* write the suffix */
+		out.write(SUFFIX);
 	}
 }

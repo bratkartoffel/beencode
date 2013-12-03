@@ -24,18 +24,25 @@ public class BStringTest {
 		R.load("english");
 	}
 
-	@Test
-	public void testNewByString() {
-		BString bi = new BString("test");
+	@Test(expected = IOException.class)
+	public void testInvalidStreamEmpty() throws IOException {
+		try (FileInputStream fstream = new FileInputStream(new File(
+				Config.getString("junit.tests") + "bstring_invalid_empty.dat"))) {
+			new BString(fstream, (byte) '4');
 
-		assertEquals("\"test\"", bi.toString());
+			fail("This method should not complete!");
+		}
 	}
 
-	@Test
-	public void testNewEmptyString() {
-		BString bi = new BString("");
+	@Test(expected = IOException.class)
+	public void testInvalidStreamLength() throws IOException {
+		try (FileInputStream fstream = new FileInputStream(new File(
+				Config.getString("junit.tests") + "bstring_invalid_length.dat"))) {
+			fstream.skip(1);
+			new BString(fstream, (byte) '4');
 
-		assertEquals("\"\"", bi.toString());
+			fail("This method should not complete!");
+		}
 	}
 
 	@Test
@@ -64,24 +71,17 @@ public class BStringTest {
 		}
 	}
 
-	@Test(expected = IOException.class)
-	public void testInvalidStreamLength() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bstring_invalid_length.dat"))) {
-			fstream.skip(1);
-			new BString(fstream, (byte) '4');
+	@Test
+	public void testNewByString() {
+		BString bi = new BString("test");
 
-			fail("This method should not complete!");
-		}
+		assertEquals("\"test\"", bi.toString());
 	}
 
-	@Test(expected = IOException.class)
-	public void testInvalidStreamEmpty() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bstring_invalid_empty.dat"))) {
-			new BString(fstream, (byte) '4');
+	@Test
+	public void testNewEmptyString() {
+		BString bi = new BString("");
 
-			fail("This method should not complete!");
-		}
+		assertEquals("\"\"", bi.toString());
 	}
 }
