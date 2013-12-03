@@ -14,7 +14,7 @@ import java.io.Serializable;
  * @param <T>
  *          The type of data this node contains
  */
-public abstract class BNode<T> implements Cloneable, Serializable { // NOPMD
+public abstract class BNode<T> implements Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/** each level to indent is represented by this sequence of chars. */
