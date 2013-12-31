@@ -128,6 +128,16 @@ public class BIntegerTest {
 	}
 
 	@Test
+	public void testNewByStreamZero() throws IOException {
+		try (FileInputStream fstream = new FileInputStream(new File(
+				Config.getString("junit.tests") + "bint_0.dat"))) {
+			BInteger bi = new BInteger(fstream, (byte) fstream.read());
+
+			assertEquals(Long.valueOf(0), bi.getValue());
+		}
+	}
+
+	@Test
 	public void testNewMaxByStream() throws IOException {
 		try (FileInputStream fstream = new FileInputStream(new File(
 				Config.getString("junit.tests") + "bint_max.dat"))) {
@@ -162,5 +172,12 @@ public class BIntegerTest {
 		BInteger bi = new BInteger(-1);
 
 		assertEquals("-1", bi.toString());
+	}
+
+	@Test
+	public void testNewZero() {
+		BInteger bi = new BInteger(0);
+
+		assertEquals("0", bi.toString());
 	}
 }

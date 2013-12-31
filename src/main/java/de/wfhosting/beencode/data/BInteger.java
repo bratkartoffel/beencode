@@ -135,18 +135,30 @@ public final class BInteger extends BNode<Long> implements Serializable,
 		/* read number is negative? */
 		boolean negative = false;
 
+		/* only zero value? */
+		boolean only_zero = false;
+
 		/* as long as we have more data to read and the integer was not finished */
 		while (!finished && (buf = inp.read()) != -1) {
 			if (buf == 'e') {
 				/* switch flag, number successfully read */
-				finished = started;
+				finished = started || only_zero;
 				break;
 			} else if (Tools.isDigit(buf)) {
+				if (buf == '0' && !started) {
+					only_zero = true;
+					started = true;
+					continue;
+				}
+
 				/* check for preceeding 0s */
-				Tools.checkLeadingZero(started, buf);
+				if (only_zero) {
+					throw new IOException(R.t(LanguageFields.ERROR_LEADING_ZERO));
+				}
 
 				/* append the read digit to the result */
 				number = number * 10 + buf - 0x30;
+				only_zero = false;
 				started = true;
 				continue;
 			} else if (buf == '-' && !started) {
