@@ -126,21 +126,21 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>de.wfh.util</groupId>
-			<artifactId>wfhcommon</artifactId>
-			<version>0.3</version>
-		</dependency>
-		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
 		</dependency>
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>de.wfh.common</groupId>
+			<artifactId>utils</artifactId>
+			<version>0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>de.wfh.util</groupId>
