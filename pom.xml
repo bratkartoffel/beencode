@@ -6,7 +6,7 @@
 	<groupId>de.wfh</groupId>
 	<artifactId>beencode</artifactId>
 	<packaging>jar</packaging>
-	<version>0.2</version>
+	<version>0.3</version>
 
 	<name>beencode</name>
 
@@ -140,7 +140,7 @@
 		<dependency>
 			<groupId>de.wfh.common</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.5</version>
+			<version>0.6</version>
 		</dependency>
 		<dependency>
 			<groupId>de.wfh.util</groupId>
