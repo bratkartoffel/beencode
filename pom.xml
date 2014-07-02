@@ -29,61 +29,6 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-				<version>3.0.1</version>
-				<executions>
-					<execution>
-						<id>check-pmd</id>
-						<phase>package</phase>
-						<goals>
-							<goal>pmd</goal>
-						</goals>
-						<configuration>
-							<linkXref>false</linkXref>
-							<sourceEncoding>utf-8</sourceEncoding>
-							<minimumTokens>100</minimumTokens>
-							<targetJdk>1.7</targetJdk>
-							<rulesets>
-								<ruleset>rulesets/java/basic.xml</ruleset>
-								<ruleset>rulesets/java/braces.xml</ruleset>
-								<ruleset>rulesets/java/codesize.xml</ruleset>
-								<ruleset>rulesets/java/typeresolution.xml</ruleset>
-								<ruleset>rulesets/java/design.xml</ruleset>
-								<ruleset>rulesets/java/finalizers.xml</ruleset>
-								<ruleset>rulesets/java/imports.xml</ruleset>
-								<ruleset>rulesets/java/logging-java.xml</ruleset>
-								<ruleset>rulesets/java/migrating.xml</ruleset>
-								<ruleset>rulesets/java/naming.xml</ruleset>
-								<ruleset>rulesets/java/strings.xml</ruleset>
-								<ruleset>rulesets/java/unusedcode.xml</ruleset>
-							</rulesets>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>2.5.2</version>
-				<executions>
-					<execution>
-						<id>check-findbugs</id>
-						<phase>package</phase>
-						<goals>
-							<goal>findbugs</goal>
-						</goals>
-						<configuration>
-							<xmlOutput>true</xmlOutput>
-							<xmlOutputDirectory>target/</xmlOutputDirectory>
-							<effort>Max</effort>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
