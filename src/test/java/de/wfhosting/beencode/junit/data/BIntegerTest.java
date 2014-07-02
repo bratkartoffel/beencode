@@ -24,7 +24,8 @@ public class BIntegerTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testInvalidPrefix() throws IllegalArgumentException, IOException {
+	public void testInvalidPrefix() throws IllegalArgumentException,
+			IOException {
 		new BInteger(null, (byte) 's');
 	}
 

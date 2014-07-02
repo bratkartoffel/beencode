@@ -61,7 +61,8 @@ public class BListTest {
 				}
 
 				if (node instanceof BString) {
-					if (!Arrays.equals("test".getBytes(), (byte[]) node.getValue())) {
+					if (!Arrays.equals("test".getBytes(),
+							(byte[]) node.getValue())) {
 						fail("Result did not match. Got: "
 								+ new String((byte[]) node.getValue()));
 					}
@@ -83,7 +84,8 @@ public class BListTest {
 				}
 
 				if (node instanceof BString) {
-					if (!Arrays.equals("test".getBytes(), (byte[]) node.getValue())) {
+					if (!Arrays.equals("test".getBytes(),
+							(byte[]) node.getValue())) {
 						fail("Result did not match. Got: "
 								+ new String((byte[]) node.getValue()));
 					}

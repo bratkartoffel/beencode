@@ -53,14 +53,15 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	 * Create a new dictionary according to the data in the given stream.
 	 * 
 	 * @param inp
-	 *          The stream to read from
+	 *            The stream to read from
 	 * @param prefix
-	 *          The first read byte from the stream, has to be the {@link #PREFIX}
+	 *            The first read byte from the stream, has to be the
+	 *            {@link #PREFIX}
 	 * 
 	 * @throws IOException
-	 *           If something goes wrong while reading from the Stream.
+	 *             If something goes wrong while reading from the Stream.
 	 * @throws IllegalArgumentException
-	 *           If the given prefix is not the {@link #PREFIX}
+	 *             If the given prefix is not the {@link #PREFIX}
 	 */
 	public BDict(final InputStream inp, final byte prefix) throws IOException {
 		super(inp, prefix);
@@ -216,13 +217,13 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	}
 
 	@Override
-	protected Map<BString, BNode<?>> read(final InputStream inp, final byte prefix)
-			throws IOException {
+	protected Map<BString, BNode<?>> read(final InputStream inp,
+			final byte prefix) throws IOException {
 		/* abort when wrong prefix is given */
 		if (prefix != PREFIX) {
 			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX, BDict.class.getSimpleName(),
-					prefix, PREFIX));
+					LanguageFields.ERROR_INVALID_PREFIX,
+					BDict.class.getSimpleName(), prefix, PREFIX));
 		}
 
 		/* prepare buffer for reading */

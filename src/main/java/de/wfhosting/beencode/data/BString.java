@@ -32,7 +32,7 @@ public final class BString extends BNode<byte[]> implements Serializable,
 	 * Create a new beencoded string.
 	 * 
 	 * @param value
-	 *          The value
+	 *            The value
 	 */
 	public BString(final byte[] value) {
 		super(value);
@@ -49,7 +49,7 @@ public final class BString extends BNode<byte[]> implements Serializable,
 	 * Create a new beencoded string.
 	 * 
 	 * @param value
-	 *          The value
+	 *            The value
 	 */
 	public BString(final String value) {
 		super(value.getBytes(Tools.UTF8));
@@ -106,10 +106,13 @@ public final class BString extends BNode<byte[]> implements Serializable,
 		/* prepare result */
 		long result = readLength(inp, prefix);
 
-		/* if the string length to read is longer then the maximum or zero, abort */
+		/*
+		 * if the string length to read is longer then the maximum or zero,
+		 * abort
+		 */
 		if (result > Integer.MAX_VALUE || result == 0) {
-			throw new IOException(R.t(LanguageFields.ERROR_STRING_LENGTH, result,
-					Integer.MAX_VALUE));
+			throw new IOException(R.t(LanguageFields.ERROR_STRING_LENGTH,
+					result, Integer.MAX_VALUE));
 		}
 
 		/* initialize buffer for string */
@@ -173,7 +176,8 @@ public final class BString extends BNode<byte[]> implements Serializable,
 
 		/* if end of stream was reached without completing the integer, abort */
 		if (!finished) {
-			throw new IOException(R.t(LanguageFields.ERROR_INTEGER_INVALID_DATA, buf,
+			throw new IOException(R.t(
+					LanguageFields.ERROR_INTEGER_INVALID_DATA, buf,
 					inp.available() == 0));
 		}
 

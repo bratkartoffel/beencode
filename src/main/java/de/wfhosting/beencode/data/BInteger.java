@@ -37,7 +37,8 @@ public final class BInteger extends BNode<Long> implements Serializable,
 	/**
 	 * @see BNode#BNode(InputStream, byte)
 	 */
-	public BInteger(final InputStream inp, final byte prefix) throws IOException {
+	public BInteger(final InputStream inp, final byte prefix)
+			throws IOException {
 		super(inp, prefix);
 	}
 
@@ -45,7 +46,7 @@ public final class BInteger extends BNode<Long> implements Serializable,
 	 * Create a new beencoded integer.
 	 * 
 	 * @param value
-	 *          The value
+	 *            The value
 	 */
 	public BInteger(final long value) {
 		super(value);
@@ -116,8 +117,8 @@ public final class BInteger extends BNode<Long> implements Serializable,
 		/* abort when wrong prefix is given */
 		if (prefix != PREFIX) {
 			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX, BInteger.class.getSimpleName(),
-					prefix, PREFIX));
+					LanguageFields.ERROR_INVALID_PREFIX,
+					BInteger.class.getSimpleName(), prefix, PREFIX));
 		}
 
 		/* prepare buffer for reading */
@@ -153,7 +154,8 @@ public final class BInteger extends BNode<Long> implements Serializable,
 
 				/* check for preceeding 0s */
 				if (only_zero) {
-					throw new IOException(R.t(LanguageFields.ERROR_LEADING_ZERO));
+					throw new IOException(
+							R.t(LanguageFields.ERROR_LEADING_ZERO));
 				}
 
 				/* append the read digit to the result */
@@ -168,7 +170,8 @@ public final class BInteger extends BNode<Long> implements Serializable,
 			}
 
 			/* invalid character read */
-			throw new IOException(R.t(LanguageFields.ERROR_INTEGER_INVALID_DATA, buf,
+			throw new IOException(R.t(
+					LanguageFields.ERROR_INTEGER_INVALID_DATA, buf,
 					inp.available() == 0));
 		}
 

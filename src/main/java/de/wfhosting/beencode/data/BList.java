@@ -13,8 +13,8 @@ import de.wfhosting.common.R;
 
 /**
  * Class to represent a list of nodes for beencoded data.<br>
- * This class provides methods to create and fill a new list, as also
- * parse beencoded data from an {@link InputStream}.<br>
+ * This class provides methods to create and fill a new list, as also parse
+ * beencoded data from an {@link InputStream}.<br>
  * <br>
  * <code>
  * Lists are encoded as an 'l' followed by their elements (also bencoded)
@@ -44,14 +44,15 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 	 * Create a new list according to the data in the given stream.
 	 * 
 	 * @param inp
-	 *          The stream to read from
+	 *            The stream to read from
 	 * @param prefix
-	 *          The first read byte from the stream, has to be the {@link #PREFIX}
+	 *            The first read byte from the stream, has to be the
+	 *            {@link #PREFIX}
 	 * 
 	 * @throws IOException
-	 *           If something goes wrong while reading from the Stream.
+	 *             If something goes wrong while reading from the Stream.
 	 * @throws IllegalArgumentException
-	 *           If the given prefix is not the {@link #PREFIX}
+	 *             If the given prefix is not the {@link #PREFIX}
 	 */
 	public BList(final InputStream inp, final byte prefix) throws IOException {
 		super(inp, prefix);
@@ -141,8 +142,8 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 		/* abort when wrong prefix is given */
 		if (prefix != PREFIX) {
 			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX, BList.class.getSimpleName(),
-					prefix, PREFIX));
+					LanguageFields.ERROR_INVALID_PREFIX,
+					BList.class.getSimpleName(), prefix, PREFIX));
 		}
 
 		/* prepare buffer for reading */

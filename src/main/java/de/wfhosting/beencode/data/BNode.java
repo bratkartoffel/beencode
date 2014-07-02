@@ -12,7 +12,7 @@ import java.io.Serializable;
  * @since 0.1
  * 
  * @param <T>
- *          The type of data this node contains
+ *            The type of data this node contains
  */
 public abstract class BNode<T> implements Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
@@ -24,21 +24,21 @@ public abstract class BNode<T> implements Cloneable, Serializable {
 	protected T value;
 
 	/**
-	 * Default constructor when the value should be parsed and generated from the
-	 * given inputstream.<br>
-	 * As the type of a node can only be decided when the first byte is read, this
-	 * first byte (called prefix) is also given to the constructor.<br>
+	 * Default constructor when the value should be parsed and generated from
+	 * the given inputstream.<br>
+	 * As the type of a node can only be decided when the first byte is read,
+	 * this first byte (called prefix) is also given to the constructor.<br>
 	 * The child implementations should check if the prefix is correct for this
 	 * type of node and throw an IllegalArgumentException if it's wrong.
 	 * 
 	 * @param inp
-	 *          The stream to read from.
+	 *            The stream to read from.
 	 * @param prefix
-	 *          The prefix of the node
+	 *            The prefix of the node
 	 * 
 	 * @throws IOException
-	 *           If anything goes wrong while reading from the stream or the read
-	 *           values are not parseable.
+	 *             If anything goes wrong while reading from the stream or the
+	 *             read values are not parseable.
 	 */
 	public BNode(final InputStream inp, final byte prefix) throws IOException {
 		setValue(read(inp, prefix));
@@ -48,7 +48,7 @@ public abstract class BNode<T> implements Cloneable, Serializable {
 	 * Default constructor, created the node with the given value.
 	 * 
 	 * @param value
-	 *          The value this node should hold.
+	 *            The value this node should hold.
 	 */
 	public BNode(final T value) {
 		this.value = value;
@@ -74,7 +74,7 @@ public abstract class BNode<T> implements Cloneable, Serializable {
 	 * Implementation for the {@link #getReadableString()}.
 	 * 
 	 * @param level
-	 *          The level to indent.
+	 *            The level to indent.
 	 * 
 	 * @return A human readable representation of this node.
 	 */
@@ -94,9 +94,9 @@ public abstract class BNode<T> implements Cloneable, Serializable {
 	 * Helper method to indent the data for the {@link #getReadableString(int)}.
 	 * 
 	 * @param buf
-	 *          The buffer to write the indents to
+	 *            The buffer to write the indents to
 	 * @param level
-	 *          The levels to indent.
+	 *            The levels to indent.
 	 * 
 	 * @return The given level, absolute (allways positive)
 	 */
@@ -111,8 +111,8 @@ public abstract class BNode<T> implements Cloneable, Serializable {
 	/**
 	 * Parses the given inputstream and read all the data which belongs to this
 	 * node.<br>
-	 * As the type of a node can only be decided when the first byte is read, this
-	 * first byte (called prefix) is also given.<br>
+	 * As the type of a node can only be decided when the first byte is read,
+	 * this first byte (called prefix) is also given.<br>
 	 * The child implementations should check if the prefix is correct for this
 	 * type of node and throw an IllegalArgumentException if it's wrong. This
 	 * method is only called by the {@link #BNode(InputStream, byte)}.<br>
@@ -120,19 +120,19 @@ public abstract class BNode<T> implements Cloneable, Serializable {
 	 * allways), this method should throw an {@link IOException}.
 	 * 
 	 * @param inp
-	 *          The stream to read from.
+	 *            The stream to read from.
 	 * @param prefix
-	 *          The prefix of the node
+	 *            The prefix of the node
 	 * 
 	 * @throws IOException
-	 *           If anything goes wrong while reading from the stream or the read
-	 *           values are not parseable.
+	 *             If anything goes wrong while reading from the stream or the
+	 *             read values are not parseable.
 	 */
 	protected abstract T read(InputStream inp, byte prefix) throws IOException;
 
 	/**
 	 * @param value
-	 *          The {@link #value} to set.
+	 *            The {@link #value} to set.
 	 */
 	public final void setValue(final T value) {
 		this.value = value;
@@ -146,10 +146,10 @@ public abstract class BNode<T> implements Cloneable, Serializable {
 	 * other ways, this methods has to be implemented by the child class.
 	 * 
 	 * @param out
-	 *          The stream to write to.
+	 *            The stream to write to.
 	 * 
 	 * @throws IOException
-	 *           If anything goes wring while writing the string.
+	 *             If anything goes wring while writing the string.
 	 */
 	public abstract void write(OutputStream out) throws IOException;
 }

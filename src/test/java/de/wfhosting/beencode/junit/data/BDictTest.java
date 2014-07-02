@@ -27,7 +27,8 @@ public class BDictTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testInvalidPrefix() throws IllegalArgumentException, IOException {
+	public void testInvalidPrefix() throws IllegalArgumentException,
+			IOException {
 		new BDict(null, (byte) 's');
 	}
 
