@@ -14,13 +14,13 @@
 		<url>https://github.com/bratkartoffel/beencode</url>
 	</scm>
 
-	<repositories>
+	<distributionManagement>
 		<repository>
-			<id>mvn2-wfh</id>
-			<name>WF Hosting Repository</name>
-			<url>http://mvn2.wf-hosting.de/</url>
+			<id>wfh</id>
+			<name>Public Releases</name>
+			<url>http://zeus.p.wf-hosting.de:8080/nexus/content/repositories/wfh/</url>
 		</repository>
-	</repositories>
+	</distributionManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
