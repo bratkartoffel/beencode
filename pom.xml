@@ -6,7 +6,7 @@
 	<groupId>de.wfh</groupId>
 	<artifactId>beencode</artifactId>
 	<packaging>jar</packaging>
-	<version>0.3</version>
+	<version>0.4</version>
 
 	<name>beencode</name>
 
@@ -17,26 +17,19 @@
 	<distributionManagement>
 		<repository>
 			<id>wfh</id>
-			<name>Public Releases</name>
-			<url>http://zeus.p.wf-hosting.de:8080/nexus/content/repositories/wfh/</url>
+			<name>WF-Hosting Releases</name>
+			<url>http://nexus.wf-hosting.de/content/repositories/wfh</url>
 		</repository>
 	</distributionManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
 	</properties>
 
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
-			</plugin>
-
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.7</version>
@@ -85,13 +78,13 @@
 		<dependency>
 			<groupId>de.wfh.common</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.8</version>
+			<version>0.9</version>
 		</dependency>
 		<dependency>
 			<groupId>de.wfh.util</groupId>
 			<artifactId>propertygenerator</artifactId>
 			<version>0.3</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>
