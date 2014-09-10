@@ -8,8 +8,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import de.wfhosting.beencode.data.BInteger;
@@ -21,8 +19,6 @@ import de.wfhosting.common.R;
 
 public class BListTest {
 	public BListTest() throws IOException {
-		Logger.getRootLogger().setLevel(Level.OFF);
-
 		Config.load("src/test/resources/junit.conf");
 		R.load("english");
 	}
