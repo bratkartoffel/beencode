@@ -1,4 +1,4 @@
-package de.wfhosting.beencode.data;
+package se.wfh.libs.beencode.data;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,9 +6,9 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 
-import de.wfhosting.beencode.util.LanguageFields;
-import de.wfhosting.beencode.util.Tools;
-import de.wfhosting.common.R;
+import se.wfh.libs.beencode.util.LanguageFields;
+import se.wfh.libs.beencode.util.Tools;
+import se.wfh.libs.common.utils.R;
 
 /**
  * Class to represent an integer for beencoded data.<br>

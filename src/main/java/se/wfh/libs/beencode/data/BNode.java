@@ -1,4 +1,4 @@
-package de.wfhosting.beencode.data;
+package se.wfh.libs.beencode.data;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,4 +1,4 @@
-package de.wfhosting.beencode.data;
+package se.wfh.libs.beencode.data;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.wfhosting.beencode.util.LanguageFields;
-import de.wfhosting.beencode.util.NodeFactory;
-import de.wfhosting.common.R;
+import se.wfh.libs.beencode.util.LanguageFields;
+import se.wfh.libs.beencode.util.NodeFactory;
+import se.wfh.libs.common.utils.R;
 
 /**
  * Class to represent a list of nodes for beencoded data.<br>

@@ -1,4 +1,4 @@
-package de.wfhosting.beencode.junit.data;
+package se.wfh.libs.beencode.junit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -10,9 +10,9 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import de.wfhosting.beencode.data.BString;
-import de.wfhosting.common.Config;
-import de.wfhosting.common.R;
+import se.wfh.libs.beencode.data.BString;
+import se.wfh.libs.common.utils.Config;
+import se.wfh.libs.common.utils.R;
 
 public class BStringTest {
 	public BStringTest() throws IOException {

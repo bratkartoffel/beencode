@@ -3,10 +3,10 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>de.wfh</groupId>
+	<groupId>se.wfh.libs</groupId>
 	<artifactId>beencode</artifactId>
 	<packaging>jar</packaging>
-	<version>0.5-SNAPSHOT</version>
+	<version>0.5</version>
 
 	<name>beencode</name>
 
@@ -63,14 +63,14 @@
 							<target>
 								<property name="compile_classpath" refid="maven.compile.classpath" />
 
-								<java classname="de.wfhosting.generators.Application" fork="true"
+								<java classname="se.wfh.tools.propertygenerator.Application" fork="true"
 									failonerror="true"
 									classpath="target/property-generator.jar;${compile_classpath}">
 									<arg value="config" />
 									<arg value="langs/german.properties" />
 									<arg
-										value="src/main/java/de/wfhosting/beencode/util/LanguageFields.java" />
-									<arg value="de.wfhosting.beencode.util" />
+										value="src/main/java/se/wfh/libs/beencode/util/LanguageFields.java" />
+									<arg value="se.wfh.libs.beencode.util" />
 									<arg value="public" />
 								</java>
 							</target>
@@ -101,14 +101,14 @@
 		</dependency>
 
 		<dependency>
-			<groupId>de.wfh.common</groupId>
+			<groupId>se.wfh.libs.common</groupId>
 			<artifactId>utils</artifactId>
 			<version>0.12</version>
 		</dependency>
 		<dependency>
-			<groupId>de.wfh.util</groupId>
+			<groupId>se.wfh.tools</groupId>
 			<artifactId>propertygenerator</artifactId>
-			<version>0.5</version>
+			<version>0.6</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

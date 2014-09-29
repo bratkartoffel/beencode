@@ -1,9 +1,9 @@
-package de.wfhosting.beencode.util;
+package se.wfh.libs.beencode.util;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import de.wfhosting.common.R;
+import se.wfh.libs.common.utils.R;
 
 /**
  * Abstract helper class for various need.<br>

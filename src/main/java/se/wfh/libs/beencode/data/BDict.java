@@ -1,4 +1,4 @@
-package de.wfhosting.beencode.data;
+package se.wfh.libs.beencode.data;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import de.wfhosting.beencode.util.LanguageFields;
-import de.wfhosting.beencode.util.NodeFactory;
-import de.wfhosting.beencode.util.Tools;
-import de.wfhosting.common.R;
+import se.wfh.libs.beencode.util.LanguageFields;
+import se.wfh.libs.beencode.util.NodeFactory;
+import se.wfh.libs.beencode.util.Tools;
+import se.wfh.libs.common.utils.R;
 
 /**
  * Class to represent a dictionary (key / value pairs) for beencoded data.<br>

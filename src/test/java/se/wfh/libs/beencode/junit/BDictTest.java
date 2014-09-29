@@ -1,4 +1,4 @@
-package de.wfhosting.beencode.junit.data;
+package se.wfh.libs.beencode.junit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -10,11 +10,11 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import de.wfhosting.beencode.data.BDict;
-import de.wfhosting.beencode.data.BInteger;
-import de.wfhosting.beencode.data.BString;
-import de.wfhosting.common.Config;
-import de.wfhosting.common.R;
+import se.wfh.libs.beencode.data.BDict;
+import se.wfh.libs.beencode.data.BInteger;
+import se.wfh.libs.beencode.data.BString;
+import se.wfh.libs.common.utils.Config;
+import se.wfh.libs.common.utils.R;
 
 public class BDictTest {
 	public BDictTest() throws IOException {

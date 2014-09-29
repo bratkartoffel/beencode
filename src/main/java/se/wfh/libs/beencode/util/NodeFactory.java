@@ -1,14 +1,14 @@
-package de.wfhosting.beencode.util;
+package se.wfh.libs.beencode.util;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import de.wfhosting.beencode.data.BDict;
-import de.wfhosting.beencode.data.BInteger;
-import de.wfhosting.beencode.data.BList;
-import de.wfhosting.beencode.data.BNode;
-import de.wfhosting.beencode.data.BString;
-import de.wfhosting.common.R;
+import se.wfh.libs.beencode.data.BDict;
+import se.wfh.libs.beencode.data.BInteger;
+import se.wfh.libs.beencode.data.BList;
+import se.wfh.libs.beencode.data.BNode;
+import se.wfh.libs.beencode.data.BString;
+import se.wfh.libs.common.utils.R;
 
 /**
  * Helper class to create new nodes.<br>
