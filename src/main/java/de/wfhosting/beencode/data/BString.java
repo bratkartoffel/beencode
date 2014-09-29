@@ -161,7 +161,7 @@ public final class BString extends BNode<byte[]> implements Serializable,
 				/* the number is finished. if nothing was else was read, abort */
 				finished = started;
 				break;
-			} else if (Tools.isDigit(buf)) {
+			} else if (Character.isDigit(buf)) {
 				/* check for preceeding 0s */
 				Tools.checkLeadingZero(started, buf);
 

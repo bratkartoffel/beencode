@@ -6,7 +6,7 @@
 	<groupId>de.wfh</groupId>
 	<artifactId>beencode</artifactId>
 	<packaging>jar</packaging>
-	<version>0.4</version>
+	<version>0.5</version>
 
 	<name>beencode</name>
 
@@ -24,8 +24,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<build>
@@ -70,6 +70,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.1.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.7</version>
@@ -78,12 +84,12 @@
 		<dependency>
 			<groupId>de.wfh.common</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.9</version>
+			<version>0.12</version>
 		</dependency>
 		<dependency>
 			<groupId>de.wfh.util</groupId>
 			<artifactId>propertygenerator</artifactId>
-			<version>0.4</version>
+			<version>0.5</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

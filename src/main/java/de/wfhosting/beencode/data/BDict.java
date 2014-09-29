@@ -80,21 +80,17 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 		final Map<BString, BNode<?>> neu = new HashMap<>();
 
 		synchronized (this) {
-			/* prepare nodes */
-			BString keyClone;
-			BNode<?> valClone;
-
 			/* clone all elements */
-			for (final BString key : value.keySet()) {
+			value.keySet().forEach(key -> {
 				/* clone key */
-				keyClone = (BString) key.clone();
+				BString keyClone = (BString) key.clone();
 
 				/* clone value */
-				valClone = (BNode<?>) value.get(key).clone();
+				BNode<?> valClone = (BNode<?>) value.get(key).clone();
 
 				/* put cloned values into map */
 				neu.put(keyClone, valClone);
-			}
+			});
 		}
 
 		/* create a new dict with the created map */
@@ -157,7 +153,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 		buf.append("{\n");
 
 		/* iterate over all keys */
-		for (BString key : value.keySet()) {
+		value.keySet().forEach(key -> {
 			/* get value for key */
 			final BNode<?> val = value.get(key);
 
@@ -172,7 +168,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 			/* write line break */
 			buf.append('\n');
-		}
+		});
 
 		/* indent */
 		indent(buf, i_level);

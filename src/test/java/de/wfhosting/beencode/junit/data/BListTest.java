@@ -51,19 +51,23 @@ public class BListTest {
 			fstream.skip(1);
 			BList bi = new BList(fstream, (byte) 'l');
 
-			for (BNode<?> node : bi.getValue()) {
-				if (node instanceof BInteger) {
-					assertEquals(Long.valueOf(13), ((BInteger) node).getValue());
-				}
+			bi.getValue()
+					.forEach(
+							node -> {
+								if (node instanceof BInteger) {
+									assertEquals(Long.valueOf(13),
+											((BInteger) node).getValue());
+								}
 
-				if (node instanceof BString) {
-					if (!Arrays.equals("test".getBytes(),
-							(byte[]) node.getValue())) {
-						fail("Result did not match. Got: "
-								+ new String((byte[]) node.getValue()));
-					}
-				}
-			}
+								if (node instanceof BString) {
+									if (!Arrays.equals("test".getBytes(),
+											(byte[]) node.getValue())) {
+										fail("Result did not match. Got: "
+												+ new String((byte[]) node
+														.getValue()));
+									}
+								}
+							});
 		}
 	}
 
@@ -74,19 +78,23 @@ public class BListTest {
 			fstream.skip(1);
 			BList bi = new BList(fstream, (byte) 'l');
 
-			for (BNode<?> node : bi.getValue()) {
-				if (node instanceof BInteger) {
-					assertEquals(Long.valueOf(13), ((BInteger) node).getValue());
-				}
+			bi.getValue()
+					.forEach(
+							node -> {
+								if (node instanceof BInteger) {
+									assertEquals(Long.valueOf(13),
+											((BInteger) node).getValue());
+								}
 
-				if (node instanceof BString) {
-					if (!Arrays.equals("test".getBytes(),
-							(byte[]) node.getValue())) {
-						fail("Result did not match. Got: "
-								+ new String((byte[]) node.getValue()));
-					}
-				}
-			}
+								if (node instanceof BString) {
+									if (!Arrays.equals("test".getBytes(),
+											(byte[]) node.getValue())) {
+										fail("Result did not match. Got: "
+												+ new String((byte[]) node
+														.getValue()));
+									}
+								}
+							});
 		}
 	}
 

@@ -20,10 +20,6 @@ public final class Tools {
 		}
 	}
 
-	public static boolean isDigit(final int code) {
-		return code >= '0' && code <= '9';
-	}
-
 	private Tools() {
 		// hide constructor
 	}

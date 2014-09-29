@@ -145,7 +145,7 @@ public final class BInteger extends BNode<Long> implements Serializable,
 				/* switch flag, number successfully read */
 				finished = started || only_zero;
 				break;
-			} else if (Tools.isDigit(buf)) {
+			} else if (Character.isDigit(buf)) {
 				if (buf == '0' && !started) {
 					only_zero = true;
 					started = true;

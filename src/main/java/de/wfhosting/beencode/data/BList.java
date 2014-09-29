@@ -72,9 +72,7 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 
 		synchronized (this) {
 			/* clone all elements */
-			for (final BNode<?> node : value) {
-				neu.add((BNode<?>) node.clone());
-			}
+			value.forEach(node -> neu.add((BNode<?>) node.clone()));
 		}
 
 		/* create a new list with the cloned values */
@@ -113,13 +111,13 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 		buf.append("[\n");
 
 		/* iterate over all elements */
-		for (final BNode<?> node : value) {
+		value.forEach(node -> {
 			/* write value */
 			buf.append(node.getReadableString(i_level + 1));
 
 			/* write line break */
 			buf.append('\n');
-		}
+		});
 
 		/* indent */
 		indent(buf, i_level);
