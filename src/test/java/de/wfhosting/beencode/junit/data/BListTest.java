@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import de.wfhosting.beencode.data.BInteger;
 import de.wfhosting.beencode.data.BList;
-import de.wfhosting.beencode.data.BNode;
 import de.wfhosting.beencode.data.BString;
 import de.wfhosting.common.Config;
 import de.wfhosting.common.R;
