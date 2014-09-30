@@ -6,6 +6,15 @@ This class collection can be used to parse, alter and generate these beencoded s
 The be-encoding is primary used by the torrent protocol, but is free to use elsewhere.
 For details see [the beencode specification](https://wiki.theory.org/BitTorrentSpecification#Bencoding).
 
+Usage (from pom.xml):
+```xml
+<dependency>
+	<groupId>se.wfh.libs</groupId>
+	<artifactId>beencode</artifactId>
+	<version>0.6</version>
+</dependency>
+```
+		
 To read a beencoded file:
 -------------
 ```java
