@@ -6,13 +6,16 @@
 	<groupId>se.wfh.libs</groupId>
 	<artifactId>beencode</artifactId>
 	<packaging>jar</packaging>
-	<version>0.6-SNAPSHOT</version>
+	<version>0.6</version>
 
 	<name>beencode</name>
 
+	<description>Java Library for handling be-encoded (torrent) files and data</description>
+	<url>https://github.com/bratkartoffel/beencode</url>
+
 	<scm>
-		<url>https://github.com/bratkartoffel/wfhcommon.git</url>
-		<connection>https://github.com/bratkartoffel/wfhcommon.git</connection>
+		<url>https://github.com/bratkartoffel/beencode</url>
+		<connection>https://github.com/bratkartoffel/beencode.git</connection>
 	</scm>
 
 	<licenses>
@@ -63,8 +66,8 @@
 							<target>
 								<property name="compile_classpath" refid="maven.compile.classpath" />
 
-								<java classname="se.wfh.tools.propertygenerator.Application" fork="true"
-									failonerror="true"
+								<java classname="se.wfh.tools.propertygenerator.Application"
+									fork="true" failonerror="true"
 									classpath="target/property-generator.jar;${compile_classpath}">
 									<arg value="config" />
 									<arg value="langs/german.properties" />
@@ -103,7 +106,7 @@
 		<dependency>
 			<groupId>se.wfh.libs.common</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.12</version>
+			<version>0.13</version>
 		</dependency>
 		<dependency>
 			<groupId>se.wfh.tools</groupId>

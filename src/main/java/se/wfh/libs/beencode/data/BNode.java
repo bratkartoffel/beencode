@@ -124,6 +124,8 @@ public abstract class BNode<T> implements Cloneable, Serializable {
 	 * @param prefix
 	 *            The prefix of the node
 	 * 
+	 * @return A Node representing the given data
+	 * 
 	 * @throws IOException
 	 *             If anything goes wrong while reading from the stream or the
 	 *             read values are not parseable.

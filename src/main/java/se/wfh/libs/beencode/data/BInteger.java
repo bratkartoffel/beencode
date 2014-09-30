@@ -35,6 +35,18 @@ public final class BInteger extends BNode<Long> implements Serializable,
 	public static final byte SUFFIX = 'e';
 
 	/**
+	 * Create a new Integer from the given data
+	 * 
+	 * @param inp
+	 *            The stream to parse
+	 * @param prefix
+	 *            The first byte of the stream
+	 * 
+	 * @throws IOException
+	 *             If something goes wrong while reading from the Stream.
+	 * @throws IllegalArgumentException
+	 *             If the given prefix is not the {@link #PREFIX}
+	 * 
 	 * @see BNode#BNode(InputStream, byte)
 	 */
 	public BInteger(final InputStream inp, final byte prefix)

@@ -62,12 +62,19 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	 *             If something goes wrong while reading from the Stream.
 	 * @throws IllegalArgumentException
 	 *             If the given prefix is not the {@link #PREFIX}
+	 * 
+	 * @see BNode#BNode(InputStream, byte)
 	 */
-	public BDict(final InputStream inp, final byte prefix) throws IOException {
+	public BDict(final InputStream inp, final byte prefix) throws IOException,
+			IllegalArgumentException {
 		super(inp, prefix);
 	}
 
 	/**
+	 * Create a new dictionary with the given elements.
+	 * 
+	 * @param value
+	 *            The nodes for this dictionary
 	 * @see BNode#BNode(Object)
 	 */
 	public BDict(final Map<BString, BNode<?>> value) {
@@ -110,13 +117,23 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 	/**
 	 * Wrapper for the {@link #get(byte[])}
+	 * 
+	 * @param key
+	 *            The key to fetch
+	 * @return The node for the specified key or <code>null</code> if key was
+	 *         not found.
 	 */
 	public BNode<?> get(final BString key) {
 		return get(key.getValue());
 	}
 
 	/**
-	 * @see Map#get(Object)
+	 * Retrieve a named attribute from this dictionary.
+	 * 
+	 * @param key
+	 *            The key to fetch
+	 * @return The node for the specified key or <code>null</code> if key was
+	 *         not found.
 	 */
 	public BNode<?> get(final byte[] key) {
 		final Iterator<BString> iter = value.keySet().iterator();
@@ -136,6 +153,11 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 	/**
 	 * Wrapper for the {@link #get(byte[])}
+	 * 
+	 * @param key
+	 *            The key to fetch
+	 * @return The node for the specified key or <code>null</code> if key was
+	 *         not found.
 	 */
 	public BNode<?> get(final String key) {
 		return get(key.getBytes(Tools.UTF8));
@@ -206,6 +228,13 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	}
 
 	/**
+	 * @param key
+	 *            The key to set
+	 * @param value
+	 *            The value to set
+	 * @return The previous value at the specified key or <code>null</code> if
+	 *         none was present.
+	 * 
 	 * @see Map#put(Object, Object)
 	 */
 	public BNode<?> put(final BString key, final BNode<?> value) {

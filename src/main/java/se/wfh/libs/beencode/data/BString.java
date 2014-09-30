@@ -39,7 +39,17 @@ public final class BString extends BNode<byte[]> implements Serializable,
 	}
 
 	/**
-	 * @see BNode#BNode(InputStream, byte)
+	 * Create a new string according to the data in the given stream.
+	 * 
+	 * @param inp
+	 *            The stream to read from
+	 * @param prefix
+	 *            The first read byte from the stream
+	 * 
+	 * @throws IOException
+	 *             If something goes wrong while reading from the Stream.
+	 * @throws IllegalArgumentException
+	 *             If the given prefix is invalid.
 	 */
 	public BString(final InputStream inp, final byte prefix) throws IOException {
 		super(inp, prefix);

@@ -59,6 +59,11 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 	}
 
 	/**
+	 * Create a new list with the given elements.
+	 * 
+	 * @param value
+	 *            The nodes for this list
+	 * 
 	 * @see BNode#BNode(Object)
 	 */
 	public BList(final List<BNode<?>> value) {
