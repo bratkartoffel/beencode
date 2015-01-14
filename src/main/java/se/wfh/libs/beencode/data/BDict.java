@@ -85,16 +85,8 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 		synchronized (this) {
 			/* clone all elements */
-			value.keySet().forEach(key -> {
-				/* clone key */
-				BString keyClone = key.clone();
-
-				/* clone value */
-				BNode<?> valClone = value.get(key).clone();
-
-				/* put cloned values into map */
-				neu.put(keyClone, valClone);
-			});
+			value.entrySet().forEach(
+					entry -> neu.put(entry.getKey().clone(), entry.getValue().clone()));
 		}
 
 		/* create a new dict with the created map */
