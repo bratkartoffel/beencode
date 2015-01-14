@@ -1,25 +1,37 @@
 package se.wfh.libs.beencode.junit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import se.wfh.libs.beencode.data.BInteger;
 import se.wfh.libs.beencode.data.BList;
 import se.wfh.libs.beencode.data.BString;
 import se.wfh.libs.common.utils.Config;
-import se.wfh.libs.common.utils.R;
 
 public class BListTest {
 	public BListTest() throws IOException {
 		Config.load("src/test/resources/junit.conf");
-		R.load("english");
+	}
+
+	@Test
+	public void testClone() {
+		BList list1 = new BList();
+		BList list2 = new BList();
+
+		list1.getList().add(new BInteger(13));
+		list2.getList().add(new BInteger(13));
+
+		Assert.assertEquals(list1, list2);
+
+		list1.getList().add(new BString("asd"));
+		Assert.assertNotEquals(list1, list2);
+
+		list2.getList().add(new BString("asd"));
+		Assert.assertEquals(list1, list2);
 	}
 
 	@Test(expected = IOException.class)
@@ -28,7 +40,7 @@ public class BListTest {
 				Config.getString("junit.tests") + "blist_invalid_empty.dat"))) {
 			new BList(fstream, (byte) 'l');
 
-			fail("This method should not complete!");
+			Assert.fail("This method should not complete!");
 		}
 	}
 
@@ -39,7 +51,7 @@ public class BListTest {
 			fstream.skip(1);
 			new BList(fstream, (byte) 'l');
 
-			fail("This method should not complete!");
+			Assert.fail("This method should not complete!");
 		}
 	}
 
@@ -50,23 +62,9 @@ public class BListTest {
 			fstream.skip(1);
 			BList bi = new BList(fstream, (byte) 'l');
 
-			bi.getValue()
-					.forEach(
-							node -> {
-								if (node instanceof BInteger) {
-									assertEquals(Long.valueOf(13),
-											((BInteger) node).getValue());
-								}
-
-								if (node instanceof BString) {
-									if (!Arrays.equals("test".getBytes(),
-											(byte[]) node.getValue())) {
-										fail("Result did not match. Got: "
-												+ new String((byte[]) node
-														.getValue()));
-									}
-								}
-							});
+			Assert.assertEquals(Long.valueOf(13), bi.getList().get(0).getValue());
+			Assert.assertArrayEquals("test".getBytes(), (byte[]) bi.getList().get(1)
+					.getValue());
 		}
 	}
 
@@ -77,23 +75,9 @@ public class BListTest {
 			fstream.skip(1);
 			BList bi = new BList(fstream, (byte) 'l');
 
-			bi.getValue()
-					.forEach(
-							node -> {
-								if (node instanceof BInteger) {
-									assertEquals(Long.valueOf(13),
-											((BInteger) node).getValue());
-								}
-
-								if (node instanceof BString) {
-									if (!Arrays.equals("test".getBytes(),
-											(byte[]) node.getValue())) {
-										fail("Result did not match. Got: "
-												+ new String((byte[]) node
-														.getValue()));
-									}
-								}
-							});
+			Assert.assertEquals(Long.valueOf(13), bi.getList().get(0).getValue());
+			Assert.assertArrayEquals("test".getBytes(), (byte[]) bi.getList().get(1)
+					.getValue());
 		}
 	}
 
@@ -104,13 +88,13 @@ public class BListTest {
 		bi.getList().add(new BInteger(13));
 		bi.getList().add(new BString("test"));
 
-		assertEquals("[\n  13\n  \"test\"\n]", bi.toString());
+		Assert.assertEquals("[\n  13\n  \"test\"\n]", bi.toString());
 	}
 
 	@Test
 	public void testNewEmptyString() {
 		BList bi = new BList();
 
-		assertEquals("[\n]", bi.toString());
+		Assert.assertEquals("[\n]", bi.toString());
 	}
 }

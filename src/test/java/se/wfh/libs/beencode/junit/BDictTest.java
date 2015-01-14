@@ -1,30 +1,44 @@
 package se.wfh.libs.beencode.junit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import se.wfh.libs.beencode.data.BDict;
 import se.wfh.libs.beencode.data.BInteger;
 import se.wfh.libs.beencode.data.BString;
 import se.wfh.libs.common.utils.Config;
-import se.wfh.libs.common.utils.R;
 
 public class BDictTest {
 	public BDictTest() throws IOException {
 		Config.load("src/test/resources/junit.conf");
-		R.load("english");
+	}
+
+	@Test
+	public void testClone() {
+		BDict dict1 = new BDict();
+		BDict dict2 = new BDict();
+
+		dict1.put(new BString("Test"), new BInteger(13));
+		dict2.put(new BString("Test"), new BInteger(13));
+
+		Assert.assertEquals(dict1, dict2);
+
+		dict1.put(new BString("Test"), new BInteger(13));
+		Assert.assertEquals(dict1, dict2);
+
+		dict2.put(new BString("asd"), new BString("xxx"));
+		Assert.assertNotEquals(dict1, dict2);
+
+		dict1.put(new BString("asd"), new BString("xxx"));
+		Assert.assertEquals(dict1, dict2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testInvalidPrefix() throws IllegalArgumentException,
-			IOException {
+	public void testInvalidPrefix() throws IllegalArgumentException, IOException {
 		new BDict(null, (byte) 's');
 	}
 
@@ -39,7 +53,7 @@ public class BDictTest {
 				Config.getString("junit.tests") + "bdict_invalid_empty.dat"))) {
 			new BDict(fstream, (byte) 'd');
 
-			fail("This method should not complete!");
+			Assert.fail("This method should not complete!");
 		}
 	}
 
@@ -50,7 +64,7 @@ public class BDictTest {
 			fstream.skip(1);
 			new BDict(fstream, (byte) 'd');
 
-			fail("This method should not complete!");
+			Assert.fail("This method should not complete!");
 		}
 	}
 
@@ -61,7 +75,7 @@ public class BDictTest {
 			fstream.skip(1);
 			new BDict(fstream, (byte) 'd');
 
-			fail("This method should not complete!");
+			Assert.fail("This method should not complete!");
 		}
 	}
 
@@ -72,8 +86,8 @@ public class BDictTest {
 			fstream.skip(1);
 			BDict bi = new BDict(fstream, (byte) 'd');
 
-			assertNotNull(bi.get("foo"));
-			assertNotNull(bi.get("bar"));
+			Assert.assertNotNull(bi.get("foo"));
+			Assert.assertNotNull(bi.get("bar"));
 		}
 	}
 
@@ -84,8 +98,8 @@ public class BDictTest {
 			fstream.skip(1);
 			BDict bi = new BDict(fstream, (byte) 'd');
 
-			assertNotNull(bi.get("foo"));
-			assertNotNull(bi.get("bar"));
+			Assert.assertNotNull(bi.get("foo"));
+			Assert.assertNotNull(bi.get("bar"));
 		}
 	}
 
@@ -95,13 +109,13 @@ public class BDictTest {
 
 		bi.put(new BString("foo"), new BInteger(13));
 
-		assertEquals("{\n  \"foo\" => 13\n}", bi.toString());
+		Assert.assertEquals("{\n  \"foo\" => 13\n}", bi.toString());
 	}
 
 	@Test
 	public void testNewEmptyString() {
 		BDict bi = new BDict();
 
-		assertEquals("{\n}", bi.toString());
+		Assert.assertEquals("{\n}", bi.toString());
 	}
 }

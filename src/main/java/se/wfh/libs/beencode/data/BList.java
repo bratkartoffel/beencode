@@ -7,9 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.wfh.libs.beencode.util.LanguageFields;
 import se.wfh.libs.beencode.util.NodeFactory;
-import se.wfh.libs.common.utils.R;
 
 /**
  * Class to represent a list of nodes for beencoded data.<br>
@@ -20,7 +18,7 @@ import se.wfh.libs.common.utils.R;
  * Lists are encoded as an 'l' followed by their elements (also bencoded)
  * followed by an 'e'. For example l4:spam4:eggse corresponds to ['spam', 'eggs'].
  * </code>
- * 
+ *
  * @since 0.1
  */
 public final class BList extends BNode<List<BNode<?>>> implements Serializable,
@@ -42,17 +40,16 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 
 	/**
 	 * Create a new list according to the data in the given stream.
-	 * 
+	 *
 	 * @param inp
-	 *            The stream to read from
+	 *          The stream to read from
 	 * @param prefix
-	 *            The first read byte from the stream, has to be the
-	 *            {@link #PREFIX}
-	 * 
+	 *          The first read byte from the stream, has to be the {@link #PREFIX}
+	 *
 	 * @throws IOException
-	 *             If something goes wrong while reading from the Stream.
+	 *           If something goes wrong while reading from the Stream.
 	 * @throws IllegalArgumentException
-	 *             If the given prefix is not the {@link #PREFIX}
+	 *           If the given prefix is not the {@link #PREFIX}
 	 */
 	public BList(final InputStream inp, final byte prefix) throws IOException {
 		super(inp, prefix);
@@ -60,10 +57,10 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 
 	/**
 	 * Create a new list with the given elements.
-	 * 
+	 *
 	 * @param value
-	 *            The nodes for this list
-	 * 
+	 *          The nodes for this list
+	 *
 	 * @see BNode#BNode(Object)
 	 */
 	public BList(final List<BNode<?>> value) {
@@ -71,13 +68,13 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 	}
 
 	@Override
-	public Object clone() {
+	public BList clone() {
 		/* create a new list */
 		final List<BNode<?>> neu = new ArrayList<>();
 
 		synchronized (this) {
 			/* clone all elements */
-			value.forEach(node -> neu.add((BNode<?>) node.clone()));
+			value.stream().map(BNode::clone).forEach(neu::add);
 		}
 
 		/* create a new list with the cloned values */
@@ -143,10 +140,10 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 	protected List<BNode<?>> read(final InputStream inp, final byte prefix)
 			throws IOException {
 		/* abort when wrong prefix is given */
-		if (prefix != PREFIX) {
-			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX,
-					BList.class.getSimpleName(), prefix, PREFIX));
+		if (prefix != BList.PREFIX) {
+			throw new IllegalArgumentException("Invalid prefix for an "
+					+ this.getClass().getSimpleName() + ". Is '" + prefix
+					+ "', expected: '" + PREFIX + "'");
 		}
 
 		/* prepare buffer for reading */
@@ -161,7 +158,7 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 		/* as long as we have more data to read and the list was not finished */
 		while (!success && (buf = inp.read()) != -1) {
 			/* if the read byte is the suffix, then we are finished */
-			if (buf == SUFFIX) {
+			if (buf == BList.SUFFIX) {
 				success = true;
 				break;
 			}
@@ -172,7 +169,7 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 
 		/* if end of stream was reached without completing the list, abort */
 		if (!success) {
-			throw new IOException(R.t(LanguageFields.ERROR_UNEXPECTED_END));
+			throw new IOException("Unexpected end of data.");
 		}
 
 		/* return the parsed data */
@@ -187,7 +184,7 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 	@Override
 	public void write(final OutputStream out) throws IOException {
 		/* write prefix */
-		out.write(PREFIX);
+		out.write(BList.PREFIX);
 
 		/* write each element in the list */
 		for (final BNode<?> data : value) {
@@ -195,6 +192,6 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 		}
 
 		/* write the suffix */
-		out.write(SUFFIX);
+		out.write(BList.SUFFIX);
 	}
 }

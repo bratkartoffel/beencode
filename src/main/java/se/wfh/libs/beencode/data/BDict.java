@@ -6,13 +6,11 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
-import se.wfh.libs.beencode.util.LanguageFields;
 import se.wfh.libs.beencode.util.NodeFactory;
 import se.wfh.libs.beencode.util.Tools;
-import se.wfh.libs.common.utils.R;
 
 /**
  * Class to represent a dictionary (key / value pairs) for beencoded data.<br>
@@ -29,7 +27,7 @@ import se.wfh.libs.common.utils.R;
  * d4:spaml1:a1:bee corresponds to {'spam': ['a', 'b']}. Keys must be strings
  * and appear in sorted order (sorted as raw strings, not alphanumerics).
  * </code>
- * 
+ *
  * @since 0.1
  */
 public final class BDict extends BNode<Map<BString, BNode<?>>> implements
@@ -51,18 +49,17 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 	/**
 	 * Create a new dictionary according to the data in the given stream.
-	 * 
+	 *
 	 * @param inp
-	 *            The stream to read from
+	 *          The stream to read from
 	 * @param prefix
-	 *            The first read byte from the stream, has to be the
-	 *            {@link #PREFIX}
-	 * 
+	 *          The first read byte from the stream, has to be the {@link #PREFIX}
+	 *
 	 * @throws IOException
-	 *             If something goes wrong while reading from the Stream.
+	 *           If something goes wrong while reading from the Stream.
 	 * @throws IllegalArgumentException
-	 *             If the given prefix is not the {@link #PREFIX}
-	 * 
+	 *           If the given prefix is not the {@link #PREFIX}
+	 *
 	 * @see BNode#BNode(InputStream, byte)
 	 */
 	public BDict(final InputStream inp, final byte prefix) throws IOException,
@@ -72,9 +69,9 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 	/**
 	 * Create a new dictionary with the given elements.
-	 * 
+	 *
 	 * @param value
-	 *            The nodes for this dictionary
+	 *          The nodes for this dictionary
 	 * @see BNode#BNode(Object)
 	 */
 	public BDict(final Map<BString, BNode<?>> value) {
@@ -82,7 +79,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	}
 
 	@Override
-	public Object clone() {
+	public BDict clone() {
 		/* create a new map */
 		final Map<BString, BNode<?>> neu = new HashMap<>();
 
@@ -90,10 +87,10 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 			/* clone all elements */
 			value.keySet().forEach(key -> {
 				/* clone key */
-				BString keyClone = (BString) key.clone();
+				BString keyClone = key.clone();
 
 				/* clone value */
-				BNode<?> valClone = (BNode<?>) value.get(key).clone();
+				BNode<?> valClone = value.get(key).clone();
 
 				/* put cloned values into map */
 				neu.put(keyClone, valClone);
@@ -109,7 +106,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 		boolean result = false;
 
 		if (otherObj instanceof BDict) {
-			result = internalEquals((BDict) otherObj);
+			result = Objects.equals(((BDict) otherObj).value, value);
 		}
 
 		return result;
@@ -117,9 +114,9 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 	/**
 	 * Wrapper for the {@link #get(byte[])}
-	 * 
+	 *
 	 * @param key
-	 *            The key to fetch
+	 *          The key to fetch
 	 * @return The node for the specified key or <code>null</code> if key was
 	 *         not found.
 	 */
@@ -129,33 +126,23 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 	/**
 	 * Retrieve a named attribute from this dictionary.
-	 * 
+	 *
 	 * @param key
-	 *            The key to fetch
+	 *          The key to fetch
 	 * @return The node for the specified key or <code>null</code> if key was
 	 *         not found.
 	 */
 	public BNode<?> get(final byte[] key) {
-		final Iterator<BString> iter = value.keySet().iterator();
-		BNode<?> result = null;
-
-		while (iter.hasNext()) {
-			final BString node = iter.next();
-
-			if (Arrays.equals(node.getValue(), key)) {
-				result = value.get(node);
-				break;
-			}
-		}
-
-		return result;
+		return value.entrySet().stream().map(Map.Entry::getKey)
+				.filter(elem -> Arrays.equals(elem.getValue(), key)).findAny()
+				.orElse(null);
 	}
 
 	/**
 	 * Wrapper for the {@link #get(byte[])}
-	 * 
+	 *
 	 * @param key
-	 *            The key to fetch
+	 *          The key to fetch
 	 * @return The node for the specified key or <code>null</code> if key was
 	 *         not found.
 	 */
@@ -207,34 +194,14 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 		return value.hashCode();
 	}
 
-	private boolean internalEquals(final BDict other) {
-		boolean result = value.size() == other.value.size();
-
-		if (result) {
-			for (BString key : value.keySet()) {
-				if (!other.value.containsKey(key)) {
-					result = false;
-					break;
-				}
-
-				if (!value.get(key).equals(other.get(key))) {
-					result = false;
-					break;
-				}
-			}
-		}
-
-		return result;
-	}
-
 	/**
 	 * @param key
-	 *            The key to set
+	 *          The key to set
 	 * @param value
-	 *            The value to set
+	 *          The value to set
 	 * @return The previous value at the specified key or <code>null</code> if
 	 *         none was present.
-	 * 
+	 *
 	 * @see Map#put(Object, Object)
 	 */
 	public BNode<?> put(final BString key, final BNode<?> value) {
@@ -242,13 +209,13 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	}
 
 	@Override
-	protected Map<BString, BNode<?>> read(final InputStream inp,
-			final byte prefix) throws IOException {
+	protected Map<BString, BNode<?>> read(final InputStream inp, final byte prefix)
+			throws IOException {
 		/* abort when wrong prefix is given */
-		if (prefix != PREFIX) {
-			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX,
-					BDict.class.getSimpleName(), prefix, PREFIX));
+		if (prefix != BDict.PREFIX) {
+			throw new IllegalArgumentException("Invalid prefix for an "
+					+ this.getClass().getSimpleName() + ". Is '" + prefix
+					+ "', expected: '" + PREFIX + "'");
 		}
 
 		/* prepare buffer for reading */
@@ -266,7 +233,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 		/* as long as we have more data to read and the dict was not finished */
 		while (inp.read(buf) == 1 && !success) {
 			/* if the read byte is the suffix, then we are finished */
-			if (buf[0] == SUFFIX) {
+			if (buf[0] == BDict.SUFFIX) {
 				success = true;
 				break;
 			}
@@ -274,7 +241,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 			/* read the key */
 			key = new BString(inp, buf[0]);
 			if (inp.read(buf) <= 0) {
-				throw new IOException(R.t(LanguageFields.ERROR_UNEXPECTED_END));
+				throw new IOException("Unexpected end of data.");
 			}
 
 			/* parse the value and put the element into the dictionary */
@@ -283,7 +250,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 		/* if end of stream was reached without completing the dict, abort */
 		if (!success) {
-			throw new IOException(R.t(LanguageFields.ERROR_UNEXPECTED_END));
+			throw new IOException("Unexpected end of data.");
 		}
 
 		/* return the parsed data */
@@ -298,7 +265,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	@Override
 	public void write(final OutputStream out) throws IOException {
 		/* write prefix */
-		out.write(PREFIX);
+		out.write(BDict.PREFIX);
 
 		/* write each element in the dict */
 		for (final BString key : value.keySet()) {
@@ -310,6 +277,6 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 		}
 
 		/* write the suffix */
-		out.write(SUFFIX);
+		out.write(BDict.SUFFIX);
 	}
 }

@@ -50,45 +50,11 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<id>build-config-files</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<target>
-								<property name="compile_classpath" refid="maven.compile.classpath" />
-
-								<java classname="se.wfh.tools.propertygenerator.Application"
-									fork="true" failonerror="true"
-									classpath="target/property-generator.jar;${compile_classpath}">
-									<arg value="config" />
-									<arg value="langs/german.properties" />
-									<arg
-										value="src/main/java/se/wfh/libs/beencode/util/LanguageFields.java" />
-									<arg value="se.wfh.libs.beencode.util" />
-									<arg value="public" />
-								</java>
-							</target>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -100,19 +66,13 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.7</version>
+			<version>1.7.10</version>
 		</dependency>
 
 		<dependency>
 			<groupId>se.wfh.libs.common</groupId>
 			<artifactId>utils</artifactId>
-			<version>0.13</version>
-		</dependency>
-		<dependency>
-			<groupId>se.wfh.tools</groupId>
-			<artifactId>propertygenerator</artifactId>
-			<version>0.6</version>
-			<scope>provided</scope>
+			<version>0.17</version>
 		</dependency>
 	</dependencies>
 

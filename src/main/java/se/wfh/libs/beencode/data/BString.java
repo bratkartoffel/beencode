@@ -6,9 +6,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import se.wfh.libs.beencode.util.LanguageFields;
 import se.wfh.libs.beencode.util.Tools;
-import se.wfh.libs.common.utils.R;
 
 /**
  * Class to represent an string for beencoded data.<br>
@@ -18,7 +16,7 @@ import se.wfh.libs.common.utils.R;
  * Strings are length-prefixed base ten followed by a colon and the string.
  * For example 4:spam corresponds to 'spam'.
  * </code>
- * 
+ *
  * @since 0.1
  */
 public final class BString extends BNode<byte[]> implements Serializable,
@@ -30,9 +28,9 @@ public final class BString extends BNode<byte[]> implements Serializable,
 
 	/**
 	 * Create a new beencoded string.
-	 * 
+	 *
 	 * @param value
-	 *            The value
+	 *          The value
 	 */
 	public BString(final byte[] value) {
 		super(value);
@@ -40,16 +38,16 @@ public final class BString extends BNode<byte[]> implements Serializable,
 
 	/**
 	 * Create a new string according to the data in the given stream.
-	 * 
+	 *
 	 * @param inp
-	 *            The stream to read from
+	 *          The stream to read from
 	 * @param prefix
-	 *            The first read byte from the stream
-	 * 
+	 *          The first read byte from the stream
+	 *
 	 * @throws IOException
-	 *             If something goes wrong while reading from the Stream.
+	 *           If something goes wrong while reading from the Stream.
 	 * @throws IllegalArgumentException
-	 *             If the given prefix is invalid.
+	 *           If the given prefix is invalid.
 	 */
 	public BString(final InputStream inp, final byte prefix) throws IOException {
 		super(inp, prefix);
@@ -57,16 +55,16 @@ public final class BString extends BNode<byte[]> implements Serializable,
 
 	/**
 	 * Create a new beencoded string.
-	 * 
+	 *
 	 * @param value
-	 *            The value
+	 *          The value
 	 */
 	public BString(final String value) {
 		super(value.getBytes(Tools.UTF8));
 	}
 
 	@Override
-	public Object clone() {
+	public BString clone() {
 		/* create a new BString */
 		return new BString(value);
 	}
@@ -121,8 +119,8 @@ public final class BString extends BNode<byte[]> implements Serializable,
 		 * abort
 		 */
 		if (result > Integer.MAX_VALUE || result == 0) {
-			throw new IOException(R.t(LanguageFields.ERROR_STRING_LENGTH,
-					result, Integer.MAX_VALUE));
+			throw new IOException("Invalid string length: " + result + " > "
+					+ Integer.MAX_VALUE + ".");
 		}
 
 		/* initialize buffer for string */
@@ -143,7 +141,7 @@ public final class BString extends BNode<byte[]> implements Serializable,
 
 		/* if not enough data was read, abort */
 		if (temp == -1) {
-			throw new IOException(R.t(LanguageFields.ERROR_UNEXPECTED_END));
+			throw new IOException("Unexpected end of data.");
 		}
 
 		/* return the string */
@@ -167,7 +165,7 @@ public final class BString extends BNode<byte[]> implements Serializable,
 		/* first interprete the prefix, then read the next byte */
 		do {
 			/* interprete the read byte */
-			if (buf == SEPERATOR) {
+			if (buf == BString.SEPERATOR) {
 				/* the number is finished. if nothing was else was read, abort */
 				finished = started;
 				break;
@@ -186,9 +184,8 @@ public final class BString extends BNode<byte[]> implements Serializable,
 
 		/* if end of stream was reached without completing the integer, abort */
 		if (!finished) {
-			throw new IOException(R.t(
-					LanguageFields.ERROR_INTEGER_INVALID_DATA, buf,
-					inp.available() == 0));
+			throw new IOException("Invalid data in stream. Read: '" + buf
+					+ "', EOF: '" + (inp.available() == 0) + "'.");
 		}
 
 		return number;
@@ -205,7 +202,7 @@ public final class BString extends BNode<byte[]> implements Serializable,
 		out.write(String.valueOf(value.length).getBytes(Tools.UTF8));
 
 		/* write the seperator */
-		out.write(SEPERATOR);
+		out.write(BString.SEPERATOR);
 
 		/* write the data */
 		out.write(value);

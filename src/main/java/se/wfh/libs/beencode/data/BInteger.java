@@ -6,9 +6,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 
-import se.wfh.libs.beencode.util.LanguageFields;
 import se.wfh.libs.beencode.util.Tools;
-import se.wfh.libs.common.utils.R;
 
 /**
  * Class to represent an integer for beencoded data.<br>
@@ -21,7 +19,7 @@ import se.wfh.libs.common.utils.R;
  * a leading zero, such as i03e, are invalid, other than i0e, which of course
  * corresponds to 0.
  * </code>
- * 
+ *
  * @since 0.1
  */
 public final class BInteger extends BNode<Long> implements Serializable,
@@ -36,29 +34,28 @@ public final class BInteger extends BNode<Long> implements Serializable,
 
 	/**
 	 * Create a new Integer from the given data
-	 * 
+	 *
 	 * @param inp
-	 *            The stream to parse
+	 *          The stream to parse
 	 * @param prefix
-	 *            The first byte of the stream
-	 * 
+	 *          The first byte of the stream
+	 *
 	 * @throws IOException
-	 *             If something goes wrong while reading from the Stream.
+	 *           If something goes wrong while reading from the Stream.
 	 * @throws IllegalArgumentException
-	 *             If the given prefix is not the {@link #PREFIX}
-	 * 
+	 *           If the given prefix is not the {@link #PREFIX}
+	 *
 	 * @see BNode#BNode(InputStream, byte)
 	 */
-	public BInteger(final InputStream inp, final byte prefix)
-			throws IOException {
+	public BInteger(final InputStream inp, final byte prefix) throws IOException {
 		super(inp, prefix);
 	}
 
 	/**
 	 * Create a new beencoded integer.
-	 * 
+	 *
 	 * @param value
-	 *            The value
+	 *          The value
 	 */
 	public BInteger(final long value) {
 		super(value);
@@ -68,12 +65,12 @@ public final class BInteger extends BNode<Long> implements Serializable,
 			final long number) throws IOException {
 		/* if end of stream was reached without completing the integer, abort */
 		if (!finished) {
-			throw new IOException(R.t(LanguageFields.ERROR_UNEXPECTED_END));
+			throw new IOException("Unexpected end of data.");
 		}
 
 		/* negative zero is not allowed per definition */
 		if (negative && number == 0) {
-			throw new IOException(R.t(LanguageFields.ERROR_NEGATIVE_ZERO));
+			throw new IOException("Invalid data in stream: -0 is not permitted.");
 		}
 
 		/* if the negative flag is set, turn the result */
@@ -85,7 +82,7 @@ public final class BInteger extends BNode<Long> implements Serializable,
 	}
 
 	@Override
-	public Object clone() {
+	public BInteger clone() {
 		/* create a new BInteger with the same value */
 		return new BInteger(value);
 	}
@@ -127,10 +124,10 @@ public final class BInteger extends BNode<Long> implements Serializable,
 	protected Long read(final InputStream inp, final byte prefix)
 			throws IOException {
 		/* abort when wrong prefix is given */
-		if (prefix != PREFIX) {
-			throw new IllegalArgumentException(R.t(
-					LanguageFields.ERROR_INVALID_PREFIX,
-					BInteger.class.getSimpleName(), prefix, PREFIX));
+		if (prefix != BInteger.PREFIX) {
+			throw new IllegalArgumentException("Invalid prefix for an "
+					+ this.getClass().getSimpleName() + ". Is '" + prefix
+					+ "', expected: '" + PREFIX + "'");
 		}
 
 		/* prepare buffer for reading */
@@ -166,8 +163,7 @@ public final class BInteger extends BNode<Long> implements Serializable,
 
 				/* check for preceeding 0s */
 				if (only_zero) {
-					throw new IOException(
-							R.t(LanguageFields.ERROR_LEADING_ZERO));
+					throw new IOException("Leading zeros are not permitted.");
 				}
 
 				/* append the read digit to the result */
@@ -182,9 +178,8 @@ public final class BInteger extends BNode<Long> implements Serializable,
 			}
 
 			/* invalid character read */
-			throw new IOException(R.t(
-					LanguageFields.ERROR_INTEGER_INVALID_DATA, buf,
-					inp.available() == 0));
+			throw new IOException("Invalid data in stream. Read: '" + buf
+					+ "', EOF: '" + (inp.available() == 0) + "'.");
 		}
 
 		/* return the parsed data */
@@ -199,12 +194,12 @@ public final class BInteger extends BNode<Long> implements Serializable,
 	@Override
 	public void write(final OutputStream out) throws IOException {
 		/* write the prefix */
-		out.write(PREFIX);
+		out.write(BInteger.PREFIX);
 
 		/* write the number */
 		out.write(String.valueOf(value).getBytes(Tools.UTF8));
 
 		/* write the suffix */
-		out.write(SUFFIX);
+		out.write(BInteger.SUFFIX);
 	}
 }
