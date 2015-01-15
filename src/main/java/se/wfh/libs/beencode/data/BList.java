@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import se.wfh.libs.beencode.util.NodeFactory;
 
@@ -68,17 +69,10 @@ public final class BList extends BNode<List<BNode<?>>> implements Serializable,
 	}
 
 	@Override
-	public BList clone() {
-		/* create a new list */
-		final List<BNode<?>> neu = new ArrayList<>();
-
-		synchronized (this) {
-			/* clone all elements */
-			value.stream().map(BNode::clone).forEach(neu::add);
-		}
-
-		/* create a new list with the cloned values */
-		return new BList(neu);
+	public synchronized BList clone() {
+		/* clone all elements */
+		return new BList(value.stream().map(BNode::clone)
+				.collect(Collectors.toList()));
 	}
 
 	@Override

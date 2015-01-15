@@ -125,7 +125,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	 *         not found.
 	 */
 	public BNode<?> get(final byte[] key) {
-		return value.entrySet().stream().map(Map.Entry::getKey)
+		return value.keySet().stream()
 				.filter(elem -> Arrays.equals(elem.getValue(), key)).findAny()
 				.orElse(null);
 	}
