@@ -11,7 +11,7 @@ Usage (from pom.xml):
 <dependency>
 	<groupId>se.wfh.libs</groupId>
 	<artifactId>beencode</artifactId>
-	<version>0.6</version>
+	<version>0.7</version>
 </dependency>
 ```
 		
