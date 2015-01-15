@@ -6,7 +6,7 @@
 	<groupId>se.wfh.libs</groupId>
 	<artifactId>beencode</artifactId>
 	<packaging>jar</packaging>
-	<version>0.7</version>
+	<version>0.8-SNAPSHOT</version>
 
 	<name>beencode</name>
 
