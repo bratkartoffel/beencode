@@ -172,4 +172,24 @@ public class BIntegerTest {
 
 		Assert.assertEquals("0", bi.toString());
 	}
+
+	@Test
+	public void testEquals() {
+		BInteger a = new BInteger(1);
+		BInteger b = new BInteger(1);
+		BInteger c = new BInteger(2);
+
+		Assert.assertEquals(a, b);
+		Assert.assertNotEquals(b, c);
+	}
+
+	@Test
+	public void testHashCode() {
+		BInteger a = new BInteger(1);
+		BInteger b = new BInteger(1);
+		BInteger c = new BInteger(2);
+
+		Assert.assertEquals(a.hashCode(), b.hashCode());
+		Assert.assertNotEquals(b.hashCode(), c.hashCode());
+	}
 }

@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
-import se.wfh.libs.beencode.util.Tools;
 
 /**
  * Class to represent an string for beencoded data.<br>
@@ -54,32 +54,36 @@ public final class BString extends BNode<byte[]> implements Serializable,
 	}
 
 	/**
-	 * Create a new beencoded string.
+	 * Create a new beencoded string.<br>
+	 * This method always used UTF-8 encoding, although the standard declares
+	 * that the string should not take care of any encoding. Now it relies on the
+	 * plattfrom specific default encoding. For correct decoding
+	 * please use another constructor, e.g. {@link #BString(byte[])}.
 	 *
 	 * @param value
 	 *          The value
 	 */
+	@Deprecated
 	public BString(final String value) {
-		super(value.getBytes(Tools.UTF8));
+		super(value.getBytes(Charset.defaultCharset()));
+	}
+
+	/**
+	 * Create a new beencoded string.<br>
+	 *
+	 * @param value
+	 *          The value
+	 * @param charset
+	 *          charset for the input data
+	 */
+	public BString(final String value, final Charset charset) {
+		super(value.getBytes(charset));
 	}
 
 	@Override
 	public BString clone() {
 		/* create a new BString */
 		return new BString(value);
-	}
-
-	@Override
-	public boolean equals(final Object obj) {
-		boolean result = false;
-
-		if (obj instanceof BString) {
-			/* compare the values */
-			result = Arrays.equals(value, ((BString) obj).getValue());
-		}
-
-		/* return result */
-		return result;
 	}
 
 	@Override
@@ -94,18 +98,13 @@ public final class BString extends BNode<byte[]> implements Serializable,
 		buf.append('"');
 
 		/* append string */
-		buf.append(new String(value, Tools.UTF8));
+		buf.append(new String(value, Charset.defaultCharset()));
 
 		/* append seperator */
 		buf.append('"');
 
 		/* return result */
 		return buf.toString();
-	}
-
-	@Override
-	public int hashCode() {
-		return Arrays.hashCode(value);
 	}
 
 	@Override
@@ -148,6 +147,13 @@ public final class BString extends BNode<byte[]> implements Serializable,
 		return str;
 	}
 
+	private void checkLeadingZero(final boolean started, final int digit)
+			throws IOException {
+		if (!started && digit == '0') {
+			throw new IOException("Leading zeros are not permitted.");
+		}
+	}
+
 	private long readLength(final InputStream inp, final byte prefix)
 			throws IOException {
 		/* prepare buffer for reading */
@@ -171,7 +177,7 @@ public final class BString extends BNode<byte[]> implements Serializable,
 				break;
 			} else if (Character.isDigit(buf)) {
 				/* check for preceeding 0s */
-				Tools.checkLeadingZero(started, buf);
+				checkLeadingZero(started, buf);
 
 				/* append the read digit to the result */
 				number = number * 10 + buf - 0x30;
@@ -199,12 +205,26 @@ public final class BString extends BNode<byte[]> implements Serializable,
 	@Override
 	public void write(final OutputStream out) throws IOException {
 		/* write the length of the data */
-		out.write(String.valueOf(value.length).getBytes(Tools.UTF8));
+		out.write(String.valueOf(value.length).getBytes(StandardCharsets.US_ASCII));
 
 		/* write the seperator */
 		out.write(BString.SEPERATOR);
 
 		/* write the data */
 		out.write(value);
+	}
+
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(value);
+	}
+
+	@Deprecated
+	public String asString() {
+		return asString(Charset.defaultCharset());
+	}
+
+	public String asString(Charset charset) {
+		return new String(value, charset);
 	}
 }

@@ -12,6 +12,7 @@ import se.wfh.libs.beencode.data.BInteger;
 import se.wfh.libs.beencode.data.BString;
 import se.wfh.libs.common.utils.Config;
 
+@SuppressWarnings("deprecation")
 public class BDictTest {
 	public BDictTest() throws IOException {
 		Config.load("src/test/resources/junit.conf");
@@ -117,5 +118,47 @@ public class BDictTest {
 		BDict bi = new BDict();
 
 		Assert.assertEquals("{\n}", bi.toString());
+	}
+
+	@Test
+	public void testEquals() {
+		BString a = new BString("foo");
+		BString b = new BString("foo");
+		BString c = new BString("bar");
+
+		BDict d1 = new BDict();
+		d1.put(a, b);
+		d1.put(b, c);
+
+		BDict d2 = new BDict();
+		d2.put(a, b);
+		d2.put(b, c);
+
+		BDict d3 = new BDict();
+		d3.put(a, b);
+
+		Assert.assertEquals(d1, d2);
+		Assert.assertNotEquals(d2, d3);
+	}
+
+	@Test
+	public void testHashCode() {
+		BString a = new BString("foo");
+		BString b = new BString("foo");
+		BString c = new BString("bar");
+
+		BDict d1 = new BDict();
+		d1.put(a, b);
+		d1.put(b, c);
+
+		BDict d2 = new BDict();
+		d2.put(a, b);
+		d2.put(b, c);
+
+		BDict d3 = new BDict();
+		d3.put(a, b);
+
+		Assert.assertEquals(d1.hashCode(), d2.hashCode());
+		Assert.assertNotEquals(d2.hashCode(), d3.hashCode());
 	}
 }

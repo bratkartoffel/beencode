@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.Objects;
-
-import se.wfh.libs.beencode.util.Tools;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Class to represent an integer for beencoded data.<br>
@@ -88,19 +86,6 @@ public final class BInteger extends BNode<Long> implements Serializable,
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
-		boolean result = false;
-
-		if (obj instanceof BInteger) {
-			/* compare the value */
-			result = Objects.equals(((BInteger) obj).getValue(), value);
-		}
-
-		/* return result */
-		return result;
-	}
-
-	@Override
 	protected String getReadableString(final int level) {
 		/* initialize buffer */
 		final StringBuilder buf = new StringBuilder();
@@ -113,11 +98,6 @@ public final class BInteger extends BNode<Long> implements Serializable,
 
 		/* return result */
 		return buf.toString();
-	}
-
-	@Override
-	public int hashCode() {
-		return value.intValue();
 	}
 
 	@Override
@@ -197,7 +177,7 @@ public final class BInteger extends BNode<Long> implements Serializable,
 		out.write(BInteger.PREFIX);
 
 		/* write the number */
-		out.write(String.valueOf(value).getBytes(Tools.UTF8));
+		out.write(String.valueOf(value).getBytes(StandardCharsets.US_ASCII));
 
 		/* write the suffix */
 		out.write(BInteger.SUFFIX);

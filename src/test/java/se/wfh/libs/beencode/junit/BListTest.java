@@ -12,6 +12,7 @@ import se.wfh.libs.beencode.data.BList;
 import se.wfh.libs.beencode.data.BString;
 import se.wfh.libs.common.utils.Config;
 
+@SuppressWarnings("deprecation")
 public class BListTest {
 	public BListTest() throws IOException {
 		Config.load("src/test/resources/junit.conf");
@@ -22,15 +23,15 @@ public class BListTest {
 		BList list1 = new BList();
 		BList list2 = new BList();
 
-		list1.getList().add(new BInteger(13));
-		list2.getList().add(new BInteger(13));
+		list1.add(new BInteger(13));
+		list2.add(new BInteger(13));
 
 		Assert.assertEquals(list1, list2);
 
-		list1.getList().add(new BString("asd"));
+		list1.add(new BString("asd"));
 		Assert.assertNotEquals(list1, list2);
 
-		list2.getList().add(new BString("asd"));
+		list2.add(new BString("asd"));
 		Assert.assertEquals(list1, list2);
 	}
 
@@ -62,9 +63,9 @@ public class BListTest {
 			fstream.skip(1);
 			BList bi = new BList(fstream, (byte) 'l');
 
-			Assert.assertEquals(Long.valueOf(13), bi.getList().get(0).getValue());
-			Assert.assertArrayEquals("test".getBytes(), (byte[]) bi.getList().get(1)
-					.getValue());
+			Assert.assertEquals(Long.valueOf(13), bi.get(0).getValue());
+			Assert
+					.assertArrayEquals("test".getBytes(), (byte[]) bi.get(1).getValue());
 		}
 	}
 
@@ -75,9 +76,9 @@ public class BListTest {
 			fstream.skip(1);
 			BList bi = new BList(fstream, (byte) 'l');
 
-			Assert.assertEquals(Long.valueOf(13), bi.getList().get(0).getValue());
-			Assert.assertArrayEquals("test".getBytes(), (byte[]) bi.getList().get(1)
-					.getValue());
+			Assert.assertEquals(Long.valueOf(13), bi.get(0).getValue());
+			Assert
+					.assertArrayEquals("test".getBytes(), (byte[]) bi.get(1).getValue());
 		}
 	}
 
@@ -85,8 +86,8 @@ public class BListTest {
 	public void testNewByString() {
 		BList bi = new BList();
 
-		bi.getList().add(new BInteger(13));
-		bi.getList().add(new BString("test"));
+		bi.add(new BInteger(13));
+		bi.add(new BString("test"));
 
 		Assert.assertEquals("[\n  13\n  \"test\"\n]", bi.toString());
 	}
@@ -96,5 +97,49 @@ public class BListTest {
 		BList bi = new BList();
 
 		Assert.assertEquals("[\n]", bi.toString());
+	}
+
+	@Test
+	public void testEquals() {
+		BString a = new BString("foo");
+		BString b = new BString("foo");
+		BString c = new BString("bar");
+
+		BList l1 = new BList();
+		l1.add(a);
+		l1.add(b);
+
+		BList l2 = new BList();
+		l2.add(a);
+		l2.add(b);
+
+		BList l3 = new BList();
+		l3.add(a);
+		l3.add(c);
+
+		Assert.assertEquals(l1, l2);
+		Assert.assertNotEquals(l2, l3);
+	}
+
+	@Test
+	public void testHashCode() {
+		BString a = new BString("foo");
+		BString b = new BString("foo");
+		BString c = new BString("bar");
+
+		BList l1 = new BList();
+		l1.add(a);
+		l1.add(b);
+
+		BList l2 = new BList();
+		l2.add(a);
+		l2.add(b);
+
+		BList l3 = new BList();
+		l3.add(a);
+		l3.add(c);
+
+		Assert.assertEquals(l1.hashCode(), l2.hashCode());
+		Assert.assertNotEquals(l2.hashCode(), l3.hashCode());
 	}
 }

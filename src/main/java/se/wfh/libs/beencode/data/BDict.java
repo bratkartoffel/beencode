@@ -4,13 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
-
-import se.wfh.libs.beencode.util.NodeFactory;
-import se.wfh.libs.beencode.util.Tools;
+import java.util.Set;
 
 /**
  * Class to represent a dictionary (key / value pairs) for beencoded data.<br>
@@ -31,7 +28,7 @@ import se.wfh.libs.beencode.util.Tools;
  * @since 0.1
  */
 public final class BDict extends BNode<Map<BString, BNode<?>>> implements
-		Serializable, Cloneable {
+		Serializable, Cloneable, Map<BString, BNode<?>> {
 	private static final long serialVersionUID = 1L;
 
 	/** Prefix declaring the start of a dictionary */
@@ -93,31 +90,8 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 		return new BDict(neu);
 	}
 
-	@Override
-	public boolean equals(final Object otherObj) {
-		boolean result = false;
-
-		if (otherObj instanceof BDict) {
-			result = Objects.equals(((BDict) otherObj).value, value);
-		}
-
-		return result;
-	}
-
 	/**
-	 * Wrapper for the {@link #get(byte[])}
-	 *
-	 * @param key
-	 *          The key to fetch
-	 * @return The node for the specified key or <code>null</code> if key was
-	 *         not found.
-	 */
-	public BNode<?> get(final BString key) {
-		return get(key.getValue());
-	}
-
-	/**
-	 * Retrieve a named attribute from this dictionary.
+	 * @see #get(Object)
 	 *
 	 * @param key
 	 *          The key to fetch
@@ -125,21 +99,20 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	 *         not found.
 	 */
 	public BNode<?> get(final byte[] key) {
-		return value.keySet().stream()
-				.filter(elem -> Arrays.equals(elem.getValue(), key)).findAny()
-				.orElse(null);
+		return get(new BString(key));
 	}
 
 	/**
-	 * Wrapper for the {@link #get(byte[])}
-	 *
+	 * @see #get(Object)
+	 * 
 	 * @param key
 	 *          The key to fetch
 	 * @return The node for the specified key or <code>null</code> if key was
 	 *         not found.
 	 */
+	@Deprecated
 	public BNode<?> get(final String key) {
-		return get(key.getBytes(Tools.UTF8));
+		return get(new BString(key));
 	}
 
 	@Override
@@ -179,11 +152,6 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 		/* return result */
 		return buf.toString();
-	}
-
-	@Override
-	public int hashCode() {
-		return value.hashCode();
 	}
 
 	/**
@@ -237,7 +205,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 			}
 
 			/* parse the value and put the element into the dictionary */
-			result.put(key, NodeFactory.parseByPrefix(buf[0], inp));
+			result.put(key, BNode.of(inp, buf[0]));
 		}
 
 		/* if end of stream was reached without completing the dict, abort */
@@ -270,5 +238,82 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 		/* write the suffix */
 		out.write(BDict.SUFFIX);
+	}
+
+	/*
+	 * ===============================================================
+	 * Implements java.util.Map
+	 * ===============================================================
+	 */
+
+	@Override
+	public int size() {
+		return value.size();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return value.isEmpty();
+	}
+
+	@Override
+	public boolean containsKey(Object key) {
+		if (key == null || !BString.class.isAssignableFrom(key.getClass())) {
+			return false;
+		}
+
+		return value.containsKey(key);
+	}
+
+	@Override
+	public boolean containsValue(Object value) {
+		if (value == null || !BNode.class.isAssignableFrom(value.getClass())) {
+			return false;
+		}
+
+		return this.value.containsValue(value);
+	}
+
+	@Override
+	public BNode<?> get(Object key) {
+		if (key == null || !BString.class.isAssignableFrom(key.getClass())) {
+			return null;
+		}
+
+		return value.get(key);
+	}
+
+	@Override
+	public BNode<?> remove(Object key) {
+		if (key == null || !BString.class.isAssignableFrom(key.getClass())) {
+			return null;
+		}
+
+		return value.remove(key);
+	}
+
+	@Override
+	public void putAll(Map<? extends BString, ? extends BNode<?>> m) {
+		value.putAll(m);
+	}
+
+	@Override
+	public void clear() {
+		value.clear();
+	}
+
+	@Override
+	public Set<BString> keySet() {
+		return value.keySet();
+	}
+
+	@Override
+	public Collection<BNode<?>> values() {
+		return value.values();
+	}
+
+	@Override
+	public Set<Entry<BString, BNode<?>>> entrySet() {
+		return value.entrySet();
 	}
 }
