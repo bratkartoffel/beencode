@@ -34,19 +34,17 @@ To write a beencoded file:
 ```java
 List<BNode> list = new ArrayList<>();
 
-list.add(new BInteger(42));
-list.add(new BString("bar"));
+list.add(BInteger.of(42));
+list.add(BString.of("bar"));
 
-BDict bd = new BDict();
-BList bl = new BList(list);
+BDict bd = BDict.empty();
+BList bl = BList.of(list);
 
-bd.put(new BString("foo"), new BInteger(13));
-bd.put(new BString("mylist"), bl);
+bd.put(BString.of("foo"), BInteger.of(13));
+bd.put(BString.of("mylist"), bl);
 
 try (FileOutputStream fos = new FileOutputStream(new File("test.dat"))) {
-	bd.write(fos);
-	// or
-	fos.write(bd.getEncoded());
+	NodeFactory.encode(bd, fos);
 }
 ```
 
@@ -54,22 +52,23 @@ Valid data types and usage:
 -------------
 ```java
 // Strings:
-BString mystring = new BString("this is an example");
+BString mystring = BString.of("this is an example");
+BString mystring2 = BString.of("Lörem", StandardCharsets.UTF_8);
 
 // Integer:
-BInteger myint = new BInteger(1337);
+BInteger myint = BInteger.of(42);
 
 // Lists:
-BList mylist = new BList();
-BList mylist2 = new BList(new ArrayList<BNode<?>>());
+BList mylist = BList.empty();
+BList mylist2 = BList.of(BInteger.of(2), BString.of("foobar"));
 
 // manipulate list:
 mylist.add(mystring);
 mylist2.remove(myint);
 
 // Dictionaries: (comparable to java Map):
-BDict mydict = new BDict();
-BDict mydict2 = new BDict(new HashMap<BString, BNode<?>>);
+BDict mydict = BDict.empty();
+BDict mydict2 = BDict.of(new HashMap<BString, BNode<?>>);
 
 // manipulate dict:
 mydict.put(mystring, myint);
@@ -79,15 +78,15 @@ mydict.get(mylist);
 To handle encoding properly:
 -------------
 ```java
-BString output = new BString("我", StandardCharsets.UTF_16);
+BString output = BString.of("我", StandardCharsets.UTF_16);
 
 try (FileOutputStream fos = new FileOutputStream(new File("test.dat"))) {
-	fos.write(output.getEncoded());
+	NodeFactory.encode(output, fos);
 }
 
 BString input = null;
 try (FileInputStream fis = new FileInputStream(new File("test.dat"))) {
-	input = BNode.of(fis, BString.class);
+	input = NodeFactory.decode(fis, BString.class);
 }
 
 System.out.println("Written: " + output);

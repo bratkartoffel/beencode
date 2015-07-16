@@ -1,183 +1,39 @@
 package se.wfh.libs.beencode.junit;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import se.wfh.libs.beencode.data.BInteger;
+import se.wfh.libs.beencode.BInteger;
+import se.wfh.libs.beencode.BencodeException;
+import se.wfh.libs.beencode.NodeFactory;
 import se.wfh.libs.common.utils.Config;
 
 public class BIntegerTest {
+	private static final int FUZZING_RUNS = 1000;
+
 	public BIntegerTest() throws IOException {
 		Config.load("src/test/resources/junit.conf");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testInvalidPrefix() throws IllegalArgumentException, IOException {
-		new BInteger(null, (byte) 's');
-	}
-
-	@Test(expected = NullPointerException.class)
-	public void testInvalidStream() throws IOException {
-		new BInteger(null, (byte) 'i');
-	}
-
-	@Test(expected = IOException.class)
-	public void testInvalidStreamData() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_invalid_data.dat"))) {
-			new BInteger(fstream, (byte) fstream.read());
-
-			Assert.fail("This method should not complete!");
-		}
-	}
-
-	@Test(expected = IOException.class)
-	public void testInvalidStreamEmpty() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_invalid_empty.dat"))) {
-			new BInteger(fstream, (byte) 'i');
-
-			Assert.fail("This method should not complete!");
-		}
-	}
-
-	@Test(expected = IOException.class)
-	public void testInvalidStreamOnlySuffix() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_invalid_nodata.dat"))) {
-			new BInteger(fstream, (byte) fstream.read());
-
-			Assert.fail("This method should not complete!");
-		}
-	}
-
 	@Test
-	public void testNewByLong() {
-		BInteger bi = new BInteger(1337);
+	public void testClone() {
+		BInteger a = BInteger.of(42);
+		BInteger b = NodeFactory.clone(a);
 
-		Assert.assertEquals("1337", bi.toString());
-	}
-
-	@Test
-	public void testNewByNegativeLong() {
-		BInteger bi = new BInteger(-1337);
-
-		Assert.assertEquals("-1337", bi.toString());
-	}
-
-	@Test
-	public void testNewByStream() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_simple.dat"))) {
-			BInteger bi = new BInteger(fstream, (byte) fstream.read());
-
-			Assert.assertEquals(Long.valueOf(1337), bi.getValue());
-		}
-	}
-
-	@Test
-	public void testNewByStreamExtraData() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_extra_data.dat"))) {
-			BInteger bi = new BInteger(fstream, (byte) fstream.read());
-
-			Assert.assertEquals(Long.valueOf(1337), bi.getValue());
-		}
-	}
-
-	@Test(expected = IOException.class)
-	public void testNewByStreamLeadingZero() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_leading_zero.dat"))) {
-			new BInteger(fstream, (byte) fstream.read());
-
-			Assert.fail("This method should not complete!");
-		}
-	}
-
-	@Test
-	public void testNewByStreamNegativeOne() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_neg_1.dat"))) {
-			BInteger bi = new BInteger(fstream, (byte) fstream.read());
-
-			Assert.assertEquals(Long.valueOf(-1), bi.getValue());
-		}
-	}
-
-	@Test(expected = IOException.class)
-	public void testNewByStreamNegativeZero() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_neg_0.dat"))) {
-			new BInteger(fstream, (byte) fstream.read());
-
-			Assert.fail("This method should not complete!");
-		}
-	}
-
-	@Test
-	public void testNewByStreamZero() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_0.dat"))) {
-			BInteger bi = new BInteger(fstream, (byte) fstream.read());
-
-			Assert.assertEquals(Long.valueOf(0), bi.getValue());
-		}
-	}
-
-	@Test
-	public void testNewMaxByStream() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_max.dat"))) {
-			BInteger bi = new BInteger(fstream, (byte) fstream.read());
-
-			Assert.assertEquals(Long.valueOf(Long.MAX_VALUE), bi.getValue());
-		}
-	}
-
-	@Test
-	public void testNewMinByStream() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_min.dat"))) {
-			BInteger bi = new BInteger(fstream, (byte) fstream.read());
-
-			Assert.assertEquals(Long.valueOf(Long.MIN_VALUE), bi.getValue());
-		}
-	}
-
-	@Test
-	public void testNewNegativeByStream() throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + "bint_simple_neg.dat"))) {
-			BInteger bi = new BInteger(fstream, (byte) fstream.read());
-
-			Assert.assertEquals(Long.valueOf(-1337), bi.getValue());
-		}
-	}
-
-	@Test
-	public void testNewNegativeOne() {
-		BInteger bi = new BInteger(-1);
-
-		Assert.assertEquals("-1", bi.toString());
-	}
-
-	@Test
-	public void testNewZero() {
-		BInteger bi = new BInteger(0);
-
-		Assert.assertEquals("0", bi.toString());
+		Assert.assertEquals(a, b);
+		Assert.assertNotSame(a, b);
 	}
 
 	@Test
 	public void testEquals() {
-		BInteger a = new BInteger(1);
-		BInteger b = new BInteger(1);
-		BInteger c = new BInteger(2);
+		BInteger a = BInteger.of(1);
+		BInteger b = BInteger.of(1);
+		BInteger c = BInteger.of(2);
 
 		Assert.assertEquals(a, b);
 		Assert.assertNotEquals(b, c);
@@ -185,11 +41,198 @@ public class BIntegerTest {
 
 	@Test
 	public void testHashCode() {
-		BInteger a = new BInteger(1);
-		BInteger b = new BInteger(1);
-		BInteger c = new BInteger(2);
+		BInteger a = BInteger.of(1);
+		BInteger b = BInteger.of(1);
+		BInteger c = BInteger.of(2);
 
 		Assert.assertEquals(a.hashCode(), b.hashCode());
 		Assert.assertNotEquals(b.hashCode(), c.hashCode());
+	}
+
+	@Test
+	public void testPositiveLong() {
+		BInteger bi = BInteger.of(1337);
+
+		Assert.assertEquals(Long.valueOf(1337), bi.getValue());
+	}
+
+	@Test
+	public void testNegativeLong() {
+		BInteger bi = BInteger.of(-1337);
+
+		Assert.assertEquals(Long.valueOf(-1337), bi.getValue());
+	}
+
+	@Test
+	public void testZero() {
+		BInteger bi = BInteger.of(0);
+
+		Assert.assertEquals(Long.valueOf(0), bi.getValue());
+	}
+
+	@Test
+	public void testStream() throws IOException {
+		TestcaseHelper.testStreamSuccess("bint_simple", Long.valueOf(1337));
+	}
+
+	@Test
+	public void testStreamExtraData() throws IOException {
+		TestcaseHelper.testStreamSuccess("bint_extra_data", Long.valueOf(1337));
+	}
+
+	@Test
+	public void testStreamZero() throws IOException {
+		TestcaseHelper.testStreamSuccess("bint_0", Long.valueOf(0));
+	}
+
+	@Test
+	public void testStreamNegativeOne() throws IOException {
+		TestcaseHelper.testStreamSuccess("bint_neg_1", Long.valueOf(-1));
+	}
+
+	@Test
+	public void testStreamNegative() throws IOException {
+		TestcaseHelper.testStreamSuccess("bint_simple_neg", Long.valueOf(-1337));
+	}
+
+	@Test
+	public void testStreamMax() throws IOException {
+		TestcaseHelper.testStreamSuccess("bint_max", Long.valueOf(Long.MAX_VALUE));
+	}
+
+	@Test
+	public void testStreamMin() throws IOException {
+		TestcaseHelper.testStreamSuccess("bint_min", Long.valueOf(Long.MIN_VALUE));
+	}
+
+	@Test(expected = BencodeException.class)
+	public void testStreamInvalidData() throws IOException {
+		TestcaseHelper.testStreamFail("bint_invalid_data");
+	}
+
+	@Test(expected = BencodeException.class)
+	public void testStreamOnlyDash() throws IOException {
+		TestcaseHelper.testStreamFail("bint_only_dash");
+	}
+
+	@Test
+	public void testStream9() throws IOException {
+		TestcaseHelper.testStreamSuccess("bint_9", Long.valueOf(9));
+	}
+
+	@Test(expected = BencodeException.class)
+	public void testStreamInvalidEmpty() throws IOException {
+		TestcaseHelper.testStreamFail("bint_invalid_empty");
+	}
+
+	@Test(expected = BencodeException.class)
+	public void testStreamInvalidNoData() throws IOException {
+		TestcaseHelper.testStreamFail("bint_invalid_nodata");
+	}
+
+	@Test(expected = BencodeException.class)
+	public void testStreamInvalidTwoDashes1() throws IOException {
+		TestcaseHelper.testStreamFail("bint_invalid_two_dashes_1");
+	}
+
+	@Test(expected = BencodeException.class)
+	public void testStreamInvalidTwoDashes2() throws IOException {
+		TestcaseHelper.testStreamFail("bint_invalid_two_dashes_2");
+	}
+
+	@Test(expected = BencodeException.class)
+	public void testStreamInvalidLeadingZero() throws IOException {
+		TestcaseHelper.testStreamFail("bint_leading_zero");
+	}
+
+	@Test(expected = BencodeException.class)
+	public void testStreamInvalidLeadingZeroNeg() throws IOException {
+		TestcaseHelper.testStreamFail("bint_leading_zero_neg");
+	}
+
+	@Test(expected = BencodeException.class)
+	public void testStreamInvalidNegativeZero() throws IOException {
+		TestcaseHelper.testStreamFail("bint_neg_0");
+	}
+
+	@Test(expected = BencodeException.class)
+	public void testStreamTooLong() throws IOException {
+		TestcaseHelper.testStreamFail("bint_too_long");
+	}
+
+	@Test
+	public void testEncode() throws BencodeException {
+		String result = new String(NodeFactory.encode(BInteger.of(42)));
+
+		Assert.assertEquals("i42e", result);
+	}
+
+	@Test
+	public void testNegativeOne() {
+		BInteger bi = BInteger.of(-1);
+
+		Assert.assertEquals(Long.valueOf(-1), bi.getValue());
+	}
+
+	@Test
+	public void testNegative42() throws IOException {
+		TestcaseHelper.testStreamSuccess("bint_neg_42", Long.valueOf(-42));
+	}
+
+	@Test
+	public void testToString() {
+		BInteger bi = BInteger.of(-1);
+		Assert.assertEquals("-1", bi.toString());
+	}
+
+	@Test
+	public void testFuzzingCreate() throws IOException {
+		for (int i = 0; i < FUZZING_RUNS; i++) {
+			Long value = ThreadLocalRandom.current().nextLong();
+			BInteger node = BInteger.of(value);
+
+			Assert.assertEquals(value, node.getValue());
+		}
+	}
+
+	@Test
+	public void testFuzzingRead() throws IOException {
+		for (int i = 0; i < FUZZING_RUNS; i++) {
+			Long value = ThreadLocalRandom.current().nextLong();
+			String random = "i" + String.valueOf(value) + "e";
+
+			try (ByteArrayInputStream bis = new ByteArrayInputStream(
+					random.getBytes())) {
+				BInteger node = NodeFactory.decode(bis, BInteger.class);
+
+				Assert.assertEquals(value, node.getValue());
+			}
+		}
+	}
+
+	@Test
+	public void testFuzzingReadGarbage() throws IOException {
+		byte[] data = new byte[100];
+
+		for (int i = 0; i < FUZZING_RUNS; i++) {
+			ThreadLocalRandom.current().nextBytes(data);
+			try (ByteArrayInputStream bis = new ByteArrayInputStream(data)) {
+				try {
+					BInteger node = NodeFactory.decode(bis, BInteger.class);
+					System.out.println("Succeeded in creating a fuzzed node '" + node
+							+ "' with data: " + Arrays.toString(data));
+				} catch (IOException ioe) {
+					// expected
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testSetValue() {
+		BInteger a = BInteger.of(42);
+
+		a.setValue(13l);
+		Assert.assertEquals(Long.valueOf(13), a.getValue());
 	}
 }
