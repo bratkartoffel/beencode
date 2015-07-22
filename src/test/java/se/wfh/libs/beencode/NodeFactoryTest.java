@@ -1,4 +1,4 @@
-package se.wfh.libs.beencode.junit;
+package se.wfh.libs.beencode;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -9,12 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import se.wfh.libs.beencode.BInteger;
-import se.wfh.libs.beencode.BNode;
-import se.wfh.libs.beencode.BString;
-import se.wfh.libs.beencode.BencodeException;
-import se.wfh.libs.beencode.NodeFactory;
-import se.wfh.libs.beencode.junit.helpers.MyNode;
+import se.wfh.libs.beencode.helpers.MyNode;
 
 public class NodeFactoryTest {
 	@Test(expected = BencodeException.class)
@@ -84,5 +79,15 @@ public class NodeFactoryTest {
 
 			Assert.assertEquals(Long.valueOf(3), result.getValue());
 		}
+	}
+
+	@Test(expected = IOException.class)
+	public void testEncodeIOException() throws IOException {
+		BNode<?> str = Mockito.mock(BNode.class);
+		Mockito.doThrow(new IOException()).when(str).writeTo(Mockito.any());
+
+		byte[] data = NodeFactory.encode(str);
+
+		Assert.fail("Successfully encoded node to: " + new String(data));
 	}
 }

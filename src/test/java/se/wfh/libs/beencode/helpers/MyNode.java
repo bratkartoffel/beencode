@@ -1,4 +1,4 @@
-package se.wfh.libs.beencode.junit.helpers;
+package se.wfh.libs.beencode.helpers;
 
 import java.io.IOException;
 import java.io.InputStream;

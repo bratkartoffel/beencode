@@ -1,4 +1,4 @@
-package se.wfh.libs.beencode.junit;
+package se.wfh.libs.beencode;
 
 import java.io.File;
 import java.io.FileInputStream;
