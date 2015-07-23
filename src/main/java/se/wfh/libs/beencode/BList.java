@@ -9,8 +9,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public final class BList extends BNode<List<BNode<?>>> implements
 		List<BNode<?>> {
@@ -19,19 +17,19 @@ public final class BList extends BNode<List<BNode<?>>> implements
 	private static final byte SUFFIX = 'e';
 
 	public static BList of(BNode<?>... nodes) {
-		Objects.requireNonNull(nodes, "nodes may not be null");
+		Java6Helper.requireNonNull(nodes, "nodes may not be null");
 
-		return new BList(new ArrayList<>(Arrays.asList(nodes)));
+		return new BList(new ArrayList<BNode<?>>(Arrays.asList(nodes)));
 	}
 
 	public static BList of(List<BNode<?>> nodes) {
-		Objects.requireNonNull(nodes, "nodes may not be null");
+		Java6Helper.requireNonNull(nodes, "nodes may not be null");
 
 		return new BList(nodes);
 	}
 
 	public static BList empty() {
-		return new BList(new ArrayList<>());
+		return new BList(new ArrayList<BNode<?>>());
 	}
 
 	protected static boolean canParsePrefix(byte prefix) {
@@ -44,8 +42,11 @@ public final class BList extends BNode<List<BNode<?>>> implements
 
 	@Override
 	protected BList clone() {
-		List<BNode<?>> copy = value.stream().map(BNode::clone)
-				.collect(Collectors.toList());
+		List<BNode<?>> copy = new ArrayList<BNode<?>>();
+
+		for (BNode<?> entry : value) {
+			copy.add(entry.clone());
+		}
 
 		return BList.of(copy);
 	}

@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 		Map<BString, BNode<?>> {
@@ -20,7 +20,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 	}
 
 	public static BDict empty() {
-		return new BDict(new TreeMap<>());
+		return new BDict(new TreeMap<BString, BNode<?>>());
 	}
 
 	protected static boolean canParsePrefix(byte prefix) {
@@ -33,12 +33,11 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> implements
 
 	@Override
 	protected BDict clone() {
-		Map<BString, BNode<?>> copy = value
-				.entrySet()
-				.stream()
-				.collect(
-						Collectors
-								.toMap(e -> e.getKey().clone(), e -> e.getValue().clone()));
+		Map<BString, BNode<?>> copy = new HashMap<BString, BNode<?>>();
+
+		for (Map.Entry<BString, BNode<?>> entry : value.entrySet()) {
+			copy.put(entry.getKey().clone(), entry.getValue().clone());
+		}
 
 		return BDict.of(copy);
 	}

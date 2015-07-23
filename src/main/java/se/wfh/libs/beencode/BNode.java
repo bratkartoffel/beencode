@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Objects;
 
 public abstract class BNode<T> implements Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
+
+	public static final Charset DEFAULT_CHARSET = Charset.forName("ASCII");
 
 	protected T value;
 
@@ -30,14 +32,14 @@ public abstract class BNode<T> implements Cloneable, Serializable {
 			return false;
 		}
 
-		boolean result = Objects.equals(this.getClass(), obj.getClass());
+		boolean result = getClass().equals(obj.getClass());
 
 		if (result) {
 			BNode<?> other = (BNode<?>) obj;
 			if (this.getClass().isAssignableFrom(BString.class)) {
-				result = Arrays.equals((byte[]) this.value, (byte[]) other.getValue());
+				result = Arrays.equals((byte[]) value, (byte[]) other.getValue());
 			} else {
-				result = Objects.equals(this.value, other.getValue());
+				result = value.equals(other.getValue());
 			}
 		}
 
@@ -46,7 +48,7 @@ public abstract class BNode<T> implements Cloneable, Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(this.getClass()) + Objects.hashCode(value);
+		return getClass().hashCode() + value.hashCode();
 	}
 
 	@Override

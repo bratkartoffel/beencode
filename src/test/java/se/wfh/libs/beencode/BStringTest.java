@@ -3,24 +3,17 @@ package se.wfh.libs.beencode;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import se.wfh.libs.beencode.BString;
-import se.wfh.libs.beencode.BencodeException;
-import se.wfh.libs.beencode.NodeFactory;
-import se.wfh.libs.common.utils.Config;
 
 public class BStringTest {
 	private static final int FUZZING_RUNS = 1000;
 
 	public BStringTest() throws IOException {
-		Config.load("src/test/resources/junit.conf");
-
 		BString.setMaxReadSize(128);
 	}
 
@@ -58,18 +51,19 @@ public class BStringTest {
 
 	@Test
 	public void testGetValueStringEncoding() {
-		BString str = BString.of("我".getBytes(StandardCharsets.UTF_16));
+		Charset charset = Charset.forName("UTF-16");
+		BString str = BString.of("我".getBytes(charset));
 
-		Assert.assertEquals("我", str.getString(StandardCharsets.UTF_16));
+		Assert.assertEquals("我", str.getString(charset));
 	}
 
 	@Test
 	public void testSetValueStringCharset() {
+		Charset charset = Charset.forName("UTF-16");
 		BString str = BString.of("foo");
-		str.setValue("我", StandardCharsets.UTF_16);
+		str.setValue("我", charset);
 
-		Assert.assertArrayEquals("我".getBytes(StandardCharsets.UTF_16),
-				str.getValue());
+		Assert.assertArrayEquals("我".getBytes(charset), str.getValue());
 	}
 
 	@Test
@@ -81,18 +75,27 @@ public class BStringTest {
 		BString toWrite;
 		BString hasRead;
 
-		try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-			toWrite = BString.of(rawIn.getBytes(StandardCharsets.UTF_16));
+		ByteArrayOutputStream bos = null;
+		Charset charset = Charset.forName("UTF-16");
+		try {
+			bos = new ByteArrayOutputStream();
+			toWrite = BString.of(rawIn.getBytes(charset));
 
 			NodeFactory.encode(toWrite, bos);
 			written = bos.toByteArray();
+		} finally {
+			Java6Helper.close(bos);
 		}
 
-		try (ByteArrayInputStream bis = new ByteArrayInputStream(written)) {
+		ByteArrayInputStream bis = null;
+		try {
+			bis = new ByteArrayInputStream(written);
 			hasRead = NodeFactory.decode(bis, BString.class);
+		} finally {
+			Java6Helper.close(bis);
 		}
 
-		rawOut = hasRead.getString(StandardCharsets.UTF_16);
+		rawOut = hasRead.getString(charset);
 		Assert.assertEquals(toWrite, hasRead);
 		Assert.assertEquals(rawIn, rawOut);
 	}
@@ -143,21 +146,29 @@ public class BStringTest {
 	@Test
 	public void testUtf8String() throws IOException {
 		final String input = "Lörëm Ïpsüm";
+		Charset charset = Charset.forName("UTF-8");
 
-		BString result = BString.of(input.getBytes(StandardCharsets.UTF_8));
-		try (ByteArrayOutputStream bos = new ByteArrayOutputStream(32)) {
+		BString result = BString.of(input.getBytes(charset));
+		ByteArrayOutputStream bos = null;
+		try {
+			bos = new ByteArrayOutputStream(32);
 			NodeFactory.encode(result, bos);
 
 			Assert.assertEquals("String length did not match expected.", 18,
 					bos.toByteArray().length);
 			Assert.assertEquals("Result did not match.", "15:" + input, new String(
-					bos.toByteArray(), StandardCharsets.UTF_8));
+					bos.toByteArray(), charset));
 
-			try (ByteArrayInputStream bis = new ByteArrayInputStream(
-					bos.toByteArray())) {
+			ByteArrayInputStream bis = null;
+			try {
+				bis = new ByteArrayInputStream(bos.toByteArray());
 				BString reverse = NodeFactory.decode(bis, BString.class);
 				Assert.assertEquals("Input and output differ", result, reverse);
+			} finally {
+				Java6Helper.close(bis);
 			}
+		} finally {
+			Java6Helper.close(bos);
 		}
 	}
 
@@ -210,9 +221,10 @@ public class BStringTest {
 	@Test
 	public void testFuzzingCreate() throws IOException {
 		byte[] data = new byte[100];
+		Random rand = new Random();
 
 		for (int i = 0; i < FUZZING_RUNS; i++) {
-			ThreadLocalRandom.current().nextBytes(data);
+			rand.nextBytes(data);
 			BString node = BString.of(data);
 
 			Assert.assertArrayEquals(data, node.getValue());
@@ -222,15 +234,20 @@ public class BStringTest {
 	@Test
 	public void testFuzzingRead() throws IOException {
 		byte[] data = new byte[104];
+		Random rand = new Random();
 		System.arraycopy("100:".getBytes(), 0, data, 0, 4);
 		byte[] random = new byte[100];
 
 		for (int i = 0; i < FUZZING_RUNS; i++) {
-			ThreadLocalRandom.current().nextBytes(random);
+			rand.nextBytes(random);
 			System.arraycopy(random, 0, data, 4, random.length);
-			try (ByteArrayInputStream bis = new ByteArrayInputStream(data)) {
+			ByteArrayInputStream bis = null;
+			try {
+				bis = new ByteArrayInputStream(data);
 				BString node = NodeFactory.decode(bis, BString.class);
 				Assert.assertArrayEquals(random, node.getValue());
+			} finally {
+				Java6Helper.close(bis);
 			}
 		}
 	}
@@ -238,17 +255,20 @@ public class BStringTest {
 	@Test
 	public void testFuzzingReadGarbage() throws IOException {
 		byte[] data = new byte[100];
+		Random rand = new Random();
 
 		for (int i = 0; i < FUZZING_RUNS; i++) {
-			ThreadLocalRandom.current().nextBytes(data);
-			try (ByteArrayInputStream bis = new ByteArrayInputStream(data)) {
-				try {
-					BString node = NodeFactory.decode(bis, BString.class);
-					System.out.println("Succeeded in creating a fuzzed node '" + node
-							+ "' with data: " + Arrays.toString(data));
-				} catch (IOException ioe) {
-					// expected
-				}
+			rand.nextBytes(data);
+			ByteArrayInputStream bis = null;
+			try {
+				bis = new ByteArrayInputStream(data);
+				BString node = NodeFactory.decode(bis, BString.class);
+				System.out.println("Succeeded in creating a fuzzed node '" + node
+						+ "' with data: " + Arrays.toString(data));
+			} catch (IOException ioe) {
+				// expected
+			} finally {
+				Java6Helper.close(bis);
 			}
 		}
 	}

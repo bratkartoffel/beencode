@@ -4,25 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import se.wfh.libs.beencode.BInteger;
-import se.wfh.libs.beencode.BList;
-import se.wfh.libs.beencode.BNode;
-import se.wfh.libs.beencode.BString;
-import se.wfh.libs.beencode.BencodeException;
-import se.wfh.libs.beencode.NodeFactory;
-import se.wfh.libs.common.utils.Config;
-
 public class BListTest {
 	private static final int FUZZING_RUNS = 1000;
-
-	public BListTest() throws IOException {
-		Config.load("src/test/resources/junit.conf");
-	}
 
 	@Test
 	public void testClone() {
@@ -128,6 +116,7 @@ public class BListTest {
 		TestcaseHelper.testStreamFail("blist_invalid_end");
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testListMethods() {
 		BString a = BString.of("a");
@@ -164,7 +153,8 @@ public class BListTest {
 		list.add(0, a);
 		Assert.assertEquals(3, list.size());
 
-		List<BNode<?>> ex = Arrays.asList(BInteger.of(1337));
+		@SuppressWarnings({ "rawtypes" })
+		List<BNode<?>> ex = (List) Arrays.asList(BInteger.of(1337));
 		Assert.assertTrue(list.addAll(0, ex));
 		Assert.assertTrue(list.removeAll(ex));
 		Assert.assertFalse(list.retainAll(Arrays.asList(temp)));
@@ -192,25 +182,28 @@ public class BListTest {
 	@Test
 	public void testFuzzingReadGarbage() throws IOException {
 		byte[] data = new byte[100];
+		Random rand = new Random();
 
 		for (int i = 0; i < FUZZING_RUNS; i++) {
-			ThreadLocalRandom.current().nextBytes(data);
+			rand.nextBytes(data);
 
-			if (ThreadLocalRandom.current().nextBoolean()) {
+			if (rand.nextBoolean()) {
 				data[0] = 'l';
 
 				while (data[1] == 'e') {
-					data[1] = (byte) (ThreadLocalRandom.current().nextInt() & 0xFF);
+					data[1] = (byte) (rand.nextInt() & 0xFF);
 				}
 			}
-			try (ByteArrayInputStream bis = new ByteArrayInputStream(data)) {
-				try {
-					BList node = NodeFactory.decode(bis, BList.class);
-					System.out.println("Succeeded in creating a fuzzed node '" + node
-							+ "' with data: " + Arrays.toString(data));
-				} catch (IOException ioe) {
-					// expected
-				}
+			ByteArrayInputStream bis = null;
+			try {
+				bis = new ByteArrayInputStream(data);
+				BList node = NodeFactory.decode(bis, BList.class);
+				System.out.println("Succeeded in creating a fuzzed node '" + node
+						+ "' with data: " + Arrays.toString(data));
+			} catch (IOException ioe) {
+				// expected
+			} finally {
+				Java6Helper.close(bis);
 			}
 		}
 	}

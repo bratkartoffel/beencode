@@ -3,22 +3,13 @@ package se.wfh.libs.beencode;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import se.wfh.libs.beencode.BInteger;
-import se.wfh.libs.beencode.BencodeException;
-import se.wfh.libs.beencode.NodeFactory;
-import se.wfh.libs.common.utils.Config;
-
 public class BIntegerTest {
 	private static final int FUZZING_RUNS = 1000;
-
-	public BIntegerTest() throws IOException {
-		Config.load("src/test/resources/junit.conf");
-	}
 
 	@Test
 	public void testClone() {
@@ -187,8 +178,9 @@ public class BIntegerTest {
 
 	@Test
 	public void testFuzzingCreate() throws IOException {
+		Random rand = new Random();
 		for (int i = 0; i < FUZZING_RUNS; i++) {
-			Long value = ThreadLocalRandom.current().nextLong();
+			Long value = rand.nextLong();
 			BInteger node = BInteger.of(value);
 
 			Assert.assertEquals(value, node.getValue());
@@ -197,15 +189,19 @@ public class BIntegerTest {
 
 	@Test
 	public void testFuzzingRead() throws IOException {
+		Random rand = new Random();
 		for (int i = 0; i < FUZZING_RUNS; i++) {
-			Long value = ThreadLocalRandom.current().nextLong();
+			Long value = rand.nextLong();
 			String random = "i" + String.valueOf(value) + "e";
 
-			try (ByteArrayInputStream bis = new ByteArrayInputStream(
-					random.getBytes())) {
+			ByteArrayInputStream bis = null;
+			try {
+				bis = new ByteArrayInputStream(random.getBytes());
 				BInteger node = NodeFactory.decode(bis, BInteger.class);
 
 				Assert.assertEquals(value, node.getValue());
+			} finally {
+				Java6Helper.close(bis);
 			}
 		}
 	}
@@ -213,17 +209,20 @@ public class BIntegerTest {
 	@Test
 	public void testFuzzingReadGarbage() throws IOException {
 		byte[] data = new byte[100];
+		Random rand = new Random();
 
 		for (int i = 0; i < FUZZING_RUNS; i++) {
-			ThreadLocalRandom.current().nextBytes(data);
-			try (ByteArrayInputStream bis = new ByteArrayInputStream(data)) {
-				try {
-					BInteger node = NodeFactory.decode(bis, BInteger.class);
-					System.out.println("Succeeded in creating a fuzzed node '" + node
-							+ "' with data: " + Arrays.toString(data));
-				} catch (IOException ioe) {
-					// expected
-				}
+			rand.nextBytes(data);
+			ByteArrayInputStream bis = null;
+			try {
+				bis = new ByteArrayInputStream(data);
+				BInteger node = NodeFactory.decode(bis, BInteger.class);
+				System.out.println("Succeeded in creating a fuzzed node '" + node
+						+ "' with data: " + Arrays.toString(data));
+			} catch (IOException ioe) {
+				// expected
+			} finally {
+				bis.close();
 			}
 		}
 	}

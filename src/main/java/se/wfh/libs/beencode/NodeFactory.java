@@ -5,42 +5,40 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Objects;
-import java.util.function.Predicate;
 
 public class NodeFactory {
 	@SuppressWarnings("unchecked")
 	public static <T extends BNode<?>> T clone(T node) {
-		Objects.requireNonNull(node, "node may not be null");
+		Java6Helper.requireNonNull(node, "node may not be null");
 
 		return (T) node.clone();
 	}
 
 	public static BNode<?> decode(byte[] data) throws BencodeException {
-		try (ByteArrayInputStream bis = new ByteArrayInputStream(data)) {
+		ByteArrayInputStream bis = null;
+		try {
+			bis = new ByteArrayInputStream(data);
 			return decode(bis);
 		} catch (IOException ioe) {
 			throw new BencodeException("Internal error while parsing.", ioe);
+		} finally {
+			Java6Helper.close(bis);
 		}
 	}
 
 	private static boolean canParse(Class<? extends BNode<?>> clazz, byte prefix)
 			throws BencodeException {
-		Predicate<Byte> verifier;
-
 		if (clazz.equals(BDict.class)) {
-			verifier = BDict::canParsePrefix;
+			return BDict.canParsePrefix(prefix);
 		} else if (clazz.equals(BInteger.class)) {
-			verifier = BInteger::canParsePrefix;
+			return BInteger.canParsePrefix(prefix);
 		} else if (clazz.equals(BList.class)) {
-			verifier = BList::canParsePrefix;
+			return BList.canParsePrefix(prefix);
 		} else if (clazz.equals(BString.class)) {
-			verifier = BString::canParsePrefix;
+			return BString.canParsePrefix(prefix);
 		} else {
 			throw new IllegalArgumentException("Unknown BNode-Type: " + clazz);
 		}
-
-		return verifier.test(prefix);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -112,11 +110,15 @@ public class NodeFactory {
 	}
 
 	public static byte[] encode(BNode<?> node) throws BencodeException {
-		try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+		ByteArrayOutputStream bos = null;
+		try {
+			bos = new ByteArrayOutputStream();
 			node.writeTo(bos);
 			return bos.toByteArray();
 		} catch (IOException ioe) {
 			throw new BencodeException("Error encoding data.", ioe);
+		} finally {
+			Java6Helper.close(bos);
 		}
 	}
 

@@ -3,7 +3,6 @@ package se.wfh.libs.beencode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 public final class BInteger extends BNode<Long> {
 	private static final long serialVersionUID = 1L;
@@ -42,7 +41,7 @@ public final class BInteger extends BNode<Long> {
 	@Override
 	protected void writeTo(OutputStream os) throws IOException {
 		os.write(PREFIX);
-		os.write(String.valueOf(value).getBytes(StandardCharsets.US_ASCII));
+		os.write(String.valueOf(value).getBytes(BNode.DEFAULT_CHARSET));
 		os.write(SUFFIX);
 	}
 

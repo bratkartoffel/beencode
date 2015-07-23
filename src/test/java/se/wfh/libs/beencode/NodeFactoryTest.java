@@ -39,52 +39,67 @@ public class NodeFactoryTest {
 	@Test(expected = BencodeException.class)
 	public void testDecodeStreamToInstanceError() throws IOException {
 		byte[] data = "i3".getBytes();
-		try (ByteArrayInputStream bis = new ByteArrayInputStream(data)) {
+		ByteArrayInputStream bis = null;
+		try {
+			bis = new ByteArrayInputStream(data);
 			BInteger result = BInteger.of(null);
 			NodeFactory.decode(bis, result);
 
 			Assert.fail("Invalid data was successfully parsed: " + result);
+		} finally {
+			Java6Helper.close(bis);
 		}
 	}
 
 	@Test(expected = BencodeException.class)
 	public void testDecodeStreamWithIOException() throws IOException {
-		try (InputStream bis = Mockito.mock(InputStream.class)) {
+		InputStream bis = Mockito.mock(InputStream.class);
+		try {
 			Mockito.when(bis.read()).thenThrow(new IOException());
 
 			BString result = NodeFactory.decode(bis, BString.class);
 
 			Assert.fail("Invalid data was successfully parsed: " + result);
+		} finally {
+			Java6Helper.close(bis);
 		}
 	}
 
 	@Test(expected = BencodeException.class)
 	public void testEncodeStreamWithIOExceptionOnWrite() throws IOException {
-		try (OutputStream bos = Mockito.mock(OutputStream.class)) {
+		OutputStream bos = Mockito.mock(OutputStream.class);
+		try {
 			Mockito.doThrow(new IOException()).when(bos).write(Mockito.anyInt());
 
 			BString str = BString.of("foobar");
 			NodeFactory.encode(str, bos);
 
 			Assert.fail("Invalid data was successfully encoded: " + str);
+		} finally {
+			Java6Helper.close(bos);
 		}
 	}
 
 	@Test
 	public void testDecodeStreamToInstanceOk() throws IOException {
 		byte[] data = "i3e".getBytes();
-		try (ByteArrayInputStream bis = new ByteArrayInputStream(data)) {
+		ByteArrayInputStream bis = null;
+		try {
+			bis = new ByteArrayInputStream(data);
 			BInteger result = BInteger.of(null);
 			NodeFactory.decode(bis, result);
 
 			Assert.assertEquals(Long.valueOf(3), result.getValue());
+		} finally {
+			Java6Helper.close(bis);
 		}
 	}
 
 	@Test(expected = IOException.class)
 	public void testEncodeIOException() throws IOException {
 		BNode<?> str = Mockito.mock(BNode.class);
-		Mockito.doThrow(new IOException()).when(str).writeTo(Mockito.any());
+		Mockito.doThrow(new IOException()).when(str)
+				.writeTo(Mockito.any(OutputStream.class));
 
 		byte[] data = NodeFactory.encode(str);
 

@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Objects;
 
 public final class BString extends BNode<byte[]> implements Comparable<BString> {
 	private static final long serialVersionUID = 1L;
@@ -20,13 +18,13 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
 	}
 
 	public static BString of(byte[] data) {
-		Objects.requireNonNull(data, "data may not be null");
+		Java6Helper.requireNonNull(data, "data may not be null");
 
 		return new BString(data);
 	}
 
 	public static BString of(String data) {
-		Objects.requireNonNull(data, "data may not be null");
+		Java6Helper.requireNonNull(data, "data may not be null");
 
 		return of(data.getBytes(Charset.defaultCharset()));
 	}
@@ -70,7 +68,7 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
 
 	@Override
 	protected void writeTo(OutputStream os) throws IOException {
-		os.write(String.valueOf(value.length).getBytes(StandardCharsets.US_ASCII));
+		os.write(String.valueOf(value.length).getBytes(BNode.DEFAULT_CHARSET));
 		os.write(SEPARATOR);
 		os.write(value);
 	}
@@ -119,7 +117,7 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(this.getClass()) + Arrays.hashCode(value);
+		return getClass().hashCode() + Arrays.hashCode(value);
 	}
 
 	@Override

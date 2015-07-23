@@ -6,40 +6,48 @@ import java.io.IOException;
 
 import org.junit.Assert;
 
-import se.wfh.libs.beencode.BNode;
-import se.wfh.libs.beencode.NodeFactory;
-import se.wfh.libs.common.utils.Config;
-
 public class TestcaseHelper {
 
 	public static void testStreamFail(String testname) throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + testname + ".dat"))) {
+		FileInputStream fstream = null;
+		try {
+			fstream = new FileInputStream(new File("src/test/resources/data/",
+					testname + ".dat"));
 			BNode<?> bi = NodeFactory.decode(fstream);
 
 			Assert.fail("Should not succeed, data read: " + bi);
+		} finally {
+			Java6Helper.close(fstream);
 		}
 	}
 
 	public static void testStreamSuccess(String testname, Object expected)
 			throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + testname + ".dat"))) {
+		FileInputStream fstream = null;
+		try {
+			fstream = new FileInputStream(new File("src/test/resources/data/",
+					testname + ".dat"));
 			BNode<?> bi = NodeFactory.decode(fstream);
 
 			Assert
 					.assertEquals("Received unexpected result", expected, bi.getValue());
+		} finally {
+			Java6Helper.close(fstream);
 		}
 	}
 
 	public static void testStreamSuccess(String testname, byte[] expected)
 			throws IOException {
-		try (FileInputStream fstream = new FileInputStream(new File(
-				Config.getString("junit.tests") + testname + ".dat"))) {
+		FileInputStream fstream = null;
+		try {
+			fstream = new FileInputStream(new File("src/test/resources/data/",
+					testname + ".dat"));
 			BNode<?> bi = NodeFactory.decode(fstream);
 
 			Assert.assertArrayEquals("Received unexpected result", expected,
 					(byte[]) bi.getValue());
+		} finally {
+			Java6Helper.close(fstream);
 		}
 	}
 

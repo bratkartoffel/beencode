@@ -7,27 +7,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import se.wfh.libs.beencode.BDict;
-import se.wfh.libs.beencode.BInteger;
-import se.wfh.libs.beencode.BList;
-import se.wfh.libs.beencode.BNode;
-import se.wfh.libs.beencode.BString;
-import se.wfh.libs.beencode.BencodeException;
-import se.wfh.libs.beencode.NodeFactory;
-import se.wfh.libs.common.utils.Config;
-
 public class BDictTest {
 	private static final int FUZZING_RUNS = 1000;
-
-	public BDictTest() throws IOException {
-		Config.load("src/test/resources/junit.conf");
-	}
 
 	@Test
 	public void testClone() {
@@ -101,17 +88,25 @@ public class BDictTest {
 				BList.of(BInteger.of(42), BInteger.of(13), BInteger.of(-1)));
 
 		byte[] written;
-		try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+		ByteArrayOutputStream bos = null;
+		try {
+			bos = new ByteArrayOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(bos);
 
 			oos.writeObject(toWrite);
 			written = bos.toByteArray();
+		} finally {
+			Java6Helper.close(bos);
 		}
 
-		try (ByteArrayInputStream bis = new ByteArrayInputStream(written)) {
+		ByteArrayInputStream bis = null;
+		try {
+			bis = new ByteArrayInputStream(written);
 			ObjectInputStream ois = new ObjectInputStream(bis);
 
 			hasRead = (BDict) ois.readObject();
+		} finally {
+			Java6Helper.close(bis);
 		}
 
 		Assert.assertEquals(toWrite, hasRead);
@@ -131,17 +126,20 @@ public class BDictTest {
 	@Test
 	public void testFuzzingReadGarbage() throws IOException {
 		byte[] data = new byte[100];
+		Random rand = new Random();
 
 		for (int i = 0; i < FUZZING_RUNS; i++) {
-			ThreadLocalRandom.current().nextBytes(data);
-			try (ByteArrayInputStream bis = new ByteArrayInputStream(data)) {
-				try {
-					BDict node = NodeFactory.decode(bis, BDict.class);
-					System.out.println("Succeeded in creating a fuzzed node '" + node
-							+ "' with data: " + Arrays.toString(data));
-				} catch (IOException ioe) {
-					// expected
-				}
+			rand.nextBytes(data);
+			ByteArrayInputStream bis = null;
+			try {
+				bis = new ByteArrayInputStream(data);
+				BDict node = NodeFactory.decode(bis, BDict.class);
+				System.out.println("Succeeded in creating a fuzzed node '" + node
+						+ "' with data: " + Arrays.toString(data));
+			} catch (IOException ioe) {
+				// expected
+			} finally {
+				Java6Helper.close(bis);
 			}
 		}
 	}
@@ -149,11 +147,10 @@ public class BDictTest {
 	@Test
 	public void testHugeDict() throws IOException {
 		BDict dict = BDict.empty();
+		Random rand = new Random();
 		for (int i = 0; i < FUZZING_RUNS; i++) {
-			BString key = BString.of(String.valueOf(ThreadLocalRandom.current()
-					.nextLong()));
-			BString value = BString.of(String.valueOf(ThreadLocalRandom.current()
-					.nextLong()));
+			BString key = BString.of(String.valueOf(rand.nextLong()));
+			BString value = BString.of(String.valueOf(rand.nextLong()));
 
 			dict.put(key, value);
 		}
@@ -236,11 +233,11 @@ public class BDictTest {
 		Assert.assertNull(dict.remove(null));
 		Assert.assertNull(dict.remove("a"));
 		Assert.assertEquals(_13, dict.remove(a));
-		Assert.assertTrue(dict.remove(b, _42));
+		Assert.assertNotNull(dict.remove(b));
 
 		Assert.assertTrue(dict.isEmpty());
 
-		Map<BString, BNode<?>> myMap = new TreeMap<>();
+		Map<BString, BNode<?>> myMap = new TreeMap<BString, BNode<?>>();
 		myMap.put(a, _13);
 		myMap.put(b, _42);
 
