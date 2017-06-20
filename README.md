@@ -16,7 +16,7 @@ All classes are immutable and thus the whole library is threadsafe.
 <dependency>
 	<groupId>eu.fraho.libs</groupId>
 	<artifactId>beencode</artifactId>
-	<version>0.8.0</version>
+	<version>1.0.0</version>
 </dependency>
 ```
 		
