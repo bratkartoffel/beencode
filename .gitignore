@@ -1,6 +1,7 @@
-/bin
-/target
-/log
-/.classpath
-/.project
-/.settings
+/.idea/
+/*/build/
+/.gradle/
+/gradle.properties/
+/*.iml
+/out/
+/build/

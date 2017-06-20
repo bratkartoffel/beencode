@@ -1,0 +1,130 @@
+buildscript {
+    ext {
+        projectVersion = '1.0.0-SNAPSHOT'
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+group = 'eu.fraho.libs'
+version = "${projectVersion}"
+description = "Java Library for handling binary-encoded (bencoded, torrent) files and data"
+
+jar {
+    version = "${project.version}"
+}
+buildscript {
+    ext {
+        slf4jVersion = '[1.7,2.0['
+        junitVersion = '[4.12,5.0['
+        logbackVersion = '[1.2,2.0['
+        mockitoVersion = '[2.8,3.0['
+        jcipVersion = '[1.0,2.0['
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+dependencies {
+    compile("org.slf4j:slf4j-api:${slf4jVersion}")
+    compile("com.github.stephenc.jcip:jcip-annotations:${jcipVersion}")
+
+    testCompile("junit:junit:${junitVersion}")
+    testCompile("ch.qos.logback:logback-classic:${logbackVersion}")
+    testCompile("org.mockito:mockito-core:${mockitoVersion}")
+}
+
+// release stuff
+apply plugin: 'maven'
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+// code coverage
+apply plugin: 'jacoco'
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+check.dependsOn jacocoTestReport
+
+if (project.hasProperty('release')) {
+    apply plugin: 'signing'
+
+    // Signature of artifacts
+    signing {
+        sign configurations.archives
+    }
+
+    // OSSRH publication
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                // POM signature
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                // Target repository
+                if (project.version.endsWith('-SNAPSHOT')) {
+                    repository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                        authentication(userName: ossrhUsername, password: ossrhPassword)
+                    }
+                } else {
+                    repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+                        authentication(userName: ossrhUsername, password: ossrhPassword)
+                    }
+                }
+                pom.project {
+                    name project.archivesBaseName
+                    description project.description
+                    url 'https://github.com/bratkartoffel/beencode'
+
+                    scm {
+                        connection 'scm:git:https://github.com/bratkartoffel/beencode.git'
+                        developerConnection 'scm:git:git@github.com:bratkartoffel/beencode.git'
+                        url 'https://github.com/bratkartoffel/beencode.git'
+                    }
+
+                    licenses {
+                        license {
+                            name 'The MIT License (MIT)'
+                            url 'http://opensource.org/licenses/MIT'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = 'bratkartoffel'
+                            name = 'Simon Frankenberger'
+                            email = 'simon-ossrh-release@fraho.eu'
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    nexusStaging {
+        username = ossrhUsername
+        password = ossrhPassword
+    }
+}

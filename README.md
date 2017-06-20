@@ -1,99 +1,137 @@
 beencode
 =========
+[![Build Status](https://travis-ci.org/bratkartoffel/beencode.svg?branch=develop)](https://travis-ci.org/bratkartoffel/beencode)
+[![Code Coverage](https://img.shields.io/codecov/c/github/bratkartoffel/beencode/develop.svg)](https://codecov.io/github/bratkartoffel/beencode?branch=develop)
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat)](http://doge.mit-license.org)
 
 Some java helper classes to deal with binary encoded data strings.
 This class collection can be used to parse, alter and generate these bencoded strings.
 The binary-encoding is primary used by the torrent protocol, but is free to use elsewhere.
 For details see [the bencoding specification](https://wiki.theory.org/BitTorrentSpecification#Bencoding).
 
-Usage (from pom.xml):
+All classes are immutable and thus the whole library is threadsafe.
+
+# Dependencies
 ```xml
 <dependency>
-	<groupId>se.wfh.libs</groupId>
+	<groupId>eu.fraho.libs</groupId>
 	<artifactId>beencode</artifactId>
-	<version>0.7</version>
+	<version>0.8.0</version>
 </dependency>
 ```
 		
-To read a beencoded file:
--------------
-```java
-BDict dict = null;
-BNode<?> node = null;
-
-try (FileInputStream fstream = new FileInputStream(new File("test.dat"))) {
-	// If you know that the file will contain a dictinary and force so
-	dict = BNode<?>.of(fstream, BDict.class);
-	// If you you don't exactly know which element you will read
-	node = BNode<?>.of(fstream);
-}
+# Building
+```bash
+# on linux:
+./gradlew assemble
+# on windows:
+gradlew.bat assemble
 ```
 
-To write a beencoded file:
--------------
+# Usage
+* All instances from this library are immutable, each change creates a new instance
+* Use the various ```of``` methods on the datatypes to create instances
+* The ```write(OutputStream)``` methods can be used to write the data beencoded to a stream
+* The ```toString()``` methods return a humand readable presentation of the data
+
+# Code examples
+## Valid data types and usage:
 ```java
-List<BNode> list = new ArrayList<>();
+// String:
+BString lorem = BString.of("lorem");
+BString ipsum = BString.of("ipsum", StandardCharsets.UTF_8);
 
-list.add(BInteger.of(42));
-list.add(BString.of("bar"));
-
-BDict bd = BDict.empty();
-BList bl = BList.of(list);
-
-bd.put(BString.of("foo"), BInteger.of(13));
-bd.put(BString.of("mylist"), bl);
-
-try (FileOutputStream fos = new FileOutputStream(new File("test.dat"))) {
-	NodeFactory.encode(bd, fos);
-}
-```
-
-Valid data types and usage:
--------------
-```java
-// Strings:
-BString mystring = BString.of("this is an example");
-BString mystring2 = BString.of("Lörem", StandardCharsets.UTF_8);
-
-// Integer:
-BInteger myint = BInteger.of(42);
+// Integer / Long:
+BInteger _42 = BInteger.of(42);
+BInteger largeNumber = BInteger.of(2147483648L);
 
 // Lists:
-BList mylist = BList.empty();
-BList mylist2 = BList.of(BInteger.of(2), BString.of("foobar"));
+BList firstlist = BList.of(lorem, largeNumber, BString.of("foobar"));
+BList otherlist = BList.of(BInteger.of(13));
 
 // manipulate list:
-mylist.add(mystring);
-mylist2.remove(myint);
+BList listExt = firstlist.add(ipsum);          // [lorem, 2147483648, foobar, ipsum]
+BList listRed = firstlist.remove(largeNumber); // [lorem, foobar]
+BList listJoined = firstlist.join(otherlist);  // [lorem, 2147483648, foobar, 13]
 
-// Dictionaries: (comparable to java Map):
-BDict mydict = BDict.empty();
-BDict mydict2 = BDict.of(new HashMap<BString, BNode<?>>);
+// Dictionaries: (some kind of map):
+BDict firstdict = BDict.of(lorem, largeNumber);
+BDict otherdict = BDict.of(
+        lorem, _42,
+        ipsum, BString.of("!")
+);
 
 // manipulate dict:
-mydict.put(mystring, myint);
-mydict.get(mylist);
+BDict dictExt = firstdict.put(ipsum, _42);    // {lorem=2147483648, ipsum=42}
+BNode<?> dictEntry = firstdict.get(lorem);    // 2147483648
+BDict dictJoined = firstdict.join(otherdict); // {lorem=42, ipsum=!}
 ```
 
-To handle encoding properly:
--------------
+## To read a beencoded file:
 ```java
-BString output = BString.of("我", StandardCharsets.UTF_16);
-
-try (FileOutputStream fos = new FileOutputStream(new File("test.dat"))) {
-	NodeFactory.encode(output, fos);
+// If you are entirely sure that the file conains a dictionary
+try (InputStream is = new FileInputStream(new File("test.dat"))) {
+    BDict dict = BDict.of(is);
 }
 
-BString input = null;
-try (FileInputStream fis = new FileInputStream(new File("test.dat"))) {
-	input = NodeFactory.decode(fis, BString.class);
+// If you are pretty sure that the file will contain a single string.
+// When the parsing successfully created a node, but it has the wrong type, then this Optional is empty.
+try (InputStream is = new FileInputStream(new File("test.dat"))) {
+    Optional<BString> maybeString = NodeFactory.decode(is, BString.class);
 }
 
-System.out.println("Written: " + output);
-System.out.println("Read:    " + input);
-System.out.println("Equal?   " + Objects.equals(input, output));
+// If you you don't exactly know which element you will read.
+try (InputStream is = new FileInputStream(new File("test.dat"))) {
+    BNode<?> node = NodeFactory.decode(is);
+}
 ```
 
-Usage:
--------------
-As usual, the JUnit Testcases act as examples.
+## To write a beencoded file:
+```java
+BList node = BList.of(
+        BString.of("Hello"),
+        BString.of("world!"),
+        BInteger.of(42)
+);
+
+// Write directly to a file
+try (OutputStream os = new FileOutputStream(new File("test.dat"))) {
+    // one way
+    node.write(os);
+
+    // another way
+    NodeFactory.encode(node, os);
+}
+```
+
+## Convert from and to beencoded data:
+```java
+BList node = BList.of(
+        BString.of("Hello"),
+        BString.of("world!"),
+        BInteger.of(42)
+);
+
+// Get a human readable representation
+System.out.println(node.toString()); // [Hello, world!, 42]
+
+// Get the beencoded representation
+byte[] encoded = NodeFactory.encode(node); // l5:Hello6:world!i42ee
+
+// And back again to a node
+BNode<?> back = NodeFactory.decode(encoded);
+```
+
+# Hacking
+* This repository uses the git flow layout
+* Changes are welcome, but please use pull requests with separate branches
+* TravisCI has to pass before merging
+* Code coverage should stay about the same level (please write tests for new features!)
+
+# Releasing
+```bash
+# to local repository:
+./gradlew install
+# to central:
+./gradlew -Prelease check uploadArchives
+```
