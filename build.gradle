@@ -1,9 +1,12 @@
 buildscript {
     ext {
-        projectVersion = '1.0.0-SNAPSHOT'
+        projectVersion = '1.0.0'
     }
     repositories {
         mavenCentral()
+    }
+    dependencies {
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.8.0"
     }
 }
 
@@ -67,6 +70,8 @@ jacocoTestReport {
 }
 
 check.dependsOn jacocoTestReport
+
+apply plugin: 'io.codearte.nexus-staging'
 
 if (project.hasProperty('release')) {
     apply plugin: 'signing'
