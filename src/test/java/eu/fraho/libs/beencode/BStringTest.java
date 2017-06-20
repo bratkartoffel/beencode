@@ -4,9 +4,7 @@ import eu.fraho.libs.beencode.helpers.TestcaseHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class BStringTest extends AbstractTest<BString> {
@@ -67,6 +65,16 @@ public class BStringTest extends AbstractTest<BString> {
     @Test(expected = BencodeException.class)
     public void testStreamInvalidEmpty() throws IOException {
         TestcaseHelper.testStreamFail("bstring_invalid_empty");
+    }
+
+    @Test(expected = BencodeException.class)
+    public void testStreamTooLarge() throws IOException {
+        try (FileInputStream fstream = new FileInputStream(new File("src/test/resources/data/",
+                "bstring_too_long.dat"))) {
+            BString.of(fstream, (byte) fstream.read(), 10);
+
+            Assert.fail("Should not succeed");
+        }
     }
 
     @Test(expected = BencodeException.class)

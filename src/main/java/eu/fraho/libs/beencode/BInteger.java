@@ -47,12 +47,14 @@ public final class BInteger extends BNode<Long> implements Comparable<BInteger> 
     }
 
     public static BInteger of(InputStream is, byte prefix) throws IOException {
-        StringBuilder str = new StringBuilder(MAX_READ_LEN);
+        if (!canParsePrefix(prefix)) {
+            throw new BencodeException("Unknown prefix, cannot parse: " + prefix);
+        }
 
+        StringBuilder str = new StringBuilder(MAX_READ_LEN);
         byte read = 0;
         for (int i = 0; i < MAX_READ_LEN; i++) {
             read = (byte) is.read();
-            if (read == PREFIX) continue;
             if (read == SUFFIX) break;
             str.append((char) read);
         }
@@ -80,7 +82,7 @@ public final class BInteger extends BNode<Long> implements Comparable<BInteger> 
         try {
             return of(Long.parseLong(input));
         } catch (NumberFormatException nfe) {
-            throw new BencodeException("Invalid data, could not parse number", nfe);
+            throw new BencodeException(nfe);
         }
     }
 

@@ -71,8 +71,10 @@ public class BListTest extends AbstractTest<BList> {
         Assert.assertArrayEquals(testee.toArray(array), testee.getValue().toArray(array));
         Assert.assertEquals(testee.containsAll(Collections.singletonList(entry)), testee.getValue().containsAll(Collections.singletonList(entry)));
         Assert.assertEquals(testee.get(0), testee.getValue().get(0));
+        Assert.assertEquals(testee.get(1), testee.getValue().get(1));
         Assert.assertEquals(testee.indexOf(entry), testee.getValue().indexOf(entry));
         Assert.assertEquals(testee.lastIndexOf(entry), testee.getValue().lastIndexOf(entry));
+        Assert.assertEquals(testee.subList(0, 1), testee.getValue().subList(0, 1));
         Assert.assertEquals(testee.subList(1, 2), testee.getValue().subList(1, 2));
 
         /* test iterator */
@@ -114,9 +116,9 @@ public class BListTest extends AbstractTest<BList> {
         /* end test list iterator without arg */
 
         /* test list iterator with arg */
-        {
-            Iterator a = testee.listIterator(1);
-            Iterator b = testee.getValue().listIterator(1);
+        for (int i = 0; i < 2; i++) {
+            Iterator a = testee.listIterator(i);
+            Iterator b = testee.getValue().listIterator(i);
             while (a.hasNext() && a.hasNext()) {
                 Assert.assertEquals(a.next(), b.next());
             }
@@ -147,6 +149,7 @@ public class BListTest extends AbstractTest<BList> {
     public void testRemove() {
         BList testee = getSampleB();
         Assert.assertEquals(1, testee.remove(0).size());
+        Assert.assertEquals(1, testee.remove(1).size());
         Assert.assertEquals(1, testee.remove(BInteger.of(13)).size());
         Assert.assertSame(testee, testee.remove(BInteger.of(99)));
         Assert.assertEquals(2, testee.size());

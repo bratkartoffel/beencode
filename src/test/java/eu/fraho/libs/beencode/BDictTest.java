@@ -88,6 +88,7 @@ public class BDictTest extends AbstractTest<BDict> {
     @Test
     public void testRemove() {
         BDict testee = getSampleB();
+        Assert.assertEquals(1, testee.remove("Foo").size());
         Assert.assertEquals(1, testee.remove("baz").size());
         Assert.assertEquals(1, testee.remove(BString.of("baz")).size());
         Assert.assertSame(testee, testee.remove(BString.of("xxx")));

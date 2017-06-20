@@ -42,6 +42,10 @@ public final class BList extends BNode<List<BNode<?>>> {
     }
 
     public static BList of(InputStream is, byte prefix) throws IOException {
+        if (!canParsePrefix(prefix)) {
+            throw new BencodeException("Unknown prefix, cannot parse: " + prefix);
+        }
+
         List<BNode<?>> temp = new ArrayList<>();
         byte read;
         while ((read = (byte) is.read()) != SUFFIX) {
@@ -71,6 +75,7 @@ public final class BList extends BNode<List<BNode<?>>> {
         return getValue().isEmpty();
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     public boolean contains(Object o) {
         return getValue().contains(o);
     }
@@ -108,10 +113,12 @@ public final class BList extends BNode<List<BNode<?>>> {
         return getValue().get(index);
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     public int indexOf(Object o) {
         return getValue().indexOf(o);
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     public int lastIndexOf(Object o) {
         return getValue().lastIndexOf(o);
     }

@@ -50,6 +50,10 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
     }
 
     public static BDict of(InputStream is, byte prefix) throws IOException {
+        if (!canParsePrefix(prefix)) {
+            throw new BencodeException("Unknown prefix, cannot parse: " + prefix);
+        }
+
         Map<BString, BNode<?>> result = new TreeMap<>();
         byte read;
         while ((read = (byte) is.read()) != SUFFIX) {
@@ -93,12 +97,14 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         return getValue().isEmpty();
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     public boolean containsKey(Object key) {
         return BString.class.isInstance(key) && getValue().containsKey(key);
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     public boolean containsValue(Object value) {
-        return getValue().containsValue(value);
+        return BNode.class.isInstance(value) && getValue().containsValue(value);
     }
 
     public BNode<?> get(Object key) {

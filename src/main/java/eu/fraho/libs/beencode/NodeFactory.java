@@ -46,8 +46,7 @@ public abstract class NodeFactory {
         }
     }
 
-    public static <T extends BNode<?>> Optional<T> decode(byte[] data, Class<T> expected)
-            throws IOException {
+    public static <T extends BNode<?>> Optional<T> decode(byte[] data, Class<T> expected) {
         BNode<?> result = decode(data);
         if (expected.isAssignableFrom(result.getClass())) {
             return Optional.of(expected.cast(result));

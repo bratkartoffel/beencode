@@ -13,11 +13,6 @@ public class MyNode extends BNode<Object> {
     }
 
     @Override
-    public BNode<Object> clone() {
-        return null;
-    }
-
-    @Override
     public void write(OutputStream os) throws IOException {
 
     }
