@@ -32,6 +32,9 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
                 Class<?> clz = nodes[i] == null ? null : nodes[i].getClass();
                 throw new BencodeException("key as argument #" + i + " has to be a BString (is " + clz + ")");
             }
+            if (nodes[i + 1] == null) {
+                throw new BencodeException("value argument #" + i + " has to be not null");
+            }
             temp.put((BString) nodes[i], nodes[i + 1]);
         }
         return of(temp);
@@ -98,13 +101,13 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    public boolean containsKey(Object key) {
-        return BString.class.isInstance(key) && getValue().containsKey(key);
+    public boolean containsKey(BNode<?> key) {
+        return getValue().containsKey(key);
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    public boolean containsValue(Object value) {
-        return BNode.class.isInstance(value) && getValue().containsValue(value);
+    public boolean containsValue(BNode<?> value) {
+        return getValue().containsValue(value);
     }
 
     public BNode<?> get(Object key) {
