@@ -35,6 +35,14 @@ public class BStringTest extends AbstractTest<BString> {
     }
 
     @Test
+    public void testEmptyString() {
+        BString str = BString.of("");
+        byte[] encoded = NodeFactory.encode(str);
+        Assert.assertEquals("0:", new String(encoded));
+        Assert.assertEquals(str, NodeFactory.decode(encoded));
+    }
+
+    @Test
     public void testEncoding() throws IOException {
         byte[] written;
         String rawIn = "我";
@@ -68,6 +76,11 @@ public class BStringTest extends AbstractTest<BString> {
     }
 
     @Test(expected = BencodeException.class)
+    public void testStreamLeadingZero() throws IOException {
+        TestcaseHelper.testStreamFail("bstring_length_leading_zero");
+    }
+
+    @Test(expected = BencodeException.class)
     public void testStreamTooLarge() throws IOException {
         try (FileInputStream fstream = new FileInputStream(new File("src/test/resources/data/",
                 "bstring_too_long.dat"))) {
@@ -77,9 +90,9 @@ public class BStringTest extends AbstractTest<BString> {
         }
     }
 
-    @Test(expected = BencodeException.class)
+    @Test
     public void testStreamLengthZero() throws IOException {
-        TestcaseHelper.testStreamFail("bstring_length_zero");
+        TestcaseHelper.testStreamSuccess("bstring_length_zero", BString.of(""));
     }
 
     @Test(expected = BencodeException.class)

@@ -51,9 +51,6 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
 
     public static BString of(InputStream is, byte prefix, int maxReadLen) throws IOException {
         long length = prefix - '0';
-        if (length == 0) {
-            throw new BencodeException("Leading zeros are not allowed.");
-        }
 
         byte cur;
         while ((cur = (byte) is.read()) != SEPARATOR) {
@@ -62,6 +59,10 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
                         + cur + "'");
             }
             length = length * 10 + (cur - '0');
+        }
+
+        if (length > 0 && prefix == '0') {
+            throw new BencodeException("Leading zeros are not allowed.");
         }
 
         if (length > maxReadLen) {
