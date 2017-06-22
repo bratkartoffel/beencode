@@ -110,12 +110,12 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         return getValue().containsValue(value);
     }
 
-    public BNode<?> get(Object key) {
-        if (key instanceof BString) {
-            return getValue().get(key);
-        } else {
-            return getValue().get(BString.of(String.valueOf(key)));
-        }
+    public Optional<BNode<?>> get(BString key) {
+        return Optional.ofNullable(getValue().get(key));
+    }
+
+    public Optional<BNode<?>> get(String key) {
+        return Optional.ofNullable(getValue().get(BString.of(key)));
     }
 
     public Set<BString> keySet() {

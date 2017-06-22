@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -79,5 +80,21 @@ public class NodeFactoryTest {
     public void testEncode() {
         byte[] expected = "i13e".getBytes();
         Assert.assertArrayEquals(expected, NodeFactory.encode(BInteger.of(13)));
+    }
+
+    @Test
+    public void testDecodeStreamWithTypeOk() throws IOException {
+        try (InputStream is = new ByteArrayInputStream("i0e".getBytes())) {
+            Optional<BInteger> result = NodeFactory.decode(is, BInteger.class);
+            Assert.assertTrue(result.isPresent());
+        }
+    }
+
+    @Test
+    public void testDecodeStreamWithTypeWrong() throws IOException {
+        try (InputStream is = new ByteArrayInputStream("i0e".getBytes())) {
+            Optional<BString> result = NodeFactory.decode(is, BString.class);
+            Assert.assertFalse(result.isPresent());
+        }
     }
 }

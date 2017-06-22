@@ -4,7 +4,9 @@ import eu.fraho.libs.beencode.helpers.TestcaseHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class BIntegerTest extends AbstractTest<BInteger> {
     @Override
@@ -123,5 +125,12 @@ public class BIntegerTest extends AbstractTest<BInteger> {
     @Test(expected = BencodeException.class)
     public void testStreamTooLong() throws IOException {
         TestcaseHelper.testStreamFail("bint_too_long");
+    }
+
+    @Test(expected = BencodeException.class)
+    public void testOfInvalidPrefix() throws IOException {
+        try (InputStream is = new ByteArrayInputStream(new byte[0])) {
+            BInteger.of(is, (byte) 'x');
+        }
     }
 }

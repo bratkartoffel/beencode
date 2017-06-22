@@ -82,6 +82,10 @@ public class ReadmeExamples {
         BList listRed = firstlist.remove(largeNumber); // [lorem, foobar]
         BList listJoined = firstlist.join(otherlist);  // [lorem, 2147483648, foobar, 13]
 
+        // get info from list
+        Optional<BNode<?>> listEntry = firstlist.get(0);   // Optional[lorem]
+        Optional<BNode<?>> listEntry2 = firstlist.get(42); // Optional.empty
+
         // Dictionaries: (some kind of map):
         BDict firstdict = BDict.of(lorem, largeNumber);
         BDict otherdict = BDict.of(
@@ -91,7 +95,10 @@ public class ReadmeExamples {
 
         // manipulate dict:
         BDict dictExt = firstdict.put(ipsum, _42);    // {lorem=2147483648, ipsum=42}
-        BNode<?> dictEntry = firstdict.get(lorem);    // 2147483648
         BDict dictJoined = firstdict.join(otherdict); // {lorem=42, ipsum=!}
+
+        // get info from dict
+        Optional<BNode<?>> dictEntry = firstdict.get(lorem);    // Optional[2147483648]
+        Optional<BNode<?>> dictEntry2 = firstdict.get(ipsum);    // Optional.empty
     }
 }

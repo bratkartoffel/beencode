@@ -109,8 +109,12 @@ public final class BList extends BNode<List<BNode<?>>> {
         getValue().forEach(action);
     }
 
-    public BNode<?> get(int index) {
-        return getValue().get(index);
+    public Optional<BNode<?>> get(int index) {
+        if (index >= size()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(getValue().get(index));
+        }
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")

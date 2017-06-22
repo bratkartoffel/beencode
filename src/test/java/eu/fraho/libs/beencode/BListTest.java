@@ -4,7 +4,9 @@ import eu.fraho.libs.beencode.helpers.TestcaseHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,19 +63,20 @@ public class BListTest extends AbstractTest<BList> {
     @Test
     public void testDelegateMethods() {
         BList testee = getSampleA();
-        BInteger entry = BInteger.of(12345);
+        BInteger eNonExistant = BInteger.of(12345);
+        BString e0 = BString.of("Foo");
         BNode<?>[] array = new BNode[3];
 
         Assert.assertEquals(testee.size(), testee.getValue().size());
         Assert.assertEquals(testee.isEmpty(), testee.getValue().isEmpty());
-        Assert.assertEquals(testee.contains(entry), testee.getValue().contains(entry));
+        Assert.assertEquals(testee.contains(eNonExistant), testee.getValue().contains(eNonExistant));
         Assert.assertArrayEquals(testee.toArray(), testee.getValue().toArray());
         Assert.assertArrayEquals(testee.toArray(array), testee.getValue().toArray(array));
-        Assert.assertEquals(testee.containsAll(Collections.singletonList(entry)), testee.getValue().containsAll(Collections.singletonList(entry)));
-        Assert.assertEquals(testee.get(0), testee.getValue().get(0));
-        Assert.assertEquals(testee.get(1), testee.getValue().get(1));
-        Assert.assertEquals(testee.indexOf(entry), testee.getValue().indexOf(entry));
-        Assert.assertEquals(testee.lastIndexOf(entry), testee.getValue().lastIndexOf(entry));
+        Assert.assertEquals(testee.containsAll(Collections.singletonList(eNonExistant)), testee.getValue().containsAll(Collections.singletonList(eNonExistant)));
+        Assert.assertEquals(testee.get(0), Optional.of(e0));
+        Assert.assertEquals(testee.get(42), Optional.empty());
+        Assert.assertEquals(testee.indexOf(eNonExistant), testee.getValue().indexOf(eNonExistant));
+        Assert.assertEquals(testee.lastIndexOf(eNonExistant), testee.getValue().lastIndexOf(eNonExistant));
         Assert.assertEquals(testee.subList(0, 1), testee.getValue().subList(0, 1));
         Assert.assertEquals(testee.subList(1, 2), testee.getValue().subList(1, 2));
 
@@ -179,5 +182,12 @@ public class BListTest extends AbstractTest<BList> {
         data.add(BString.of("bar"));
         BList b = BList.of(data);
         Assert.assertNotEquals(a, b);
+    }
+
+    @Test(expected = BencodeException.class)
+    public void testOfInvalidPrefix() throws IOException {
+        try (InputStream is = new ByteArrayInputStream(new byte[0])) {
+            BList.of(is, (byte) 'x');
+        }
     }
 }

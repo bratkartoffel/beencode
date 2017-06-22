@@ -4,8 +4,11 @@ import eu.fraho.libs.beencode.helpers.TestcaseHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 public class BDictTest extends AbstractTest<BDict> {
@@ -81,14 +84,16 @@ public class BDictTest extends AbstractTest<BDict> {
     @Test
     public void testDelegateMethods() {
         BDict testee = getSampleB();
-        BString key = BString.of("foo");
+        BString key = BString.of("Foo");
+        BInteger value = BInteger.of(13);
 
         Assert.assertEquals(testee.size(), testee.getValue().size());
         Assert.assertEquals(testee.isEmpty(), testee.getValue().isEmpty());
         Assert.assertEquals(testee.containsKey(key), testee.getValue().containsKey(key));
         Assert.assertEquals(testee.containsValue(key), testee.getValue().containsValue(key));
-        Assert.assertEquals(testee.get(key), testee.getValue().get(key));
-        Assert.assertEquals(testee.get("foo"), testee.getValue().get(key));
+        Assert.assertEquals(testee.get(key), Optional.of(value));
+        Assert.assertEquals(testee.get(key.toString()), Optional.of(value));
+        Assert.assertEquals(testee.get("xxxxx"), Optional.empty());
         Assert.assertEquals(testee.keySet(), testee.getValue().keySet());
         Assert.assertEquals(testee.values(), testee.getValue().values());
         Assert.assertEquals(testee.entrySet(), testee.getValue().entrySet());
@@ -127,5 +132,12 @@ public class BDictTest extends AbstractTest<BDict> {
         data.put(BString.of("bar"), BInteger.of(42));
         BDict b = BDict.of(data);
         Assert.assertNotEquals(a, b);
+    }
+
+    @Test(expected = BencodeException.class)
+    public void testOfInvalidPrefix() throws IOException {
+        try (InputStream is = new ByteArrayInputStream(new byte[0])) {
+            BDict.of(is, (byte) 'x');
+        }
     }
 }
