@@ -7,6 +7,7 @@
 package eu.fraho.libs.beencode;
 
 import net.jcip.annotations.Immutable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,33 +21,39 @@ public final class BInteger extends BNode<Long> implements Comparable<BInteger> 
     private static final byte PREFIX = 'i';
     private static final byte SUFFIX = 'e';
 
-    private BInteger(Long value) {
+    private BInteger(@NotNull Long value) {
         super(value);
     }
 
+    @NotNull
     public static BInteger of(long value) {
         return of(Long.valueOf(value));
     }
 
+    @NotNull
     public static BInteger of(int value) {
         return of(Long.valueOf(value));
     }
 
-    public static BInteger of(Integer value) {
+    @NotNull
+    public static BInteger of(@NotNull Integer value) {
         Objects.requireNonNull(value, "value may not be null");
         return of(Long.valueOf(value));
     }
 
-    public static BInteger of(Long value) {
+    @NotNull
+    public static BInteger of(@NotNull Long value) {
         Objects.requireNonNull(value, "value may not be null");
         return new BInteger(value);
     }
 
-    public static BInteger of(InputStream is) throws IOException {
+    @NotNull
+    public static BInteger of(@NotNull InputStream is) throws IOException {
         return of(is, (byte) is.read());
     }
 
-    public static BInteger of(InputStream is, byte prefix) throws IOException {
+    @NotNull
+    public static BInteger of(@NotNull InputStream is, byte prefix) throws IOException {
         if (!canParsePrefix(prefix)) {
             throw new BencodeException("Unknown prefix, cannot parse: " + prefix);
         }
@@ -91,14 +98,14 @@ public final class BInteger extends BNode<Long> implements Comparable<BInteger> 
     }
 
     @Override
-    public void write(OutputStream os) throws IOException {
+    public void write(@NotNull OutputStream os) throws IOException {
         os.write(PREFIX);
         os.write(String.valueOf(getValue()).getBytes(DEFAULT_CHARSET));
         os.write(SUFFIX);
     }
 
     @Override
-    public int compareTo(BInteger o) {
+    public int compareTo(@NotNull BInteger o) {
         return getValue().compareTo(o.getValue());
     }
 }

@@ -41,11 +41,13 @@ public class BDictTest extends AbstractTest<BDict> {
         BDict.of(BInteger.of(Integer.valueOf(13)), BInteger.of(2));
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test(expected = BencodeException.class)
     public void testOfNullKey() {
         BDict.of(null, BInteger.of(2));
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test(expected = BencodeException.class)
     public void testOfNullValue() {
         BDict.of(BString.of("foo"), null);

@@ -29,6 +29,7 @@ buildscript {
         logbackVersion = '[1.2,2.0['
         mockitoVersion = '[2.8,3.0['
         jcipVersion = '[1.0,2.0['
+        jetbrainsAnnotationsVersion = '[15.0,16.0['
     }
     repositories {
         mavenCentral()
@@ -36,6 +37,7 @@ buildscript {
 }
 dependencies {
     compile("com.github.stephenc.jcip:jcip-annotations:${jcipVersion}")
+    compile("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
 
     testCompile("junit:junit:${junitVersion}")
     testCompile("ch.qos.logback:logback-classic:${logbackVersion}")

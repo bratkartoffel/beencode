@@ -6,7 +6,9 @@ package eu.fraho.libs.beencode;
  *
  * Please see LICENCE.md for complete licence text.
  */
+
 import net.jcip.annotations.Immutable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,27 +23,31 @@ public final class BList extends BNode<List<BNode<?>>> {
     private static final byte PREFIX = 'l';
     private static final byte SUFFIX = 'e';
 
-    private BList(List<BNode<?>> nodes) {
+    private BList(@NotNull List<BNode<?>> nodes) {
         super(nodes);
     }
 
-    public static BList of(BNode<?>... nodes) {
+    @NotNull
+    public static BList of(@NotNull BNode<?>... nodes) {
         Objects.requireNonNull(nodes, "nodes may not be null");
         return of(Arrays.asList(nodes));
     }
 
-    public static BList of(List<BNode<?>> nodes) {
+    @NotNull
+    public static BList of(@NotNull List<BNode<?>> nodes) {
         Objects.requireNonNull(nodes, "nodes may not be null");
         List<BNode<?>> temp = new ArrayList<>();
         temp.addAll(nodes);
         return new BList(Collections.unmodifiableList(temp));
     }
 
-    public static BList of(InputStream is) throws IOException {
+    @NotNull
+    public static BList of(@NotNull InputStream is) throws IOException {
         return of(is, (byte) is.read());
     }
 
-    public static BList of(InputStream is, byte prefix) throws IOException {
+    @NotNull
+    public static BList of(@NotNull InputStream is, byte prefix) throws IOException {
         if (!canParsePrefix(prefix)) {
             throw new BencodeException("Unknown prefix, cannot parse: " + prefix);
         }
@@ -59,7 +65,7 @@ public final class BList extends BNode<List<BNode<?>>> {
     }
 
     @Override
-    public void write(OutputStream os) throws IOException {
+    public void write(@NotNull OutputStream os) throws IOException {
         os.write(PREFIX);
         for (BNode<?> node : getValue()) {
             node.write(os);
@@ -139,26 +145,30 @@ public final class BList extends BNode<List<BNode<?>>> {
         return getValue().subList(fromIndex, toIndex);
     }
 
+    @NotNull
     public BList remove(int index) {
         List<BNode<?>> temp = new ArrayList<>(getValue());
         temp.remove(index);
         return of(temp);
     }
 
-    public BList remove(BNode<?> node) {
+    @NotNull
+    public BList remove(@NotNull BNode<?> node) {
         List<BNode<?>> temp = new ArrayList<>(getValue());
         if (temp.remove(node)) return of(temp);
         else return this;
     }
 
-    public BList add(BNode<?>... values) {
+    @NotNull
+    public BList add(@NotNull BNode<?>... values) {
         Objects.requireNonNull(values, "values may not be null");
         List<BNode<?>> temp = new ArrayList<>(getValue());
         Collections.addAll(temp, values);
         return of(temp);
     }
 
-    public BList join(BList... others) {
+    @NotNull
+    public BList join(@NotNull BList... others) {
         Objects.requireNonNull(others, "others may not be null");
         List<BNode<?>> temp = new ArrayList<>(getValue());
         for (BList other : others) temp.addAll(other.getValue());

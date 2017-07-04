@@ -7,6 +7,7 @@
 package eu.fraho.libs.beencode;
 
 import net.jcip.annotations.Immutable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,35 +22,41 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
     private static final long serialVersionUID = 1L;
     private static final byte SEPARATOR = ':';
 
-    private BString(byte[] data) {
+    private BString(@NotNull byte[] data) {
         super(new byte[data.length]);
         System.arraycopy(data, 0, getValue(), 0, data.length);
     }
 
-    public static BString of(byte[] data) {
+    @NotNull
+    public static BString of(@NotNull byte[] data) {
         Objects.requireNonNull(data, "data may not be null");
         return new BString(data);
     }
 
-    public static BString of(CharSequence data) {
+    @NotNull
+    public static BString of(@NotNull CharSequence data) {
         return of(data, Charset.defaultCharset());
     }
 
-    public static BString of(CharSequence data, Charset charset) {
+    @NotNull
+    public static BString of(@NotNull CharSequence data, @NotNull Charset charset) {
         Objects.requireNonNull(data, "data may not be null");
         Objects.requireNonNull(charset, "charset may not be null");
         return of(data.toString().getBytes(charset));
     }
 
-    public static BString of(InputStream is) throws IOException {
+    @NotNull
+    public static BString of(@NotNull InputStream is) throws IOException {
         return of(is, (byte) is.read());
     }
 
-    public static BString of(InputStream is, byte prefix) throws IOException {
+    @NotNull
+    public static BString of(@NotNull InputStream is, byte prefix) throws IOException {
         return of(is, prefix, DEFAULT_MAX_READ_LEN);
     }
 
-    public static BString of(InputStream is, byte prefix, int maxReadLen) throws IOException {
+    @NotNull
+    public static BString of(@NotNull InputStream is, byte prefix, int maxReadLen) throws IOException {
         long length = prefix - '0';
 
         byte cur;
@@ -89,16 +96,18 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
     }
 
     @Override
+    @NotNull
     public String toString() {
         return toString(Charset.defaultCharset());
     }
 
-    public String toString(Charset encoding) {
+    @NotNull
+    public String toString(@NotNull Charset encoding) {
         return new String(getValue(), encoding);
     }
 
     @Override
-    public void write(OutputStream os) throws IOException {
+    public void write(@NotNull OutputStream os) throws IOException {
         os.write(String.valueOf(getValue().length).getBytes(DEFAULT_CHARSET));
         os.write(SEPARATOR);
         os.write(getValue());
@@ -110,7 +119,7 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
     }
 
     @Override
-    public int compareTo(BString o) {
+    public int compareTo(@NotNull BString o) {
         return toString().compareTo(o.toString());
     }
 }

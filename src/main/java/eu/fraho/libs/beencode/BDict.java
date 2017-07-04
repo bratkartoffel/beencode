@@ -7,6 +7,7 @@
 package eu.fraho.libs.beencode;
 
 import net.jcip.annotations.Immutable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,11 +20,12 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
     private static final byte PREFIX = 'd';
     private static final byte SUFFIX = 'e';
 
-    private BDict(Map<BString, BNode<?>> nodes) {
+    private BDict(@NotNull Map<BString, BNode<?>> nodes) {
         super(nodes);
     }
 
-    public static BDict of(BNode<?>... nodes) {
+    @NotNull
+    public static BDict of(@NotNull BNode<?>... nodes) {
         Objects.requireNonNull(nodes, "nodes may not be null");
 
         TreeMap<BString, BNode<?>> temp = new TreeMap<>();
@@ -40,7 +42,8 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         return of(temp);
     }
 
-    public static BDict of(Map<BString, BNode<?>> value) {
+    @NotNull
+    public static BDict of(@NotNull Map<BString, BNode<?>> value) {
         Objects.requireNonNull(value, "value may not be null");
 
         TreeMap<BString, BNode<?>> temp = new TreeMap<>();
@@ -48,11 +51,13 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         return new BDict(Collections.unmodifiableMap(temp));
     }
 
-    public static BDict of(InputStream is) throws IOException {
+    @NotNull
+    public static BDict of(@NotNull InputStream is) throws IOException {
         return of(is, (byte) is.read());
     }
 
-    public static BDict of(InputStream is, byte prefix) throws IOException {
+    @NotNull
+    public static BDict of(@NotNull InputStream is, byte prefix) throws IOException {
         if (!canParsePrefix(prefix)) {
             throw new BencodeException("Unknown prefix, cannot parse: " + prefix);
         }
@@ -83,7 +88,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
     }
 
     @Override
-    public void write(OutputStream os) throws IOException {
+    public void write(@NotNull OutputStream os) throws IOException {
         os.write(PREFIX);
         for (Map.Entry<BString, BNode<?>> entry : getValue().entrySet()) {
             entry.getKey().write(os);
@@ -130,7 +135,8 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         return getValue().entrySet();
     }
 
-    public BDict put(final BString key, final BNode<?> value) {
+    @NotNull
+    public BDict put(@NotNull final BString key, @NotNull final BNode<?> value) {
         Objects.requireNonNull(key, "key may not be null");
         Objects.requireNonNull(value, "value may not be null");
         TreeMap<BString, BNode<?>> temp = new TreeMap<>(getValue());
@@ -138,18 +144,21 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         return of(temp);
     }
 
-    public BDict remove(String key) {
+    @NotNull
+    public BDict remove(@NotNull String key) {
         return remove(BString.of(key));
     }
 
-    public BDict remove(BString key) {
+    @NotNull
+    public BDict remove(@NotNull BString key) {
         Objects.requireNonNull(key, "key may not be null");
         TreeMap<BString, BNode<?>> temp = new TreeMap<>(getValue());
         if (temp.remove(key) != null) return of(temp);
         else return this;
     }
 
-    public BDict join(BDict... others) {
+    @NotNull
+    public BDict join(@NotNull BDict... others) {
         Objects.requireNonNull(others, "others may not be null");
         TreeMap<BString, BNode<?>> temp = new TreeMap<>(getValue());
         for (BDict other : others) temp.putAll(other.getValue());
