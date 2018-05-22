@@ -3,6 +3,7 @@ beencode
 [![Build Status](https://travis-ci.org/bratkartoffel/beencode.svg?branch=develop)](https://travis-ci.org/bratkartoffel/beencode)
 [![Code Coverage](https://img.shields.io/codecov/c/github/bratkartoffel/beencode/develop.svg)](https://codecov.io/github/bratkartoffel/beencode?branch=develop)
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat)](http://doge.mit-license.org)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fbratkartoffel%2Fbeencode.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fbratkartoffel%2Fbeencode?ref=badge_shield)
 
 Some java helper classes to deal with binary encoded data strings.
 This class collection can be used to parse, alter and generate these bencoded strings.
@@ -142,3 +143,7 @@ BNode<?> back = NodeFactory.decode(encoded);
 # to central:
 ./gradlew -Prelease check uploadArchives
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fbratkartoffel%2Fbeencode.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fbratkartoffel%2Fbeencode?ref=badge_large)
