@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 
 public class BIntegerTest extends AbstractTest<BInteger> {
     @Override
@@ -21,7 +22,7 @@ public class BIntegerTest extends AbstractTest<BInteger> {
 
     @Override
     protected BInteger getSampleA() {
-        return BInteger.of(13);
+        return BInteger.of(13L);
     }
 
     @Override
@@ -35,6 +36,18 @@ public class BIntegerTest extends AbstractTest<BInteger> {
         BInteger b = getSampleB();
 
         Assert.assertEquals(-1, a.compareTo(b));
+    }
+
+    @Test
+    public void testWithBigInteger() {
+        BInteger testee = BInteger.of(new BigInteger("1598574885652145874569988813"));
+        Assert.assertNotNull(testee);
+    }
+
+    @Test
+    public void testWithObjectLong() {
+        BInteger testee = BInteger.of(Long.valueOf(77L));
+        Assert.assertNotNull(testee);
     }
 
     @Test

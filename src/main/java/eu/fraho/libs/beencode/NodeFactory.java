@@ -12,7 +12,11 @@ import java.io.*;
 import java.util.Objects;
 import java.util.Optional;
 
-public abstract class NodeFactory {
+public final class NodeFactory {
+    private NodeFactory() {
+        // this util class should not be instantiated
+    }
+
     @NotNull
     public static BNode<?> decode(@NotNull InputStream is, byte prefix) throws IOException {
         Objects.requireNonNull(is, "is may not be null");
@@ -51,7 +55,7 @@ public abstract class NodeFactory {
         try (InputStream is = new ByteArrayInputStream(data)) {
             return decode(is);
         } catch (IOException e) {
-            // should never happen as we work on a virtual bytestream
+            // cannot happen as we work on a virtual bytestream and it never throws an IOE
             throw new BencodeException(e);
         }
     }

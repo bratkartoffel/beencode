@@ -36,8 +36,7 @@ public final class BList extends BNode<List<BNode<?>>> {
     @NotNull
     public static BList of(@NotNull List<BNode<?>> nodes) {
         Objects.requireNonNull(nodes, "nodes may not be null");
-        List<BNode<?>> temp = new ArrayList<>();
-        temp.addAll(nodes);
+        List<BNode<?>> temp = new ArrayList<>(nodes);
         return new BList(Collections.unmodifiableList(temp));
     }
 
@@ -91,7 +90,7 @@ public final class BList extends BNode<List<BNode<?>>> {
     }
 
     public BNode<?>[] toArray() {
-        return getValue().toArray(new BNode[getValue().size()]);
+        return getValue().toArray(new BNode[0]);
     }
 
     @SuppressWarnings("SuspiciousToArrayCall")
@@ -115,11 +114,12 @@ public final class BList extends BNode<List<BNode<?>>> {
         getValue().forEach(action);
     }
 
-    public Optional<BNode<?>> get(int index) {
+    @SuppressWarnings("unchecked")
+    public <T extends BNode<?>> Optional<T> get(int index) {
         if (index >= size()) {
             return Optional.empty();
         } else {
-            return Optional.of(getValue().get(index));
+            return Optional.of((T) getValue().get(index));
         }
     }
 

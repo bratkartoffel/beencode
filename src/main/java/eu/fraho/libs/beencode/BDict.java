@@ -46,8 +46,7 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
     public static BDict of(@NotNull Map<BString, BNode<?>> value) {
         Objects.requireNonNull(value, "value may not be null");
 
-        TreeMap<BString, BNode<?>> temp = new TreeMap<>();
-        temp.putAll(value);
+        TreeMap<BString, BNode<?>> temp = new TreeMap<>(value);
         return new BDict(Collections.unmodifiableMap(temp));
     }
 
@@ -115,12 +114,14 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         return getValue().containsValue(value);
     }
 
-    public Optional<BNode<?>> get(BString key) {
-        return Optional.ofNullable(getValue().get(key));
+    @SuppressWarnings("unchecked")
+    public <T extends BNode<?>> Optional<T> get(BString key) {
+        return Optional.ofNullable((T) getValue().get(key));
     }
 
-    public Optional<BNode<?>> get(String key) {
-        return Optional.ofNullable(getValue().get(BString.of(key)));
+    @SuppressWarnings("unchecked")
+    public <T extends BNode<?>> Optional<T> get(String key) {
+        return Optional.ofNullable((T) getValue().get(BString.of(key)));
     }
 
     public Set<BString> keySet() {

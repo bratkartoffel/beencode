@@ -13,25 +13,23 @@ import java.util.Optional;
 
 public class NodeFactoryTest {
     @Test(expected = BencodeException.class)
-    public void testDecodeByteArrayError() throws IOException {
+    public void testDecodeByteArrayError() {
         byte[] data = "i3".getBytes();
         BNode<?> node = NodeFactory.decode(data);
-
         Assert.fail("Invalid data was successfully parsed: " + node);
     }
 
     @Test(expected = BencodeException.class)
-    public void testDecodeByteArrayWrongExpected() throws IOException {
+    public void testDecodeByteArrayWrongExpected() {
         byte[] data = "i3".getBytes();
         Optional<BString> node = NodeFactory.decode(data, BString.class);
         Assert.assertFalse("Invalid data was successfully parsed: " + node, node.isPresent());
     }
 
     @Test(expected = BencodeException.class)
-    public void testDecodeByteArrayUnknownClass() throws IOException {
+    public void testDecodeByteArrayUnknownClass(){
         byte[] data = "i3".getBytes();
         Optional<MyNode> node = NodeFactory.decode(data, MyNode.class);
-
         Assert.assertFalse("Invalid data was successfully parsed: ", node.isPresent());
     }
 
@@ -39,7 +37,16 @@ public class NodeFactoryTest {
     public void testDecodeStreamWithBencodeException() throws IOException {
         try (InputStream bis = Mockito.mock(InputStream.class)) {
             Mockito.when(bis.read()).thenThrow(new BencodeException());
-            BString.of(bis);
+            NodeFactory.decode(bis);
+            Assert.fail("Invalid data was successfully parsed");
+        }
+    }
+
+    @Test(expected = IOException.class)
+    public void testDecodeStreamWithIOException() throws IOException {
+        try (InputStream bis = Mockito.mock(InputStream.class)) {
+            Mockito.when(bis.read()).thenThrow(new IOException());
+            NodeFactory.decode(bis);
             Assert.fail("Invalid data was successfully parsed");
         }
     }
@@ -64,13 +71,13 @@ public class NodeFactoryTest {
     }
 
     @Test
-    public void testDecodeByteArray() throws IOException {
+    public void testDecodeByteArray() {
         byte[] data = "i13e".getBytes();
         Assert.assertEquals(BInteger.of(13), NodeFactory.decode(data));
     }
 
     @Test
-    public void testDecodeWithType() throws IOException {
+    public void testDecodeWithType() {
         byte[] data = "i13e".getBytes();
         Assert.assertEquals(Optional.empty(), NodeFactory.decode(data, BList.class));
         Assert.assertEquals(Optional.of(BInteger.of(13)), NodeFactory.decode(data, BInteger.class));

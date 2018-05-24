@@ -36,9 +36,10 @@ buildscript {
     }
 }
 dependencies {
-    compile("com.github.stephenc.jcip:jcip-annotations:${jcipVersion}")
-    compile("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
+    compileOnly("com.github.stephenc.jcip:jcip-annotations:${jcipVersion}")
+    compileOnly("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
 
+    testCompileOnly("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
     testCompile("junit:junit:${junitVersion}")
     testCompile("ch.qos.logback:logback-classic:${logbackVersion}")
     testCompile("org.mockito:mockito-core:${mockitoVersion}")
