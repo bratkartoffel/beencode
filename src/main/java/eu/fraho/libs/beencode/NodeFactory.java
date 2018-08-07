@@ -72,11 +72,11 @@ public final class NodeFactory {
     public static <T extends BNode<?>> Optional<T> decode(byte[] data, Class<T> expected) {
         Objects.requireNonNull(data, "data may not be null");
         Objects.requireNonNull(expected, "expected may not be null");
-        BNode<?> result = decode(data);
-        if (expected.isAssignableFrom(result.getClass())) {
-            return Optional.of(expected.cast(result));
-        } else {
-            return Optional.empty();
+        try (InputStream stream = new ByteArrayInputStream(data)) {
+            return decode(stream, expected);
+        } catch (IOException e) {
+            // cannot happen as we work on a virtual bytestream and it never throws an IOE
+            throw new BencodeException(e);
         }
     }
 

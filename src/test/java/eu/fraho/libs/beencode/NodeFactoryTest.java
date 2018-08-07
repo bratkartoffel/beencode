@@ -27,7 +27,7 @@ public class NodeFactoryTest {
     }
 
     @Test(expected = BencodeException.class)
-    public void testDecodeByteArrayUnknownClass(){
+    public void testDecodeByteArrayUnknownClass() {
         byte[] data = "i3".getBytes();
         Optional<MyNode> node = NodeFactory.decode(data, MyNode.class);
         Assert.assertFalse("Invalid data was successfully parsed: ", node.isPresent());
@@ -81,6 +81,17 @@ public class NodeFactoryTest {
         byte[] data = "i13e".getBytes();
         Assert.assertEquals(Optional.empty(), NodeFactory.decode(data, BList.class));
         Assert.assertEquals(Optional.of(BInteger.of(13)), NodeFactory.decode(data, BInteger.class));
+    }
+
+    @Test
+    public void testDecodeWithTypeStream() throws IOException {
+        byte[] data = "i13e".getBytes();
+        try (InputStream stream = new ByteArrayInputStream(data)) {
+            Assert.assertEquals(Optional.empty(), NodeFactory.decode(stream, BList.class));
+        }
+        try (InputStream stream = new ByteArrayInputStream(data)) {
+            Assert.assertEquals(Optional.of(BInteger.of(13)), NodeFactory.decode(stream, BInteger.class));
+        }
     }
 
     @Test
