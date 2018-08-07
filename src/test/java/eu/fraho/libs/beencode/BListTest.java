@@ -72,7 +72,7 @@ public class BListTest extends AbstractTest<BList> {
         Assert.assertEquals(testee.contains(eNonExistant), testee.getValue().contains(eNonExistant));
         Assert.assertArrayEquals(testee.toArray(), testee.getValue().toArray());
         Assert.assertArrayEquals(testee.toArray(array), testee.getValue().toArray(array));
-        Assert.assertEquals(testee.containsAll(Collections.singletonList(eNonExistant)), testee.getValue().containsAll(Collections.singletonList(eNonExistant)));
+        Assert.assertEquals(testee.containsAll(Collections.singletonList(eNonExistant)), testee.getValue().contains(eNonExistant));
         Assert.assertEquals(testee.get(0), Optional.of(e0));
         Assert.assertEquals(testee.get(42), Optional.empty());
         Assert.assertEquals(testee.indexOf(eNonExistant), testee.getValue().indexOf(eNonExistant));
@@ -84,7 +84,7 @@ public class BListTest extends AbstractTest<BList> {
         {
             Iterator a = testee.iterator();
             Iterator b = testee.getValue().iterator();
-            while (a.hasNext() && a.hasNext()) {
+            while (a.hasNext()) {
                 Assert.assertEquals(a.next(), b.next());
             }
             Assert.assertFalse(a.hasNext());
@@ -110,7 +110,7 @@ public class BListTest extends AbstractTest<BList> {
         {
             Iterator a = testee.listIterator();
             Iterator b = testee.getValue().listIterator();
-            while (a.hasNext() && a.hasNext()) {
+            while (a.hasNext()) {
                 Assert.assertEquals(a.next(), b.next());
             }
             Assert.assertFalse(a.hasNext());
@@ -122,7 +122,7 @@ public class BListTest extends AbstractTest<BList> {
         for (int i = 0; i < 2; i++) {
             Iterator a = testee.listIterator(i);
             Iterator b = testee.getValue().listIterator(i);
-            while (a.hasNext() && a.hasNext()) {
+            while (a.hasNext()) {
                 Assert.assertEquals(a.next(), b.next());
             }
             Assert.assertFalse(a.hasNext());

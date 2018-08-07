@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class TestcaseHelper {
-
     public static void testStreamFail(String testname) throws IOException {
         try (FileInputStream fstream = new FileInputStream(new File("src/test/resources/data/",
                 testname + ".dat"))) {

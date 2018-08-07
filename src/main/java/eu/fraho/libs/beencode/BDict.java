@@ -6,7 +6,7 @@
  */
 package eu.fraho.libs.beencode;
 
-import net.jcip.annotations.Immutable;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -14,27 +14,27 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
-@Immutable
 public final class BDict extends BNode<Map<BString, BNode<?>>> {
     private static final long serialVersionUID = 1L;
     private static final byte PREFIX = 'd';
     private static final byte SUFFIX = 'e';
 
-    private BDict(@NotNull Map<BString, BNode<?>> nodes) {
+    private BDict(Map<BString, BNode<?>> nodes) {
         super(nodes);
     }
 
+    @Contract(pure = true)
     @NotNull
-    public static BDict of(@NotNull BNode<?>... nodes) {
+    public static BDict of(BNode<?>... nodes) {
         Objects.requireNonNull(nodes, "nodes may not be null");
 
         TreeMap<BString, BNode<?>> temp = new TreeMap<>();
         for (int i = 0; i < nodes.length; i += 2) {
-            if (!BString.class.isInstance(nodes[i])) {
+            if (!(nodes[i] instanceof BString)) {
                 Class<?> clz = nodes[i] == null ? null : nodes[i].getClass();
                 throw new BencodeException("key as argument #" + i + " has to be a BString (is " + clz + ")");
             }
-            if (nodes[i + 1] == null) {
+            if (i + 1 == nodes.length || nodes[i + 1] == null) {
                 throw new BencodeException("value argument #" + i + " has to be not null");
             }
             temp.put((BString) nodes[i], nodes[i + 1]);
@@ -42,21 +42,15 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         return of(temp);
     }
 
+    @Contract("_ -> new")
     @NotNull
-    public static BDict of(@NotNull Map<BString, BNode<?>> value) {
-        Objects.requireNonNull(value, "value may not be null");
-
-        TreeMap<BString, BNode<?>> temp = new TreeMap<>(value);
-        return new BDict(Collections.unmodifiableMap(temp));
-    }
-
-    @NotNull
-    public static BDict of(@NotNull InputStream is) throws IOException {
+    public static BDict of(InputStream is) throws IOException {
         return of(is, (byte) is.read());
     }
 
+    @Contract("_, _ -> new")
     @NotNull
-    public static BDict of(@NotNull InputStream is, byte prefix) throws IOException {
+    public static BDict of(InputStream is, byte prefix) throws IOException {
         if (!canParsePrefix(prefix)) {
             throw new BencodeException("Unknown prefix, cannot parse: " + prefix);
         }
@@ -82,6 +76,16 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         return of(result);
     }
 
+    @Contract(value = "_ -> new", pure = true)
+    @NotNull
+    public static BDict of(Map<BString, BNode<?>> value) {
+        Objects.requireNonNull(value, "value may not be null");
+
+        TreeMap<BString, BNode<?>> temp = new TreeMap<>(value);
+        return new BDict(Collections.unmodifiableMap(temp));
+    }
+
+    @Contract(pure = true)
     public static boolean canParsePrefix(byte prefix) {
         return prefix == PREFIX;
     }
@@ -96,48 +100,63 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         os.write(SUFFIX);
     }
 
+    @Contract(pure = true)
     public int size() {
         return getValue().size();
     }
 
+    @Contract(pure = true)
     public boolean isEmpty() {
         return getValue().isEmpty();
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
-    public boolean containsKey(BNode<?> key) {
+    @Contract(pure = true)
+    public boolean containsKey(BString key) {
         return getValue().containsKey(key);
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
+    @Contract(pure = true)
     public boolean containsValue(BNode<?> value) {
         return getValue().containsValue(value);
     }
 
     @SuppressWarnings("unchecked")
+    @NotNull
+    @Contract(pure = true)
     public <T extends BNode<?>> Optional<T> get(BString key) {
-        return Optional.ofNullable((T) getValue().get(key));
+        BNode<?> value = getValue().get(key);
+        return Optional.ofNullable((T) value);
     }
 
     @SuppressWarnings("unchecked")
+    @NotNull
+    @Contract(pure = true)
     public <T extends BNode<?>> Optional<T> get(String key) {
-        return Optional.ofNullable((T) getValue().get(BString.of(key)));
+        BNode<?> value = getValue().get(BString.of(key));
+        return Optional.ofNullable((T) value);
     }
 
+    @NotNull
+    @Contract(pure = true)
     public Set<BString> keySet() {
         return getValue().keySet();
     }
 
+    @NotNull
+    @Contract(pure = true)
     public Collection<BNode<?>> values() {
         return getValue().values();
     }
 
+    @NotNull
+    @Contract(pure = true)
     public Set<Map.Entry<BString, BNode<?>>> entrySet() {
         return getValue().entrySet();
     }
 
     @NotNull
-    public BDict put(@NotNull final BString key, @NotNull final BNode<?> value) {
+    @Contract(pure = true, value = "_, _ -> new")
+    public BDict put(final BString key, final BNode<?> value) {
         Objects.requireNonNull(key, "key may not be null");
         Objects.requireNonNull(value, "value may not be null");
         TreeMap<BString, BNode<?>> temp = new TreeMap<>(getValue());
@@ -146,12 +165,14 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
     }
 
     @NotNull
-    public BDict remove(@NotNull String key) {
+    @Contract(pure = true)
+    public BDict remove(String key) {
         return remove(BString.of(key));
     }
 
     @NotNull
-    public BDict remove(@NotNull BString key) {
+    @Contract(pure = true)
+    public BDict remove(BString key) {
         Objects.requireNonNull(key, "key may not be null");
         TreeMap<BString, BNode<?>> temp = new TreeMap<>(getValue());
         if (temp.remove(key) != null) return of(temp);
@@ -159,7 +180,8 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
     }
 
     @NotNull
-    public BDict join(@NotNull BDict... others) {
+    @Contract(pure = true, value = "_ -> new")
+    public BDict join(BDict... others) {
         Objects.requireNonNull(others, "others may not be null");
         TreeMap<BString, BNode<?>> temp = new TreeMap<>(getValue());
         for (BDict other : others) temp.putAll(other.getValue());

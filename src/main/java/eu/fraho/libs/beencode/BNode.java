@@ -6,15 +6,15 @@
  */
 package eu.fraho.libs.beencode;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.Objects;
 
 public abstract class BNode<T> implements Cloneable, Serializable {
     public static final Charset DEFAULT_CHARSET = StandardCharsets.US_ASCII;
@@ -24,37 +24,30 @@ public abstract class BNode<T> implements Cloneable, Serializable {
     private final T value;
 
     public BNode(@NotNull T value) {
-        this.value = value;
+        this.value = Objects.requireNonNull(value, "value may not be null");
     }
 
-    public abstract void write(@NotNull OutputStream os) throws IOException;
+    public abstract void write(OutputStream os) throws IOException;
 
+    @Contract(value = "null -> false", pure = true)
     @Override
-    public boolean equals(@Nullable Object obj) {
-        if (obj == null || !BNode.class.isAssignableFrom(obj.getClass())) {
+    public boolean equals(Object obj) {
+        if (obj == null || this.getClass() != obj.getClass()) {
             return false;
         }
 
-        boolean result = getClass().equals(obj.getClass());
-        if (result) {
-            BNode<?> other = (BNode<?>) obj;
-            if (this.getClass().isAssignableFrom(BString.class)) {
-                result = Arrays.equals((byte[]) value, (byte[]) other.getValue());
-            } else {
-                result = value.equals(other.getValue());
-            }
-        }
-
-        return result;
+        BNode<?> that = (BNode<?>) obj;
+        return Objects.equals(this.getValue(), that.getValue());
     }
 
     @Override
+    @Contract(pure = true)
     public int hashCode() {
         return getClass().hashCode() + value.hashCode();
     }
 
     @Override
-    @NotNull
+    @Contract(pure = true)
     public String toString() {
         return String.valueOf(value);
     }

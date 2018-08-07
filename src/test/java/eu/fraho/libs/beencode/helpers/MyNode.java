@@ -1,9 +1,7 @@
 package eu.fraho.libs.beencode.helpers;
 
 import eu.fraho.libs.beencode.BNode;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 public class MyNode extends BNode<Object> {
@@ -14,7 +12,6 @@ public class MyNode extends BNode<Object> {
     }
 
     @Override
-    public void write(@NotNull OutputStream os) throws IOException {
-
+    public void write(OutputStream os) {
     }
 }

@@ -6,7 +6,7 @@
  */
 package eu.fraho.libs.beencode;
 
-import net.jcip.annotations.Immutable;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -16,7 +16,6 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
 
-@Immutable
 public final class BString extends BNode<byte[]> implements Comparable<BString> {
     public static final int DEFAULT_MAX_READ_LEN = 33_554_432; // 32 MiB
     private static final long serialVersionUID = 1L;
@@ -28,35 +27,41 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
     }
 
     @NotNull
-    public static BString of(@NotNull byte[] data) {
+    @Contract(value = "_ -> new", pure = true)
+    public static BString of(byte[] data) {
         Objects.requireNonNull(data, "data may not be null");
         return new BString(data);
     }
 
     @NotNull
-    public static BString of(@NotNull CharSequence data) {
+    @Contract(value = "_ -> new", pure = true)
+    public static BString of(CharSequence data) {
         return of(data, Charset.defaultCharset());
     }
 
     @NotNull
-    public static BString of(@NotNull CharSequence data, @NotNull Charset charset) {
+    @Contract(value = "_, _ -> new", pure = true)
+    public static BString of(CharSequence data, Charset charset) {
         Objects.requireNonNull(data, "data may not be null");
         Objects.requireNonNull(charset, "charset may not be null");
         return of(data.toString().getBytes(charset));
     }
 
+    @Contract(value = "_ -> new", pure = true)
     @NotNull
-    public static BString of(@NotNull InputStream is) throws IOException {
+    public static BString of(InputStream is) throws IOException {
         return of(is, (byte) is.read());
     }
 
+    @Contract(value = "_, _ -> new", pure = true)
     @NotNull
-    public static BString of(@NotNull InputStream is, byte prefix) throws IOException {
+    public static BString of(InputStream is, byte prefix) throws IOException {
         return of(is, prefix, DEFAULT_MAX_READ_LEN);
     }
 
+    @Contract(value = "_, _, _ -> new", pure = true)
     @NotNull
-    public static BString of(@NotNull InputStream is, byte prefix, int maxReadLen) throws IOException {
+    public static BString of(InputStream is, byte prefix, int maxReadLen) throws IOException {
         long length = prefix - '0';
 
         byte cur;
@@ -91,18 +96,21 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
         return of(value);
     }
 
+    @Contract(pure = true)
     public static boolean canParsePrefix(byte prefix) {
         return prefix >= '0' && prefix <= '9';
     }
 
-    @Override
     @NotNull
+    @Override
+    @Contract(pure = true)
     public String toString() {
         return toString(Charset.defaultCharset());
     }
 
     @NotNull
-    public String toString(@NotNull Charset encoding) {
+    @Contract(value = "_ -> new", pure = true)
+    public String toString(Charset encoding) {
         return new String(getValue(), encoding);
     }
 
@@ -114,12 +122,25 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
     }
 
     @Override
+    @Contract(pure = true)
     public int hashCode() {
         return getClass().hashCode() + Arrays.hashCode(getValue());
     }
 
     @Override
+    @Contract(pure = true)
     public int compareTo(@NotNull BString o) {
         return toString().compareTo(o.toString());
+    }
+
+    @Contract(value = "null -> false", pure = true)
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !BString.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+
+        BString that = (BString) obj;
+        return Arrays.equals(this.getValue(), that.getValue());
     }
 }

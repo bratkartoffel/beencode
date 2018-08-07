@@ -38,19 +38,26 @@ public class BDictTest extends AbstractTest<BDict> {
 
     @Test(expected = BencodeException.class)
     public void testOfBIntegerKey() {
-        BDict.of(BInteger.of(Integer.valueOf(13)), BInteger.of(2));
+        BDict testee = BDict.of(BInteger.of(Integer.valueOf(13)), BInteger.of(2));
+        Assert.assertNull(testee);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test(expected = BencodeException.class)
     public void testOfNullKey() {
-        BDict.of(null, BInteger.of(2));
+        BDict testee = BDict.of(null, BInteger.of(2));
+        Assert.assertNull(testee);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test(expected = BencodeException.class)
     public void testOfNullValue() {
-        BDict.of(BString.of("foo"), null);
+        BDict testee = BDict.of(BString.of("foo"), null);
+        Assert.assertNull(testee);
+    }
+
+    @Test(expected = BencodeException.class)
+    public void testOfMissingValue() {
+        BDict testee = BDict.of(BString.of("foo"), BInteger.of(42), BString.of("bar"));
+        Assert.assertNull(testee);
     }
 
     @Test

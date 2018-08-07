@@ -1,52 +1,90 @@
 buildscript {
     ext {
         projectVersion = '2.0.0-SNAPSHOT'
+
+        slf4jVersion = '1.7.25'
+        jetbrainsAnnotationsVersion = '16.0.2'
+        junitVersion = '4.12'
+        logbackVersion = '1.2.3'
+        mockitoVersion = '2.21.0'
     }
     repositories {
+        mavenLocal()
         mavenCentral()
     }
     dependencies {
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.8.0"
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.11.0"
     }
 }
 
 apply plugin: 'java'
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
 group = 'eu.fraho.libs'
 version = "${projectVersion}"
 description = "Java Library for handling binary-encoded (bencoded, torrent) files and data"
+sourceCompatibility = 8
+targetCompatibility = 8
+
+// START java 9 stuff
+if (JavaVersion.current() > JavaVersion.VERSION_1_8) {
+    sourceSets {
+        moduleInfo {
+            java {
+                srcDir 'src/module-info/java'
+                include '**/module-info.java'
+            }
+        }
+    }
+    ext.moduleName = 'eu.fraho.libs.beencode'
+    compileModuleInfoJava {
+        sourceCompatibility = 9
+        targetCompatibility = 9
+
+        inputs.property("moduleName", moduleName)
+
+        doFirst {
+            classpath += sourceSets.main.compileClasspath
+
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+                    '-d', sourceSets.main.output.classesDirs.asPath
+            ]
+        }
+    }
+    jar {
+        from sourceSets.moduleInfo.output
+    }
+}
+// END java 9 stuff
 
 jar {
     version = "${project.version}"
-}
-buildscript {
-    ext {
-        junitVersion = '[4.12,5.0['
-        logbackVersion = '[1.2,2.0['
-        mockitoVersion = '[2.8,3.0['
-        jcipVersion = '[1.0,2.0['
-        jetbrainsAnnotationsVersion = '[15.0,16.0['
+    manifest {
+        attributes(
+                "Implementation-Title": "Gradle",
+                "Implementation-Version": version,
+                "Build-Jdk": "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                "Compatibility": project.sourceCompatibility,
+        )
     }
-    repositories {
-        mavenCentral()
-    }
+    from sourceSets.main.output
 }
-dependencies {
-    compileOnly("com.github.stephenc.jcip:jcip-annotations:${jcipVersion}")
-    compileOnly("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
 
-    testCompileOnly("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
-    testCompile("junit:junit:${junitVersion}")
-    testCompile("ch.qos.logback:logback-classic:${logbackVersion}")
-    testCompile("org.mockito:mockito-core:${mockitoVersion}")
+dependencies {
+    compile "org.slf4j:slf4j-api:${slf4jVersion}"
+    compileOnly "org.jetbrains:annotations:${jetbrainsAnnotationsVersion}"
+
+    testCompile "junit:junit:${junitVersion}"
+    testCompile "ch.qos.logback:logback-classic:${logbackVersion}"
+    testCompile "org.mockito:mockito-core:${mockitoVersion}"
 }
 
 // release stuff
-apply plugin: 'maven'
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc
@@ -69,16 +107,27 @@ jacocoTestReport {
         html.enabled = true
     }
 }
-
 check.dependsOn jacocoTestReport
 
-apply plugin: 'io.codearte.nexus-staging'
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
 
+// release to central
+apply plugin: 'signing'
+apply plugin: 'maven'
 if (project.hasProperty('release')) {
-    apply plugin: 'signing'
+    // abort on test failures on releasing
+    test {
+        ignoreFailures = false
+    }
 
     // Signature of artifacts
     signing {
+        useGpgCmd()
         sign configurations.archives
     }
 
@@ -127,10 +176,5 @@ if (project.hasProperty('release')) {
                 }
             }
         }
-    }
-
-    nexusStaging {
-        username = ossrhUsername
-        password = ossrhPassword
     }
 }
