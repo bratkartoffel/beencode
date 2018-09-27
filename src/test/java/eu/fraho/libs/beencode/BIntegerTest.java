@@ -1,6 +1,5 @@
 package eu.fraho.libs.beencode;
 
-import eu.fraho.libs.beencode.helpers.TestcaseHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -46,98 +45,98 @@ public class BIntegerTest extends AbstractTest<BInteger> {
 
     @Test
     public void testWithObjectLong() {
-        BInteger testee = BInteger.of(Long.valueOf(77L));
+        BInteger testee = BInteger.of(77L);
         Assert.assertNotNull(testee);
     }
 
     @Test
     public void testStream() throws IOException {
-        TestcaseHelper.testStreamSuccess("bint_simple", BInteger.of(1337));
+        testStreamSuccess("bint_simple", BInteger.of(1337));
     }
 
     @Test
     public void testStreamExtraData() throws IOException {
-        TestcaseHelper.testStreamSuccess("bint_extra_data", BInteger.of(1337));
+        testStreamSuccess("bint_extra_data", BInteger.of(1337));
     }
 
     @Test
     public void testStreamZero() throws IOException {
-        TestcaseHelper.testStreamSuccess("bint_0", BInteger.of(0));
+        testStreamSuccess("bint_0", BInteger.of(0));
     }
 
     @Test
     public void testStreamNegativeOne() throws IOException {
-        TestcaseHelper.testStreamSuccess("bint_neg_1", BInteger.of(-1));
+        testStreamSuccess("bint_neg_1", BInteger.of(-1));
     }
 
     @Test
     public void testStreamNegative() throws IOException {
-        TestcaseHelper.testStreamSuccess("bint_simple_neg", BInteger.of(-1337));
+        testStreamSuccess("bint_simple_neg", BInteger.of(-1337));
     }
 
     @Test
     public void testStreamMax() throws IOException {
-        TestcaseHelper.testStreamSuccess("bint_max", BInteger.of(Long.MAX_VALUE));
+        testStreamSuccess("bint_max", BInteger.of(Long.MAX_VALUE));
     }
 
     @Test
     public void testStreamMin() throws IOException {
-        TestcaseHelper.testStreamSuccess("bint_min", BInteger.of(Long.MIN_VALUE));
+        testStreamSuccess("bint_min", BInteger.of(Long.MIN_VALUE));
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidData() throws IOException {
-        TestcaseHelper.testStreamFail("bint_invalid_data");
+        testStreamFail("bint_invalid_data");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamOnlyDash() throws IOException {
-        TestcaseHelper.testStreamFail("bint_only_dash");
+        testStreamFail("bint_only_dash");
     }
 
     @Test
     public void testStream9() throws IOException {
-        TestcaseHelper.testStreamSuccess("bint_9", BInteger.of(9));
+        testStreamSuccess("bint_9", BInteger.of(9));
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidEmpty() throws IOException {
-        TestcaseHelper.testStreamFail("bint_invalid_empty");
+        testStreamFail("bint_invalid_empty");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidNoData() throws IOException {
-        TestcaseHelper.testStreamFail("bint_invalid_nodata");
+        testStreamFail("bint_invalid_nodata");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidTwoDashes1() throws IOException {
-        TestcaseHelper.testStreamFail("bint_invalid_two_dashes_1");
+        testStreamFail("bint_invalid_two_dashes_1");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidTwoDashes2() throws IOException {
-        TestcaseHelper.testStreamFail("bint_invalid_two_dashes_2");
+        testStreamFail("bint_invalid_two_dashes_2");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidLeadingZero() throws IOException {
-        TestcaseHelper.testStreamFail("bint_leading_zero");
+        testStreamFail("bint_leading_zero");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidLeadingZeroNeg() throws IOException {
-        TestcaseHelper.testStreamFail("bint_leading_zero_neg");
+        testStreamFail("bint_leading_zero_neg");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidNegativeZero() throws IOException {
-        TestcaseHelper.testStreamFail("bint_neg_0");
+        testStreamFail("bint_neg_0");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamTooLong() throws IOException {
-        TestcaseHelper.testStreamFail("bint_too_long");
+        testStreamFail("bint_too_long");
     }
 
     @Test(expected = BencodeException.class)
@@ -145,5 +144,14 @@ public class BIntegerTest extends AbstractTest<BInteger> {
         try (InputStream is = new ByteArrayInputStream(new byte[0])) {
             BInteger.of(is, (byte) 'x');
         }
+    }
+
+    @Test
+    public void testClone() {
+        BInteger orig = BInteger.of(42);
+        BInteger clone = orig.clone();
+
+        Assert.assertEquals("Equals", orig, clone);
+        Assert.assertNotSame("NotSame", orig, clone);
     }
 }

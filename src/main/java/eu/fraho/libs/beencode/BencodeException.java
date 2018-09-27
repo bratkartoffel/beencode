@@ -13,6 +13,10 @@ public class BencodeException extends RuntimeException {
         super(message);
     }
 
+    public BencodeException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
     public BencodeException() {
         super();
     }

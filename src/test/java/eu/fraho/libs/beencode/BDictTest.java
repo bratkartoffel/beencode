@@ -1,6 +1,5 @@
 package eu.fraho.libs.beencode;
 
-import eu.fraho.libs.beencode.helpers.TestcaseHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,11 +12,11 @@ import java.util.TreeMap;
 
 public class BDictTest extends AbstractTest<BDict> {
     protected String getSampleAEncoded() {
-        return "d3:bar4:test3:fooi13ee";
+        return "d3:fooi13e3:bar4:teste";
     }
 
     protected String getSampleAToString() {
-        return "{bar=test, foo=13}";
+        return "{foo=13, bar=test}";
     }
 
     @Override
@@ -38,56 +37,52 @@ public class BDictTest extends AbstractTest<BDict> {
 
     @Test(expected = BencodeException.class)
     public void testOfBIntegerKey() {
-        BDict testee = BDict.of(BInteger.of(Integer.valueOf(13)), BInteger.of(2));
-        Assert.assertNull(testee);
+        BDict.of(BInteger.of(13), BInteger.of(2));
     }
 
     @Test(expected = BencodeException.class)
     public void testOfNullKey() {
-        BDict testee = BDict.of(null, BInteger.of(2));
-        Assert.assertNull(testee);
+        BDict.of(null, BInteger.of(2));
     }
 
     @Test(expected = BencodeException.class)
     public void testOfNullValue() {
-        BDict testee = BDict.of(BString.of("foo"), null);
-        Assert.assertNull(testee);
+        BDict.of(BString.of("foo"), null);
     }
 
     @Test(expected = BencodeException.class)
     public void testOfMissingValue() {
-        BDict testee = BDict.of(BString.of("foo"), BInteger.of(42), BString.of("bar"));
-        Assert.assertNull(testee);
+        BDict.of(BString.of("foo"), BInteger.of(42), BString.of("bar"));
     }
 
     @Test
     public void testStreamExtraData() throws IOException {
-        TestcaseHelper.testStreamSuccess("bdict_extra_data", getSampleA());
+        testStreamSuccess("bdict_extra_data", getSampleA());
     }
 
     @Test
     public void testStream() throws IOException {
-        TestcaseHelper.testStreamSuccess("bdict_simple", getSampleA());
+        testStreamSuccess("bdict_simple", getSampleA());
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidEmpty() throws IOException {
-        TestcaseHelper.testStreamFail("bdict_invalid_empty");
+        testStreamFail("bdict_invalid_empty");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamNoValue() throws IOException {
-        TestcaseHelper.testStreamFail("bdict_no_value");
+        testStreamFail("bdict_no_value");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidEnd() throws IOException {
-        TestcaseHelper.testStreamFail("bdict_invalid_end");
+        testStreamFail("bdict_invalid_end");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidIntKey() throws IOException {
-        TestcaseHelper.testStreamFail("bdict_invalid_int_key");
+        testStreamFail("bdict_invalid_int_key");
     }
 
     @Test
@@ -148,5 +143,14 @@ public class BDictTest extends AbstractTest<BDict> {
         try (InputStream is = new ByteArrayInputStream(new byte[0])) {
             BDict.of(is, (byte) 'x');
         }
+    }
+
+    @Test
+    public void testClone() {
+        BDict orig = BDict.of(BString.of("foo"), BString.of("bar"));
+        BDict clone = orig.clone();
+
+        Assert.assertEquals("Equals", orig, clone);
+        Assert.assertNotSame("NotSame", orig, clone);
     }
 }

@@ -1,6 +1,5 @@
 package eu.fraho.libs.beencode;
 
-import eu.fraho.libs.beencode.helpers.TestcaseHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,22 +41,22 @@ public class BListTest extends AbstractTest<BList> {
 
     @Test
     public void testStreamExtraData() throws IOException {
-        TestcaseHelper.testStreamSuccess("blist_extra_data", getSampleB());
+        testStreamSuccess("blist_extra_data", getSampleB());
     }
 
     @Test
     public void testStream() throws IOException {
-        TestcaseHelper.testStreamSuccess("blist_simple", getSampleB());
+        testStreamSuccess("blist_simple", getSampleB());
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidEmpty() throws IOException {
-        TestcaseHelper.testStreamFail("blist_invalid_empty");
+        testStreamFail("blist_invalid_empty");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidEnd() throws IOException {
-        TestcaseHelper.testStreamFail("blist_invalid_end");
+        testStreamFail("blist_invalid_end");
     }
 
     @Test
@@ -189,5 +188,14 @@ public class BListTest extends AbstractTest<BList> {
         try (InputStream is = new ByteArrayInputStream(new byte[0])) {
             BList.of(is, (byte) 'x');
         }
+    }
+
+    @Test
+    public void testClone() {
+        BList orig = BList.of(BString.of("foobar"), BInteger.of(42));
+        BList clone = orig.clone();
+
+        Assert.assertEquals("Equals", orig, clone);
+        Assert.assertNotSame("NotSame", orig, clone);
     }
 }

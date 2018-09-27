@@ -3,10 +3,10 @@ buildscript {
         projectVersion = '2.0.0-SNAPSHOT'
 
         slf4jVersion = '1.7.25'
-        jetbrainsAnnotationsVersion = '16.0.2'
         junitVersion = '4.12'
         logbackVersion = '1.2.3'
         mockitoVersion = '2.21.0'
+        powermockVersion = '2.0.0-beta.5'
     }
     repositories {
         mavenLocal()
@@ -77,11 +77,12 @@ jar {
 
 dependencies {
     compile "org.slf4j:slf4j-api:${slf4jVersion}"
-    compileOnly "org.jetbrains:annotations:${jetbrainsAnnotationsVersion}"
 
     testCompile "junit:junit:${junitVersion}"
     testCompile "ch.qos.logback:logback-classic:${logbackVersion}"
     testCompile "org.mockito:mockito-core:${mockitoVersion}"
+    testCompile "org.powermock:powermock-api-mockito2:${powermockVersion}"
+    testCompile "org.powermock:powermock-module-junit4:${powermockVersion}"
 }
 
 // release stuff

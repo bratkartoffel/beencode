@@ -6,18 +6,15 @@
  */
 package eu.fraho.libs.beencode;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public final class BInteger extends BNode<BigInteger> implements Comparable<BInteger> {
-    private static final int MAX_READ_LEN = 21;
-    private static final long serialVersionUID = 1L;
+public final class BInteger extends BNodeBase<BigInteger> implements Comparable<BInteger> {
+    private static final long serialVersionUID = 100L;
+    private static final int MAX_READ_LEN = 31;
     private static final byte PREFIX = 'i';
     private static final byte SUFFIX = 'e';
 
@@ -25,47 +22,25 @@ public final class BInteger extends BNode<BigInteger> implements Comparable<BInt
         super(value);
     }
 
-    @Contract(pure = true, value = "_ -> new")
-    @NotNull
-    public static BInteger of(long value) {
-        return of(BigInteger.valueOf(value));
-    }
-
-    @Contract(pure = true, value = "_ -> new")
-    @NotNull
-    public static BInteger of(int value) {
-        return of(BigInteger.valueOf(value));
-    }
-
-    @Contract(pure = true, value = "_ -> new")
-    @NotNull
     public static BInteger of(Integer value) {
         Objects.requireNonNull(value, "value may not be null");
         return of(BigInteger.valueOf(value));
     }
 
-    @Contract(pure = true, value = "_ -> new")
-    @NotNull
     public static BInteger of(Long value) {
         Objects.requireNonNull(value, "value may not be null");
         return of(BigInteger.valueOf(value));
     }
 
-    @NotNull
-    @Contract(value = "_ -> new", pure = true)
     public static BInteger of(BigInteger value) {
         Objects.requireNonNull(value, "value may not be null");
         return new BInteger(value);
     }
 
-    @Contract("_ -> new")
-    @NotNull
     public static BInteger of(InputStream is) throws IOException {
         return of(is, (byte) is.read());
     }
 
-    @Contract("_, _ -> new")
-    @NotNull
     public static BInteger of(InputStream is, byte prefix) throws IOException {
         if (!canParsePrefix(prefix)) {
             throw new BencodeException("Unknown prefix, cannot parse: " + prefix);
@@ -106,22 +81,30 @@ public final class BInteger extends BNode<BigInteger> implements Comparable<BInt
         }
     }
 
-    @Contract(pure = true)
     public static boolean canParsePrefix(byte prefix) {
         return prefix == PREFIX;
     }
 
     @Override
-    public void write(@NotNull OutputStream os) throws IOException {
+    public void write(OutputStream os) throws IOException {
         os.write(PREFIX);
         os.write(getValue().toString().getBytes(DEFAULT_CHARSET));
         os.write(SUFFIX);
     }
 
-    @Contract(pure = true)
     @Override
-    public int compareTo(@NotNull BInteger o) {
+    public int compareTo(BInteger o) {
         Objects.requireNonNull(o, "other is null");
         return getValue().compareTo(o.getValue());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public BInteger clone() {
+        try {
+            return (BInteger) super.clone();
+        } catch (BencodeException be) {
+            return BInteger.of(getValue());
+        }
     }
 }

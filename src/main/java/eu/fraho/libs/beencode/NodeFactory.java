@@ -6,9 +6,6 @@
  */
 package eu.fraho.libs.beencode;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.*;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,8 +15,6 @@ public final class NodeFactory {
         // this util class should not be instantiated
     }
 
-    @NotNull
-    @Contract(value = "_, _ -> new")
     public static BNode<?> decode(InputStream stream, byte prefix) throws IOException {
         Objects.requireNonNull(stream, "stream may not be null");
         if (BDict.canParsePrefix(prefix)) {
@@ -35,15 +30,11 @@ public final class NodeFactory {
         }
     }
 
-    @NotNull
-    @Contract(value = "_ -> new")
     public static BNode<?> decode(InputStream stream) throws IOException {
         Objects.requireNonNull(stream, "stream may not be null");
         return decode(stream, (byte) stream.read());
     }
 
-    @NotNull
-    @Contract(value = "_, _ -> new")
     public static <T extends BNode<?>> Optional<T> decode(InputStream stream, Class<T> expected) throws IOException {
         Objects.requireNonNull(stream, "stream may not be null");
         Objects.requireNonNull(expected, "expected may not be null");
@@ -51,12 +42,10 @@ public final class NodeFactory {
         if (expected.isAssignableFrom(result.getClass())) {
             return Optional.of(expected.cast(result));
         } else {
-            return Optional.empty();
+            throw new BencodeException("Parsed the data as " + result.getClass().getSimpleName() + ", but expected " + expected.getSimpleName());
         }
     }
 
-    @NotNull
-    @Contract(pure = true, value = "_ -> new")
     public static BNode<?> decode(byte[] data) {
         Objects.requireNonNull(data, "data may not be null");
         try (InputStream is = new ByteArrayInputStream(data)) {
@@ -67,8 +56,6 @@ public final class NodeFactory {
         }
     }
 
-    @NotNull
-    @Contract(pure = true, value = "_, _ -> new")
     public static <T extends BNode<?>> Optional<T> decode(byte[] data, Class<T> expected) {
         Objects.requireNonNull(data, "data may not be null");
         Objects.requireNonNull(expected, "expected may not be null");
@@ -80,8 +67,6 @@ public final class NodeFactory {
         }
     }
 
-    @NotNull
-    @Contract(pure = true, value = "_ -> new")
     public static byte[] encode(BNode<?> node) {
         Objects.requireNonNull(node, "node may not be null");
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -93,7 +78,6 @@ public final class NodeFactory {
         }
     }
 
-    @Contract(pure = true, value = "null, _ -> fail; _, null -> fail")
     public static void encode(BNode<?> node, OutputStream os) throws IOException {
         Objects.requireNonNull(node, "node may not be null");
         Objects.requireNonNull(os, "os may not be null");

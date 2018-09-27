@@ -6,7 +6,7 @@
  */
 package eu.fraho.libs.beencode;
 
-public class Dummy {
+public class Dummy { // $COVERAGE-IGNORE$
     // this is just a dummy class so IntelliJ doesn't
     // mock up about an non existant / empty module
 }
