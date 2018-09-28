@@ -40,7 +40,9 @@ abstract class BNodeBase<T> implements BNode<T> {
         return value;
     }
 
-    void preCloneForUnitTesting() {
+    // only for unit testing
+    @SuppressWarnings("RedundantThrows")
+    protected void preCloneForUnitTesting() throws CloneNotSupportedException {
     }
 
     @SuppressWarnings("unchecked")

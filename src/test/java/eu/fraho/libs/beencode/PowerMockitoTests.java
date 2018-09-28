@@ -9,7 +9,6 @@ package eu.fraho.libs.beencode;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -24,11 +23,10 @@ import java.nio.charset.StandardCharsets;
 @RunWith(PowerMockRunner.class)
 public class PowerMockitoTests {
     @Test
-    public void testCloneNotSupportedBDict() {
+    public void testCloneNotSupportedBDict() throws Exception {
         BDict orig = BDict.of(BString.of("foo"), BString.of("bar"));
-        BDict mock = Mockito.spy(orig);
-        Mockito.doThrow(new CloneNotSupportedException()).when(mock).preCloneForUnitTesting();
-        PowerMockito.mockStatic(BDict.class, Mockito.withSettings().defaultAnswer(Answers.CALLS_REAL_METHODS));
+        BDict mock = PowerMockito.spy(orig);
+        PowerMockito.when(mock, "preCloneForUnitTesting").thenThrow(new CloneNotSupportedException());
         BDict clone = mock.clone();
 
         Assert.assertEquals("Equals", orig, clone);
@@ -36,11 +34,10 @@ public class PowerMockitoTests {
     }
 
     @Test
-    public void testCloneNotSupportedBInteger() {
+    public void testCloneNotSupportedBInteger() throws Exception {
         BInteger orig = BInteger.of(42);
-        BInteger mock = Mockito.spy(orig);
-        Mockito.doThrow(new CloneNotSupportedException()).when(mock).preCloneForUnitTesting();
-        PowerMockito.mockStatic(BDict.class, Mockito.withSettings().defaultAnswer(Answers.CALLS_REAL_METHODS));
+        BInteger mock = PowerMockito.spy(orig);
+        PowerMockito.when(mock, "preCloneForUnitTesting").thenThrow(new CloneNotSupportedException());
         BInteger clone = mock.clone();
 
         Assert.assertEquals("Equals", orig, clone);
@@ -48,11 +45,10 @@ public class PowerMockitoTests {
     }
 
     @Test
-    public void testCloneNotSupportedBList() {
+    public void testCloneNotSupportedBList() throws Exception {
         BList orig = BList.of(BString.of("foobar"), BInteger.of(42));
-        BList mock = Mockito.spy(orig);
-        Mockito.doThrow(new CloneNotSupportedException()).when(mock).preCloneForUnitTesting();
-        PowerMockito.mockStatic(BDict.class, Mockito.withSettings().defaultAnswer(Answers.CALLS_REAL_METHODS));
+        BList mock = PowerMockito.spy(orig);
+        PowerMockito.when(mock, "preCloneForUnitTesting").thenThrow(new CloneNotSupportedException());
         BList clone = mock.clone();
 
         Assert.assertEquals("Equals", orig, clone);
@@ -60,11 +56,10 @@ public class PowerMockitoTests {
     }
 
     @Test
-    public void testCloneNotSupportedBString() {
+    public void testCloneNotSupportedBString() throws Exception {
         BString orig = BString.of("foobar");
-        BString mock = Mockito.spy(orig);
-        Mockito.doThrow(new CloneNotSupportedException()).when(mock).preCloneForUnitTesting();
-        PowerMockito.mockStatic(BDict.class, Mockito.withSettings().defaultAnswer(Answers.CALLS_REAL_METHODS));
+        BString mock = PowerMockito.spy(orig);
+        PowerMockito.when(mock, "preCloneForUnitTesting").thenThrow(new CloneNotSupportedException());
         BString clone = mock.clone();
 
         Assert.assertEquals("Equals", orig, clone);
@@ -99,7 +94,7 @@ public class PowerMockitoTests {
 
     @Test(expected = BencodeException.class)
     public void testEncodeWithIoException() throws IOException {
-        BInteger testee = Mockito.mock(BInteger.class);
+        BInteger testee = PowerMockito.mock(BInteger.class);
         Mockito.doThrow(new IOException()).when(testee).write(Mockito.any(OutputStream.class));
         try {
             NodeFactory.encode(testee);

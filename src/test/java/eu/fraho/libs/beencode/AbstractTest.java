@@ -67,7 +67,7 @@ public abstract class AbstractTest<T extends BNode<?>> {
             hasRead = (BNodeBase<?>) ois.readObject();
         }
 
-        Assert.assertEquals(toWrite, hasRead);
+        Assert.assertEquals("Object written and read match", toWrite, hasRead);
     }
 
 
