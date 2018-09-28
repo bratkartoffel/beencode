@@ -1,10 +1,11 @@
 package eu.fraho.libs.beencode;
 
-import eu.fraho.libs.beencode.helpers.TestcaseHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,46 +41,49 @@ public class BListTest extends AbstractTest<BList> {
 
     @Test
     public void testStreamExtraData() throws IOException {
-        TestcaseHelper.testStreamSuccess("blist_extra_data", getSampleB());
+        testStreamSuccess("blist_extra_data", getSampleB());
     }
 
     @Test
     public void testStream() throws IOException {
-        TestcaseHelper.testStreamSuccess("blist_simple", getSampleB());
+        testStreamSuccess("blist_simple", getSampleB());
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidEmpty() throws IOException {
-        TestcaseHelper.testStreamFail("blist_invalid_empty");
+        testStreamFail("blist_invalid_empty");
     }
 
     @Test(expected = BencodeException.class)
     public void testStreamInvalidEnd() throws IOException {
-        TestcaseHelper.testStreamFail("blist_invalid_end");
+        testStreamFail("blist_invalid_end");
     }
 
     @Test
     public void testDelegateMethods() {
         BList testee = getSampleA();
-        BInteger entry = BInteger.of(12345);
+        BInteger eNonExistant = BInteger.of(12345);
+        BString e0 = BString.of("Foo");
         BNode<?>[] array = new BNode[3];
 
         Assert.assertEquals(testee.size(), testee.getValue().size());
         Assert.assertEquals(testee.isEmpty(), testee.getValue().isEmpty());
-        Assert.assertEquals(testee.contains(entry), testee.getValue().contains(entry));
+        Assert.assertEquals(testee.contains(eNonExistant), testee.getValue().contains(eNonExistant));
         Assert.assertArrayEquals(testee.toArray(), testee.getValue().toArray());
         Assert.assertArrayEquals(testee.toArray(array), testee.getValue().toArray(array));
-        Assert.assertEquals(testee.containsAll(Collections.singletonList(entry)), testee.getValue().containsAll(Collections.singletonList(entry)));
-        Assert.assertEquals(testee.get(0), testee.getValue().get(0));
-        Assert.assertEquals(testee.indexOf(entry), testee.getValue().indexOf(entry));
-        Assert.assertEquals(testee.lastIndexOf(entry), testee.getValue().lastIndexOf(entry));
+        Assert.assertEquals(testee.containsAll(Collections.singletonList(eNonExistant)), testee.getValue().contains(eNonExistant));
+        Assert.assertEquals(testee.get(0), Optional.of(e0));
+        Assert.assertEquals(testee.get(42), Optional.empty());
+        Assert.assertEquals(testee.indexOf(eNonExistant), testee.getValue().indexOf(eNonExistant));
+        Assert.assertEquals(testee.lastIndexOf(eNonExistant), testee.getValue().lastIndexOf(eNonExistant));
+        Assert.assertEquals(testee.subList(0, 1), testee.getValue().subList(0, 1));
         Assert.assertEquals(testee.subList(1, 2), testee.getValue().subList(1, 2));
 
         /* test iterator */
         {
             Iterator a = testee.iterator();
             Iterator b = testee.getValue().iterator();
-            while (a.hasNext() && a.hasNext()) {
+            while (a.hasNext()) {
                 Assert.assertEquals(a.next(), b.next());
             }
             Assert.assertFalse(a.hasNext());
@@ -105,7 +109,7 @@ public class BListTest extends AbstractTest<BList> {
         {
             Iterator a = testee.listIterator();
             Iterator b = testee.getValue().listIterator();
-            while (a.hasNext() && a.hasNext()) {
+            while (a.hasNext()) {
                 Assert.assertEquals(a.next(), b.next());
             }
             Assert.assertFalse(a.hasNext());
@@ -114,10 +118,10 @@ public class BListTest extends AbstractTest<BList> {
         /* end test list iterator without arg */
 
         /* test list iterator with arg */
-        {
-            Iterator a = testee.listIterator(1);
-            Iterator b = testee.getValue().listIterator(1);
-            while (a.hasNext() && a.hasNext()) {
+        for (int i = 0; i < 2; i++) {
+            Iterator a = testee.listIterator(i);
+            Iterator b = testee.getValue().listIterator(i);
+            while (a.hasNext()) {
                 Assert.assertEquals(a.next(), b.next());
             }
             Assert.assertFalse(a.hasNext());
@@ -147,6 +151,7 @@ public class BListTest extends AbstractTest<BList> {
     public void testRemove() {
         BList testee = getSampleB();
         Assert.assertEquals(1, testee.remove(0).size());
+        Assert.assertEquals(1, testee.remove(1).size());
         Assert.assertEquals(1, testee.remove(BInteger.of(13)).size());
         Assert.assertSame(testee, testee.remove(BInteger.of(99)));
         Assert.assertEquals(2, testee.size());
@@ -176,5 +181,21 @@ public class BListTest extends AbstractTest<BList> {
         data.add(BString.of("bar"));
         BList b = BList.of(data);
         Assert.assertNotEquals(a, b);
+    }
+
+    @Test(expected = BencodeException.class)
+    public void testOfInvalidPrefix() throws IOException {
+        try (InputStream is = new ByteArrayInputStream(new byte[0])) {
+            BList.of(is, (byte) 'x');
+        }
+    }
+
+    @Test
+    public void testClone() {
+        BList orig = BList.of(BString.of("foobar"), BInteger.of(42));
+        BList clone = orig.clone();
+
+        Assert.assertEquals("Equals", orig, clone);
+        Assert.assertNotSame("NotSame", orig, clone);
     }
 }

@@ -6,43 +6,34 @@
  */
 package eu.fraho.libs.beencode;
 
-import net.jcip.annotations.Immutable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
-@Immutable
-public final class BDict extends BNode<Map<BString, BNode<?>>> {
-    private static final long serialVersionUID = 1L;
+public final class BDict extends BNodeBase<Map<BString, BNode<?>>> {
+    private static final long serialVersionUID = 100L;
     private static final byte PREFIX = 'd';
     private static final byte SUFFIX = 'e';
 
     private BDict(Map<BString, BNode<?>> nodes) {
-        super(nodes);
+        super(Collections.unmodifiableMap(new LinkedHashMap<>(nodes)));
     }
 
     public static BDict of(BNode<?>... nodes) {
         Objects.requireNonNull(nodes, "nodes may not be null");
-
-        TreeMap<BString, BNode<?>> temp = new TreeMap<>();
+        LinkedHashMap<BString, BNode<?>> temp = new LinkedHashMap<>();
         for (int i = 0; i < nodes.length; i += 2) {
-            if (!BString.class.isInstance(nodes[i])) {
+            if (!(nodes[i] instanceof BString)) {
                 Class<?> clz = nodes[i] == null ? null : nodes[i].getClass();
                 throw new BencodeException("key as argument #" + i + " has to be a BString (is " + clz + ")");
+            }
+            if (i + 1 == nodes.length || nodes[i + 1] == null) {
+                throw new BencodeException("value argument #" + i + " has to be not null");
             }
             temp.put((BString) nodes[i], nodes[i + 1]);
         }
         return of(temp);
-    }
-
-    public static BDict of(Map<BString, BNode<?>> value) {
-        Objects.requireNonNull(value, "value may not be null");
-
-        TreeMap<BString, BNode<?>> temp = new TreeMap<>();
-        temp.putAll(value);
-        return new BDict(Collections.unmodifiableMap(temp));
     }
 
     public static BDict of(InputStream is) throws IOException {
@@ -50,25 +41,30 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
     }
 
     public static BDict of(InputStream is, byte prefix) throws IOException {
-        Map<BString, BNode<?>> result = new TreeMap<>();
+        if (!canParsePrefix(prefix)) {
+            throw new BencodeException("Unknown prefix, cannot parse: " + prefix);
+        }
+        Map<BString, BNode<?>> result = new LinkedHashMap<>();
         byte read;
         while ((read = (byte) is.read()) != SUFFIX) {
             if (!BString.canParsePrefix(read)) {
                 throw new BencodeException("Expected a dictionary key (BString), but it"
                         + " cannot parse with prefix '" + read + "'.");
             }
-
             BString key = BString.of(is, read);
             read = (byte) is.read();
             if (read == SUFFIX) {
                 throw new BencodeException(
                         "Expected dictionary value, but suffix was found.");
             }
-
             result.put(key, NodeFactory.decode(is, read));
         }
-
         return of(result);
+    }
+
+    public static BDict of(Map<BString, BNode<?>> value) {
+        Objects.requireNonNull(value, "value may not be null");
+        return new BDict(value);
     }
 
     public static boolean canParsePrefix(byte prefix) {
@@ -93,20 +89,22 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         return getValue().isEmpty();
     }
 
-    public boolean containsKey(Object key) {
-        return BString.class.isInstance(key) && getValue().containsKey(key);
+    public boolean containsKey(BString key) {
+        return getValue().containsKey(key);
     }
 
-    public boolean containsValue(Object value) {
+    public boolean containsValue(BNode<?> value) {
         return getValue().containsValue(value);
     }
 
-    public BNode<?> get(Object key) {
-        if (key instanceof BString) {
-            return getValue().get(key);
-        } else {
-            return getValue().get(BString.of(String.valueOf(key)));
-        }
+    @SuppressWarnings("unchecked")
+    public <T extends BNode<?>> Optional<T> get(BString key) {
+        return Optional.ofNullable((T) getValue().get(key));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends BNode<?>> Optional<T> get(String key) {
+        return Optional.ofNullable((T) getValue().get(BString.of(key)));
     }
 
     public Set<BString> keySet() {
@@ -145,5 +143,15 @@ public final class BDict extends BNode<Map<BString, BNode<?>>> {
         TreeMap<BString, BNode<?>> temp = new TreeMap<>(getValue());
         for (BDict other : others) temp.putAll(other.getValue());
         return of(temp);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public BDict clone() {
+        try {
+            return (BDict) super.clone();
+        } catch (BencodeException be) {
+            return BDict.of(getValue());
+        }
     }
 }

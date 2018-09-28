@@ -1,83 +1,113 @@
 package eu.fraho.libs.beencode;
 
-import eu.fraho.libs.beencode.helpers.MyNode;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.Optional;
 
 public class NodeFactoryTest {
     @Test(expected = BencodeException.class)
-    public void testDecodeByteArrayError() throws IOException {
-        byte[] data = "i3".getBytes();
-        BNode<?> node = NodeFactory.decode(data);
-
-        Assert.fail("Invalid data was successfully parsed: " + node);
+    public void testDecodeByteArrayError() {
+        NodeFactory.decode("i3".getBytes());
     }
 
     @Test(expected = BencodeException.class)
-    public void testDecodeByteArrayWrongExpected() throws IOException {
-        byte[] data = "i3".getBytes();
-        Optional<BString> node = NodeFactory.decode(data, BString.class);
-        Assert.assertFalse("Invalid data was successfully parsed: " + node, node.isPresent());
-    }
-
-    @Test(expected = BencodeException.class)
-    public void testDecodeByteArrayUnknownClass() throws IOException {
-        byte[] data = "i3".getBytes();
-        Optional<MyNode> node = NodeFactory.decode(data, MyNode.class);
-
-        Assert.assertFalse("Invalid data was successfully parsed: ", node.isPresent());
+    public void testDecodeByteArrayWrongExpected() {
+        NodeFactory.decode("i3e".getBytes(), BString.class);
     }
 
     @Test(expected = BencodeException.class)
     public void testDecodeStreamWithBencodeException() throws IOException {
-        try (InputStream bis = Mockito.mock(InputStream.class)) {
-            Mockito.when(bis.read()).thenThrow(new BencodeException());
-            BString.of(bis);
-            Assert.fail("Invalid data was successfully parsed");
-        }
+        InputStream bis = Mockito.mock(InputStream.class);
+        Mockito.when(bis.read()).thenThrow(new BencodeException());
+        NodeFactory.decode(bis);
+    }
+
+    @Test(expected = IOException.class)
+    public void testDecodeStreamWithIOException() throws IOException {
+        InputStream bis = Mockito.mock(InputStream.class);
+        Mockito.when(bis.read()).thenThrow(new IOException());
+        NodeFactory.decode(bis);
     }
 
     @Test(expected = BencodeException.class)
     public void testEncodeStreamWithBencodeExceptionOnWrite() throws IOException {
-        try (OutputStream bos = Mockito.mock(OutputStream.class)) {
-            Mockito.doThrow(new BencodeException()).when(bos).write(Mockito.anyInt());
-            BString str = BString.of("foobar");
-            NodeFactory.encode(str, bos);
-            Assert.fail("Invalid data was successfully encoded: " + str);
-        }
+        OutputStream bos = Mockito.mock(OutputStream.class);
+        Mockito.doThrow(new BencodeException()).when(bos).write(Mockito.anyInt());
+        NodeFactory.encode(BString.of("foobar"), bos);
     }
 
     @Test(expected = BencodeException.class)
     public void testEncodeBencodeException() throws IOException {
-        BNode<?> str = Mockito.mock(BNode.class);
+        BNodeBase<?> str = Mockito.mock(BNodeBase.class);
         Mockito.doThrow(new BencodeException()).when(str).write(Mockito.any(OutputStream.class));
-
-        byte[] data = NodeFactory.encode(str);
-        Assert.fail("Successfully encoded node to: " + new String(data));
+        NodeFactory.encode(str);
     }
 
     @Test
-    public void testDecodeByteArray() throws IOException {
-        byte[] data = "i13e".getBytes();
-        Assert.assertEquals(BInteger.of(13), NodeFactory.decode(data));
+    public void testDecodeByteArray() {
+        Assert.assertEquals(BInteger.of(13), NodeFactory.decode("i13e".getBytes()));
+    }
+
+    @Test(expected = BencodeException.class)
+    public void testDecodeWithWrongType() {
+        NodeFactory.decode("i13e".getBytes(), BList.class);
     }
 
     @Test
-    public void testDecodeWithType() throws IOException {
-        byte[] data = "i13e".getBytes();
-        Assert.assertEquals(Optional.empty(), NodeFactory.decode(data, BList.class));
-        Assert.assertEquals(Optional.of(BInteger.of(13)), NodeFactory.decode(data, BInteger.class));
+    public void testDecodeWithType() {
+        Assert.assertEquals(Optional.of(BInteger.of(13)), NodeFactory.decode("i13e".getBytes(), BInteger.class));
+    }
+
+    @Test(expected = BencodeException.class)
+    public void testDecodeWithTypeStreamWrongType() throws IOException {
+        try (InputStream stream = new ByteArrayInputStream("i13e".getBytes())) {
+            NodeFactory.decode(stream, BList.class);
+        }
+    }
+
+    @Test
+    public void testDecodeWithTypeStream() throws IOException {
+        try (InputStream stream = new ByteArrayInputStream("i13e".getBytes())) {
+            Assert.assertEquals(Optional.of(BInteger.of(13)), NodeFactory.decode(stream, BInteger.class));
+        }
     }
 
     @Test
     public void testEncode() {
-        byte[] expected = "i13e".getBytes();
-        Assert.assertArrayEquals(expected, NodeFactory.encode(BInteger.of(13)));
+        Assert.assertArrayEquals("i13e".getBytes(), NodeFactory.encode(BInteger.of(13)));
+    }
+
+    @Test
+    public void testDecodeStreamWithTypeOk() throws IOException {
+        try (InputStream is = new ByteArrayInputStream("i0e".getBytes())) {
+            Optional<BInteger> result = NodeFactory.decode(is, BInteger.class);
+            Assert.assertTrue(result.isPresent());
+        }
+    }
+
+    @Test(expected = BencodeException.class)
+    public void testDecodeStreamWithTypeWrong() throws IOException {
+        try (InputStream is = new ByteArrayInputStream("i0e".getBytes())) {
+            NodeFactory.decode(is, BString.class);
+        }
+    }
+
+    @Test
+    public void testInstance() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        Constructor<?>[] constructors = NodeFactory.class.getDeclaredConstructors();
+        Assert.assertEquals("Only one constructor defined", 1, constructors.length);
+        Assert.assertEquals("Constructor is private", Modifier.PRIVATE, constructors[0].getModifiers() & Modifier.PRIVATE);
+
+        constructors[0].setAccessible(true);
+        constructors[0].newInstance();
     }
 }

@@ -6,38 +6,33 @@
  */
 package eu.fraho.libs.beencode;
 
-import net.jcip.annotations.Immutable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.util.Objects;
 
-@Immutable
-public final class BInteger extends BNode<Long> implements Comparable<BInteger> {
-    private static final int MAX_READ_LEN = 21;
-    private static final long serialVersionUID = 1L;
+public final class BInteger extends BNodeBase<BigInteger> implements Comparable<BInteger> {
+    private static final long serialVersionUID = 100L;
+    private static final int MAX_READ_LEN = 31;
     private static final byte PREFIX = 'i';
     private static final byte SUFFIX = 'e';
 
-    private BInteger(Long value) {
+    private BInteger(BigInteger value) {
         super(value);
-    }
-
-    public static BInteger of(long value) {
-        return of(Long.valueOf(value));
-    }
-
-    public static BInteger of(int value) {
-        return of(Long.valueOf(value));
     }
 
     public static BInteger of(Integer value) {
         Objects.requireNonNull(value, "value may not be null");
-        return of(Long.valueOf(value));
+        return of(BigInteger.valueOf(value));
     }
 
     public static BInteger of(Long value) {
+        Objects.requireNonNull(value, "value may not be null");
+        return of(BigInteger.valueOf(value));
+    }
+
+    public static BInteger of(BigInteger value) {
         Objects.requireNonNull(value, "value may not be null");
         return new BInteger(value);
     }
@@ -47,12 +42,14 @@ public final class BInteger extends BNode<Long> implements Comparable<BInteger> 
     }
 
     public static BInteger of(InputStream is, byte prefix) throws IOException {
-        StringBuilder str = new StringBuilder(MAX_READ_LEN);
+        if (!canParsePrefix(prefix)) {
+            throw new BencodeException("Unknown prefix, cannot parse: " + prefix);
+        }
 
+        StringBuilder str = new StringBuilder(MAX_READ_LEN);
         byte read = 0;
         for (int i = 0; i < MAX_READ_LEN; i++) {
             read = (byte) is.read();
-            if (read == PREFIX) continue;
             if (read == SUFFIX) break;
             str.append((char) read);
         }
@@ -78,9 +75,9 @@ public final class BInteger extends BNode<Long> implements Comparable<BInteger> 
         }
 
         try {
-            return of(Long.parseLong(input));
+            return of(new BigInteger(input));
         } catch (NumberFormatException nfe) {
-            throw new BencodeException("Invalid data, could not parse number", nfe);
+            throw new BencodeException(nfe);
         }
     }
 
@@ -91,12 +88,23 @@ public final class BInteger extends BNode<Long> implements Comparable<BInteger> 
     @Override
     public void write(OutputStream os) throws IOException {
         os.write(PREFIX);
-        os.write(String.valueOf(getValue()).getBytes(DEFAULT_CHARSET));
+        os.write(getValue().toString().getBytes(DEFAULT_CHARSET));
         os.write(SUFFIX);
     }
 
     @Override
     public int compareTo(BInteger o) {
+        Objects.requireNonNull(o, "other is null");
         return getValue().compareTo(o.getValue());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public BInteger clone() {
+        try {
+            return (BInteger) super.clone();
+        } catch (BencodeException be) {
+            return BInteger.of(getValue());
+        }
     }
 }

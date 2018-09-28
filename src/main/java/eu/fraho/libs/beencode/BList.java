@@ -1,12 +1,10 @@
-package eu.fraho.libs.beencode;
-
 /*
  * MIT Licence
  * Copyright (c) 2017 Simon Frankenberger
  *
  * Please see LICENCE.md for complete licence text.
  */
-import net.jcip.annotations.Immutable;
+package eu.fraho.libs.beencode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,14 +13,13 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-@Immutable
-public final class BList extends BNode<List<BNode<?>>> {
-    private static final long serialVersionUID = 1L;
+public final class BList extends BNodeBase<List<BNode<?>>> {
+    private static final long serialVersionUID = 100L;
     private static final byte PREFIX = 'l';
     private static final byte SUFFIX = 'e';
 
     private BList(List<BNode<?>> nodes) {
-        super(nodes);
+        super(Collections.unmodifiableList(new ArrayList<>(nodes)));
     }
 
     public static BList of(BNode<?>... nodes) {
@@ -32,9 +29,7 @@ public final class BList extends BNode<List<BNode<?>>> {
 
     public static BList of(List<BNode<?>> nodes) {
         Objects.requireNonNull(nodes, "nodes may not be null");
-        List<BNode<?>> temp = new ArrayList<>();
-        temp.addAll(nodes);
-        return new BList(Collections.unmodifiableList(temp));
+        return new BList(nodes);
     }
 
     public static BList of(InputStream is) throws IOException {
@@ -42,6 +37,10 @@ public final class BList extends BNode<List<BNode<?>>> {
     }
 
     public static BList of(InputStream is, byte prefix) throws IOException {
+        if (!canParsePrefix(prefix)) {
+            throw new BencodeException("Unknown prefix, cannot parse: " + prefix);
+        }
+
         List<BNode<?>> temp = new ArrayList<>();
         byte read;
         while ((read = (byte) is.read()) != SUFFIX) {
@@ -71,7 +70,7 @@ public final class BList extends BNode<List<BNode<?>>> {
         return getValue().isEmpty();
     }
 
-    public boolean contains(Object o) {
+    public boolean contains(BNode<?> o) {
         return getValue().contains(o);
     }
 
@@ -80,11 +79,10 @@ public final class BList extends BNode<List<BNode<?>>> {
     }
 
     public BNode<?>[] toArray() {
-        return getValue().toArray(new BNode[getValue().size()]);
+        return getValue().toArray(new BNode[0]);
     }
 
-    @SuppressWarnings("SuspiciousToArrayCall")
-    public <T> T[] toArray(T[] a) {
+    public BNode<?>[] toArray(BNode<?>[] a) {
         return getValue().toArray(a);
     }
 
@@ -104,15 +102,21 @@ public final class BList extends BNode<List<BNode<?>>> {
         getValue().forEach(action);
     }
 
-    public BNode<?> get(int index) {
-        return getValue().get(index);
+    @SuppressWarnings("unchecked")
+    public <T extends BNode<?>> Optional<T> get(int index) {
+        if (index >= size()) {
+            return Optional.empty();
+        } else {
+            BNode<?> value = getValue().get(index);
+            return Optional.of((T) value);
+        }
     }
 
-    public int indexOf(Object o) {
+    public int indexOf(BNode<?> o) {
         return getValue().indexOf(o);
     }
 
-    public int lastIndexOf(Object o) {
+    public int lastIndexOf(BNode<?> o) {
         return getValue().lastIndexOf(o);
     }
 
@@ -152,5 +156,15 @@ public final class BList extends BNode<List<BNode<?>>> {
         List<BNode<?>> temp = new ArrayList<>(getValue());
         for (BList other : others) temp.addAll(other.getValue());
         return of(temp);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public BList clone() {
+        try {
+            return (BList) super.clone();
+        } catch (BencodeException be) {
+            return BList.of(getValue());
+        }
     }
 }

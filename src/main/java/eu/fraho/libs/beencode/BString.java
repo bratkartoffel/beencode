@@ -6,8 +6,6 @@
  */
 package eu.fraho.libs.beencode;
 
-import net.jcip.annotations.Immutable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,10 +13,9 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
 
-@Immutable
-public final class BString extends BNode<byte[]> implements Comparable<BString> {
+public final class BString extends BNodeBase<byte[]> implements Comparable<BString> {
+    private static final long serialVersionUID = 100L;
     public static final int DEFAULT_MAX_READ_LEN = 33_554_432; // 32 MiB
-    private static final long serialVersionUID = 1L;
     private static final byte SEPARATOR = ':';
 
     private BString(byte[] data) {
@@ -51,9 +48,6 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
 
     public static BString of(InputStream is, byte prefix, int maxReadLen) throws IOException {
         long length = prefix - '0';
-        if (length == 0) {
-            throw new BencodeException("Leading zeros are not allowed.");
-        }
 
         byte cur;
         while ((cur = (byte) is.read()) != SEPARATOR) {
@@ -62,6 +56,10 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
                         + cur + "'");
             }
             length = length * 10 + (cur - '0');
+        }
+
+        if (length > 0 && prefix == '0') {
+            throw new BencodeException("Leading zeros are not allowed.");
         }
 
         if (length > maxReadLen) {
@@ -111,5 +109,25 @@ public final class BString extends BNode<byte[]> implements Comparable<BString> 
     @Override
     public int compareTo(BString o) {
         return toString().compareTo(o.toString());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !BString.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+
+        BString that = (BString) obj;
+        return Arrays.equals(this.getValue(), that.getValue());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public BString clone() {
+        try {
+            return (BString) super.clone();
+        } catch (BencodeException be) {
+            return BString.of(getValue());
+        }
     }
 }
