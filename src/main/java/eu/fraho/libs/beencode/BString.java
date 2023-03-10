@@ -1,6 +1,6 @@
 /*
  * MIT Licence
- * Copyright (c) 2017 Simon Frankenberger
+ * Copyright (c) 2023 Simon Frankenberger
  *
  * Please see LICENCE.md for complete licence text.
  */
@@ -121,7 +121,6 @@ public final class BString extends BNodeBase<byte[]> implements Comparable<BStri
         return Arrays.equals(this.getValue(), that.getValue());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public BString clone() {
         try {

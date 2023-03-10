@@ -1,6 +1,6 @@
 /*
  * MIT Licence
- * Copyright (c) 2017 Simon Frankenberger
+ * Copyright (c) 2023 Simon Frankenberger
  *
  * Please see LICENCE.md for complete licence text.
  */
@@ -9,7 +9,14 @@ package eu.fraho.libs.beencode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 
 public final class BDict extends BNodeBase<Map<BString, BNode<?>>> {
     private static final long serialVersionUID = 100L;
@@ -49,7 +56,7 @@ public final class BDict extends BNodeBase<Map<BString, BNode<?>>> {
         while ((read = (byte) is.read()) != SUFFIX) {
             if (!BString.canParsePrefix(read)) {
                 throw new BencodeException("Expected a dictionary key (BString), but it"
-                        + " cannot parse with prefix '" + read + "'.");
+                                           + " cannot parse with prefix '" + read + "'.");
             }
             BString key = BString.of(is, read);
             read = (byte) is.read();
@@ -145,7 +152,6 @@ public final class BDict extends BNodeBase<Map<BString, BNode<?>>> {
         return of(temp);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public BDict clone() {
         try {

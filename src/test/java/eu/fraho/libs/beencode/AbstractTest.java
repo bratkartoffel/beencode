@@ -1,9 +1,16 @@
 package eu.fraho.libs.beencode;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -26,9 +33,8 @@ public abstract class AbstractTest<T extends BNode<?>> {
 
     protected void testStreamSuccess(String testname, BNode<?> expected)
             throws IOException {
-        try (FileInputStream fstream = new FileInputStream(new File("src/test/resources/data/",
-                testname + ".dat"))) {
-            Assert.assertEquals("Received unexpected result", expected, NodeFactory.decode(fstream));
+        try (FileInputStream fstream = new FileInputStream(new File("src/test/resources/data/", testname + ".dat"))) {
+            Assertions.assertEquals(expected, NodeFactory.decode(fstream), "Received unexpected result");
         }
     }
 
@@ -37,8 +43,8 @@ public abstract class AbstractTest<T extends BNode<?>> {
         T a = getSampleA();
         T b = getSampleA();
         T c = getSampleB();
-        Assert.assertEquals(a, b);
-        Assert.assertNotEquals(a, c);
+        Assertions.assertEquals(a, b);
+        Assertions.assertNotEquals(a, c);
     }
 
     @Test
@@ -46,8 +52,8 @@ public abstract class AbstractTest<T extends BNode<?>> {
         T a = getSampleA();
         T b = getSampleA();
         T c = getSampleB();
-        Assert.assertEquals(a.hashCode(), b.hashCode());
-        Assert.assertNotEquals(a.hashCode(), c.hashCode());
+        Assertions.assertEquals(a.hashCode(), b.hashCode());
+        Assertions.assertNotEquals(a.hashCode(), c.hashCode());
     }
 
     @Test
@@ -67,13 +73,13 @@ public abstract class AbstractTest<T extends BNode<?>> {
             hasRead = (BNodeBase<?>) ois.readObject();
         }
 
-        Assert.assertEquals("Object written and read match", toWrite, hasRead);
+        Assertions.assertEquals(toWrite, hasRead, "Object written and read match");
     }
 
 
     @Test
     public void testToString() {
-        Assert.assertEquals(getSampleAToString(), getSampleA().toString());
+        Assertions.assertEquals(getSampleAToString(), getSampleA().toString());
     }
 
     @Test
@@ -81,7 +87,7 @@ public abstract class AbstractTest<T extends BNode<?>> {
         T expected = getSampleA();
         try (InputStream is = new ByteArrayInputStream(getSampleAEncoded().getBytes())) {
             Method of = expected.getClass().getDeclaredMethod("of", InputStream.class);
-            Assert.assertEquals(expected, of.invoke(null, is));
+            Assertions.assertEquals(expected, of.invoke(null, is));
         }
     }
 
@@ -89,7 +95,7 @@ public abstract class AbstractTest<T extends BNode<?>> {
     public void testWrite() throws IOException {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             getSampleA().write(os);
-            Assert.assertEquals(getSampleAEncoded(), new String(os.toByteArray(), StandardCharsets.US_ASCII));
+            Assertions.assertEquals(getSampleAEncoded(), new String(os.toByteArray(), StandardCharsets.US_ASCII));
         }
     }
 }

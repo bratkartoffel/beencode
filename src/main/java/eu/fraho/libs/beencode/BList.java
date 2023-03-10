@@ -1,6 +1,6 @@
 /*
  * MIT Licence
- * Copyright (c) 2017 Simon Frankenberger
+ * Copyright (c) 2023 Simon Frankenberger
  *
  * Please see LICENCE.md for complete licence text.
  */
@@ -87,7 +87,7 @@ public final class BList extends BNodeBase<List<BNode<?>>> {
     }
 
     public boolean containsAll(Collection<?> c) {
-        return getValue().containsAll(c);
+        return new HashSet<>(getValue()).containsAll(c);
     }
 
     public Spliterator<BNode<?>> spliterator() {
@@ -158,7 +158,6 @@ public final class BList extends BNodeBase<List<BNode<?>>> {
         return of(temp);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public BList clone() {
         try {

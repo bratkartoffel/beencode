@@ -1,7 +1,7 @@
 package eu.fraho.libs.beencode;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,19 +34,19 @@ public class BIntegerTest extends AbstractTest<BInteger> {
         BInteger a = getSampleA();
         BInteger b = getSampleB();
 
-        Assert.assertEquals(-1, a.compareTo(b));
+        Assertions.assertEquals(-1, a.compareTo(b));
     }
 
     @Test
     public void testWithBigInteger() {
         BInteger testee = BInteger.of(new BigInteger("1598574885652145874569988813"));
-        Assert.assertNotNull(testee);
+        Assertions.assertNotNull(testee);
     }
 
     @Test
     public void testWithObjectLong() {
         BInteger testee = BInteger.of(77L);
-        Assert.assertNotNull(testee);
+        Assertions.assertNotNull(testee);
     }
 
     @Test
@@ -84,14 +84,18 @@ public class BIntegerTest extends AbstractTest<BInteger> {
         testStreamSuccess("bint_min", BInteger.of(Long.MIN_VALUE));
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidData() throws IOException {
-        testStreamFail("bint_invalid_data");
+    @Test
+    public void testStreamInvalidData() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bint_invalid_data");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamOnlyDash() throws IOException {
-        testStreamFail("bint_only_dash");
+    @Test
+    public void testStreamOnlyDash() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bint_only_dash");
+        });
     }
 
     @Test
@@ -99,50 +103,68 @@ public class BIntegerTest extends AbstractTest<BInteger> {
         testStreamSuccess("bint_9", BInteger.of(9));
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidEmpty() throws IOException {
-        testStreamFail("bint_invalid_empty");
+    @Test
+    public void testStreamInvalidEmpty() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bint_invalid_empty");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidNoData() throws IOException {
-        testStreamFail("bint_invalid_nodata");
+    @Test
+    public void testStreamInvalidNoData() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bint_invalid_nodata");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidTwoDashes1() throws IOException {
-        testStreamFail("bint_invalid_two_dashes_1");
+    @Test
+    public void testStreamInvalidTwoDashes1() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bint_invalid_two_dashes_1");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidTwoDashes2() throws IOException {
-        testStreamFail("bint_invalid_two_dashes_2");
+    @Test
+    public void testStreamInvalidTwoDashes2() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bint_invalid_two_dashes_2");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidLeadingZero() throws IOException {
-        testStreamFail("bint_leading_zero");
+    @Test
+    public void testStreamInvalidLeadingZero() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bint_leading_zero");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidLeadingZeroNeg() throws IOException {
-        testStreamFail("bint_leading_zero_neg");
+    @Test
+    public void testStreamInvalidLeadingZeroNeg() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bint_leading_zero_neg");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidNegativeZero() throws IOException {
-        testStreamFail("bint_neg_0");
+    @Test
+    public void testStreamInvalidNegativeZero() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bint_neg_0");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamTooLong() throws IOException {
-        testStreamFail("bint_too_long");
+    @Test
+    public void testStreamTooLong() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bint_too_long");
+        });
     }
 
-    @Test(expected = BencodeException.class)
+    @Test
     public void testOfInvalidPrefix() throws IOException {
         try (InputStream is = new ByteArrayInputStream(new byte[0])) {
-            BInteger.of(is, (byte) 'x');
+            Assertions.assertThrows(BencodeException.class, () -> {
+                BInteger.of(is, (byte) 'x');
+            });
         }
     }
 
@@ -151,7 +173,7 @@ public class BIntegerTest extends AbstractTest<BInteger> {
         BInteger orig = BInteger.of(42);
         BInteger clone = orig.clone();
 
-        Assert.assertEquals("Equals", orig, clone);
-        Assert.assertNotSame("NotSame", orig, clone);
+        Assertions.assertEquals(orig, clone);
+        Assertions.assertNotSame(orig, clone);
     }
 }

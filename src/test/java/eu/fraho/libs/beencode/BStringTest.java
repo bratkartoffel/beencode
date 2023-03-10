@@ -1,9 +1,13 @@
 package eu.fraho.libs.beencode;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class BStringTest extends AbstractTest<BString> {
@@ -30,15 +34,15 @@ public class BStringTest extends AbstractTest<BString> {
     @Test
     public void testGetValueStringEncoding() {
         BString str = BString.of("我", StandardCharsets.UTF_16BE);
-        Assert.assertEquals("我", str.toString(StandardCharsets.UTF_16BE));
+        Assertions.assertEquals("我", str.toString(StandardCharsets.UTF_16BE));
     }
 
     @Test
     public void testEmptyString() {
         BString str = BString.of("");
         byte[] encoded = NodeFactory.encode(str);
-        Assert.assertEquals("0:", new String(encoded));
-        Assert.assertEquals(str, NodeFactory.decode(encoded));
+        Assertions.assertEquals("0:", new String(encoded));
+        Assertions.assertEquals(str, NodeFactory.decode(encoded));
     }
 
     @Test
@@ -60,8 +64,8 @@ public class BStringTest extends AbstractTest<BString> {
         }
 
         rawOut = hasRead.toString(StandardCharsets.UTF_16BE);
-        Assert.assertEquals(toWrite, hasRead);
-        Assert.assertEquals(rawIn, rawOut);
+        Assertions.assertEquals(toWrite, hasRead);
+        Assertions.assertEquals(rawIn, rawOut);
     }
 
     @Test
@@ -69,21 +73,27 @@ public class BStringTest extends AbstractTest<BString> {
         testStreamSuccess("bstring_extra_data", getSampleB());
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidEmpty() throws IOException {
-        testStreamFail("bstring_invalid_empty");
+    @Test
+    public void testStreamInvalidEmpty() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bstring_invalid_empty");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamLeadingZero() throws IOException {
-        testStreamFail("bstring_length_leading_zero");
+    @Test
+    public void testStreamLeadingZero() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bstring_length_leading_zero");
+        });
     }
 
-    @Test(expected = BencodeException.class)
+    @Test
     public void testStreamTooLarge() throws IOException {
         try (FileInputStream fstream = new FileInputStream(new File("src/test/resources/data/",
                 "bstring_too_long.dat"))) {
-            BString.of(fstream, (byte) fstream.read(), 10);
+            Assertions.assertThrows(BencodeException.class, () -> {
+                BString.of(fstream, (byte) fstream.read(), 10);
+            });
         }
     }
 
@@ -92,24 +102,32 @@ public class BStringTest extends AbstractTest<BString> {
         testStreamSuccess("bstring_length_zero", BString.of(""));
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidLength() throws IOException {
-        testStreamFail("bstring_invalid_length");
+    @Test
+    public void testStreamInvalidLength() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bstring_invalid_length");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamLengthChars() throws IOException {
-        testStreamFail("bstring_length_chars");
+    @Test
+    public void testStreamLengthChars() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bstring_length_chars");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamTooLong() throws IOException {
-        testStreamFail("bstring_too_long");
+    @Test
+    public void testStreamTooLong() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bstring_too_long");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamLengthNegative() throws IOException {
-        testStreamFail("bstring_length_negative");
+    @Test
+    public void testStreamLengthNegative() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bstring_length_negative");
+        });
     }
 
     @Test
@@ -120,7 +138,7 @@ public class BStringTest extends AbstractTest<BString> {
     @Test
     public void testToString() {
         BString a = BString.of("lorem");
-        Assert.assertEquals("lorem", a.toString());
+        Assertions.assertEquals("lorem", a.toString());
     }
 
     @Test
@@ -129,7 +147,7 @@ public class BStringTest extends AbstractTest<BString> {
         BString a = BString.of(data);
         data[0] = 'X';
         BString b = BString.of(data);
-        Assert.assertNotEquals(a, b);
+        Assertions.assertNotEquals(a, b);
     }
 
     @Test
@@ -137,7 +155,7 @@ public class BStringTest extends AbstractTest<BString> {
         BString orig = BString.of("foobar");
         BString clone = orig.clone();
 
-        Assert.assertEquals("Equals", orig, clone);
-        Assert.assertNotSame("NotSame", orig, clone);
+        Assertions.assertEquals(orig, clone);
+        Assertions.assertNotSame(orig, clone);
     }
 }
