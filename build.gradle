@@ -1,181 +1,41 @@
-buildscript {
-    ext {
-        projectVersion = '2.0.0'
-
-        slf4jVersion = '1.7.25'
-        junitVersion = '4.12'
-        logbackVersion = '1.2.3'
-        mockitoVersion = '2.21.0'
-        powermockVersion = '2.0.0-beta.5'
-    }
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.11.0"
-    }
+plugins {
+    id 'java-library'
+    id 'me.champeau.jmh' version '0.7.0'
+    id 'io.freefair.lombok' version '6.6.3'
 }
 
-apply plugin: 'java'
+group 'eu.fraho.libs'
+version rootProject.file('version.txt').text.trim()
+description = "Java Library for handling binary-encoded (bencoded, torrent) files and data"
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
-    mavenLocal()
     mavenCentral()
 }
 
-group = 'eu.fraho.libs'
-version = "${projectVersion}"
-description = "Java Library for handling binary-encoded (bencoded, torrent) files and data"
-sourceCompatibility = 8
-targetCompatibility = 8
-
-// START java 9 stuff
-if (JavaVersion.current() > JavaVersion.VERSION_1_8) {
-    sourceSets {
-        moduleInfo {
-            java {
-                srcDir 'src/module-info/java'
-                include '**/module-info.java'
-            }
-        }
-    }
-    ext.moduleName = 'eu.fraho.libs.beencode'
-    compileModuleInfoJava {
-        sourceCompatibility = 9
-        targetCompatibility = 9
-
-        inputs.property("moduleName", moduleName)
-
-        doFirst {
-            classpath += sourceSets.main.compileClasspath
-
-            options.compilerArgs = [
-                    '--module-path', classpath.asPath,
-                    '-d', sourceSets.main.output.classesDirs.asPath
-            ]
-        }
-    }
-    jar {
-        from sourceSets.moduleInfo.output
-    }
-}
-// END java 9 stuff
-
-jar {
-    version = "${project.version}"
-    manifest {
-        attributes(
-                "Implementation-Title": "Gradle",
-                "Implementation-Version": version,
-                "Build-Jdk": "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
-                "Compatibility": project.sourceCompatibility,
-        )
-    }
-    from sourceSets.main.output
-}
-
 dependencies {
-    compile "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    compileOnly 'org.jetbrains:annotations:24.0.1'
 
-    testCompile "junit:junit:${junitVersion}"
-    testCompile "ch.qos.logback:logback-classic:${logbackVersion}"
-    testCompile "org.mockito:mockito-core:${mockitoVersion}"
-    testCompile "org.powermock:powermock-api-mockito2:${powermockVersion}"
-    testCompile "org.powermock:powermock-module-junit4:${powermockVersion}"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.1.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+    testRuntimeOnly 'ch.qos.logback:logback-classic:1.2.11'
 }
-
-// release stuff
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar, sourcesJar
-}
-
-// code coverage
-apply plugin: 'jacoco'
-jacocoTestReport {
-    reports {
-        xml.enabled = true
-        html.enabled = true
-    }
-}
-check.dependsOn jacocoTestReport
 
 test {
-    testLogging {
-        events "passed", "skipped", "failed"
-        exceptionFormat "full"
-    }
+    useJUnitPlatform()
+    testLogging { events 'passed', 'skipped', 'failed' }
 }
 
-// release to central
-apply plugin: 'signing'
-apply plugin: 'maven'
-if (project.hasProperty('release')) {
-    // abort on test failures on releasing
-    test {
-        ignoreFailures = false
-    }
-
-    // Signature of artifacts
-    signing {
-        useGpgCmd()
-        sign configurations.archives
-    }
-
-    // OSSRH publication
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                // POM signature
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-                // Target repository
-                if (project.version.endsWith('-SNAPSHOT')) {
-                    repository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
-                        authentication(userName: ossrhUsername, password: ossrhPassword)
-                    }
-                } else {
-                    repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
-                        authentication(userName: ossrhUsername, password: ossrhPassword)
-                    }
-                }
-                pom.project {
-                    name project.archivesBaseName
-                    description project.description
-                    url 'https://github.com/bratkartoffel/beencode'
-
-                    scm {
-                        connection 'scm:git:https://github.com/bratkartoffel/beencode.git'
-                        developerConnection 'scm:git:git@github.com:bratkartoffel/beencode.git'
-                        url 'https://github.com/bratkartoffel/beencode.git'
-                    }
-
-                    licenses {
-                        license {
-                            name 'The MIT License (MIT)'
-                            url 'http://opensource.org/licenses/MIT'
-                            distribution 'repo'
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id = 'bratkartoffel'
-                            name = 'Simon Frankenberger'
-                            email = 'simon-ossrh-release@fraho.eu'
-                        }
-                    }
-                }
-            }
-        }
-    }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
 }
+
+apply from: "gradle/jacoco.gradle"
+apply from: "gradle/jar.gradle"
+apply from: "gradle/publish.gradle"
+apply from: "gradle/signing.gradle"

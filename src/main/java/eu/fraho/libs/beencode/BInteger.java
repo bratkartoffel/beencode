@@ -1,6 +1,6 @@
 /*
  * MIT Licence
- * Copyright (c) 2017 Simon Frankenberger
+ * Copyright (c) 2023 Simon Frankenberger
  *
  * Please see LICENCE.md for complete licence text.
  */
@@ -70,7 +70,7 @@ public final class BInteger extends BNodeBase<BigInteger> implements Comparable<
             throw new BencodeException("Invalid data, negative zero is not allowed");
         }
         if (input.startsWith("0") && length > 1 || input.startsWith("-0")
-                && length > 2) {
+                                                   && length > 2) {
             throw new BencodeException("Invalid data, leading zeros are not allowed");
         }
 
@@ -98,7 +98,6 @@ public final class BInteger extends BNodeBase<BigInteger> implements Comparable<
         return getValue().compareTo(o.getValue());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public BInteger clone() {
         try {

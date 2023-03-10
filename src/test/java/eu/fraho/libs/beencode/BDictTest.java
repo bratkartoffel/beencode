@@ -1,7 +1,7 @@
 package eu.fraho.libs.beencode;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -35,24 +35,32 @@ public class BDictTest extends AbstractTest<BDict> {
         );
     }
 
-    @Test(expected = BencodeException.class)
+    @Test
     public void testOfBIntegerKey() {
-        BDict.of(BInteger.of(13), BInteger.of(2));
+        Assertions.assertThrows(BencodeException.class, () -> {
+            BDict.of(BInteger.of(13), BInteger.of(2));
+        });
     }
 
-    @Test(expected = BencodeException.class)
+    @Test
     public void testOfNullKey() {
-        BDict.of(null, BInteger.of(2));
+        Assertions.assertThrows(BencodeException.class, () -> {
+            BDict.of(null, BInteger.of(2));
+        });
     }
 
-    @Test(expected = BencodeException.class)
+    @Test
     public void testOfNullValue() {
-        BDict.of(BString.of("foo"), null);
+        Assertions.assertThrows(BencodeException.class, () -> {
+            BDict.of(BString.of("foo"), null);
+        });
     }
 
-    @Test(expected = BencodeException.class)
+    @Test
     public void testOfMissingValue() {
-        BDict.of(BString.of("foo"), BInteger.of(42), BString.of("bar"));
+        Assertions.assertThrows(BencodeException.class, () -> {
+            BDict.of(BString.of("foo"), BInteger.of(42), BString.of("bar"));
+        });
     }
 
     @Test
@@ -65,24 +73,32 @@ public class BDictTest extends AbstractTest<BDict> {
         testStreamSuccess("bdict_simple", getSampleA());
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidEmpty() throws IOException {
-        testStreamFail("bdict_invalid_empty");
+    @Test
+    public void testStreamInvalidEmpty() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bdict_invalid_empty");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamNoValue() throws IOException {
-        testStreamFail("bdict_no_value");
+    @Test
+    public void testStreamNoValue() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bdict_no_value");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidEnd() throws IOException {
-        testStreamFail("bdict_invalid_end");
+    @Test
+    public void testStreamInvalidEnd() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bdict_invalid_end");
+        });
     }
 
-    @Test(expected = BencodeException.class)
-    public void testStreamInvalidIntKey() throws IOException {
-        testStreamFail("bdict_invalid_int_key");
+    @Test
+    public void testStreamInvalidIntKey() {
+        Assertions.assertThrows(BencodeException.class, () -> {
+            testStreamFail("bdict_invalid_int_key");
+        });
     }
 
     @Test
@@ -91,41 +107,41 @@ public class BDictTest extends AbstractTest<BDict> {
         BString key = BString.of("Foo");
         BInteger value = BInteger.of(13);
 
-        Assert.assertEquals(testee.size(), testee.getValue().size());
-        Assert.assertEquals(testee.isEmpty(), testee.getValue().isEmpty());
-        Assert.assertEquals(testee.containsKey(key), testee.getValue().containsKey(key));
-        Assert.assertEquals(testee.containsValue(key), testee.getValue().containsValue(key));
-        Assert.assertEquals(testee.get(key), Optional.of(value));
-        Assert.assertEquals(testee.get(key.toString()), Optional.of(value));
-        Assert.assertEquals(testee.get("xxxxx"), Optional.empty());
-        Assert.assertEquals(testee.keySet(), testee.getValue().keySet());
-        Assert.assertEquals(testee.values(), testee.getValue().values());
-        Assert.assertEquals(testee.entrySet(), testee.getValue().entrySet());
+        Assertions.assertEquals(testee.size(), testee.getValue().size());
+        Assertions.assertEquals(testee.isEmpty(), testee.getValue().isEmpty());
+        Assertions.assertEquals(testee.containsKey(key), testee.getValue().containsKey(key));
+        Assertions.assertEquals(testee.containsValue(key), testee.getValue().containsValue(key));
+        Assertions.assertEquals(testee.get(key), Optional.of(value));
+        Assertions.assertEquals(testee.get(key.toString()), Optional.of(value));
+        Assertions.assertEquals(testee.get("xxxxx"), Optional.empty());
+        Assertions.assertEquals(testee.keySet(), testee.getValue().keySet());
+        Assertions.assertEquals(testee.values(), testee.getValue().values());
+        Assertions.assertEquals(testee.entrySet(), testee.getValue().entrySet());
     }
 
     @Test
     public void testRemove() {
         BDict testee = getSampleB();
-        Assert.assertEquals(1, testee.remove("Foo").size());
-        Assert.assertEquals(1, testee.remove("baz").size());
-        Assert.assertEquals(1, testee.remove(BString.of("baz")).size());
-        Assert.assertSame(testee, testee.remove(BString.of("xxx")));
-        Assert.assertEquals(2, testee.size());
+        Assertions.assertEquals(1, testee.remove("Foo").size());
+        Assertions.assertEquals(1, testee.remove("baz").size());
+        Assertions.assertEquals(1, testee.remove(BString.of("baz")).size());
+        Assertions.assertSame(testee, testee.remove(BString.of("xxx")));
+        Assertions.assertEquals(2, testee.size());
     }
 
     @Test
     public void tesPut() {
         BDict testee = getSampleB();
-        Assert.assertEquals(3, testee.put(BString.of("xxx"), BInteger.of(1)).size());
-        Assert.assertEquals(2, testee.size());
+        Assertions.assertEquals(3, testee.put(BString.of("xxx"), BInteger.of(1)).size());
+        Assertions.assertEquals(2, testee.size());
     }
 
     @Test
     public void testJoin() {
         BDict a = getSampleA();
         BDict b = getSampleB();
-        Assert.assertEquals(4, a.join(b).size());
-        Assert.assertEquals(2, a.size());
+        Assertions.assertEquals(4, a.join(b).size());
+        Assertions.assertEquals(2, a.size());
     }
 
     @Test
@@ -135,13 +151,15 @@ public class BDictTest extends AbstractTest<BDict> {
         BDict a = BDict.of(data);
         data.put(BString.of("bar"), BInteger.of(42));
         BDict b = BDict.of(data);
-        Assert.assertNotEquals(a, b);
+        Assertions.assertNotEquals(a, b);
     }
 
-    @Test(expected = BencodeException.class)
+    @Test
     public void testOfInvalidPrefix() throws IOException {
         try (InputStream is = new ByteArrayInputStream(new byte[0])) {
-            BDict.of(is, (byte) 'x');
+            Assertions.assertThrows(BencodeException.class, () -> {
+                BDict.of(is, (byte) 'x');
+            });
         }
     }
 
@@ -150,7 +168,7 @@ public class BDictTest extends AbstractTest<BDict> {
         BDict orig = BDict.of(BString.of("foo"), BString.of("bar"));
         BDict clone = orig.clone();
 
-        Assert.assertEquals("Equals", orig, clone);
-        Assert.assertNotSame("NotSame", orig, clone);
+        Assertions.assertEquals(orig, clone);
+        Assertions.assertNotSame(orig, clone);
     }
 }
