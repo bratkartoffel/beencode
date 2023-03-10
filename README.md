@@ -1,8 +1,9 @@
 # Bencoded data reader and writer for java
 
-[![Build Status](https://travis-ci.org/bratkartoffel/beencode.svg?branch=develop)](https://travis-ci.org/bratkartoffel/beencode)
-[![codecov](https://codecov.io/github/bratkartoffel/beencode/branch/develop/graph/badge.svg?token=QhjXVBlnJ0)](https://codecov.io/github/bratkartoffel/beencode)
+[![Java CI](https://github.com/bratkartoffel/beencode/actions/workflows/build.yaml/badge.svg)](https://github.com/bratkartoffel/beencode/actions/workflows/build.yaml)
+[![codecov](https://codecov.io/gh/bratkartoffel/beencode/branch/develop/graph/badge.svg?token=QgUmkgHSMd)](https://codecov.io/gh/bratkartoffel/beencode)
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat)](http://doge.mit-license.org)
+[![Central Version](https://img.shields.io/maven-central/v/eu.fraho.libs/beencode)](https://mvnrepository.com/artifact/eu.fraho.libs/beencode)
 
 Some java helper classes to deal with binary encoded data strings.
 This class collection can be used to parse, alter and generate bencoded data.
