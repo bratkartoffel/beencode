@@ -7,10 +7,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,19 +27,19 @@ public class BListTest extends AbstractTest<BList> {
     @Override
     protected BList getSampleA() {
         return BList.of(
-                BString.of("Foo"),
-                BInteger.of(13),
-                BList.of(
-                        BInteger.of(42)
-                )
+            BString.of("Foo"),
+            BInteger.of(13),
+            BList.of(
+                BInteger.of(42)
+            )
         );
     }
 
     @Override
     protected BList getSampleB() {
         return BList.of(
-                BInteger.of(13),
-                BString.of("test")
+            BInteger.of(13),
+            BString.of("test")
         );
     }
 
@@ -55,14 +54,14 @@ public class BListTest extends AbstractTest<BList> {
     }
 
     @Test
-    public void testStreamInvalidEmpty() throws IOException {
+    public void testStreamInvalidEmpty() {
         Assertions.assertThrows(BencodeException.class, () -> {
             testStreamFail("blist_invalid_empty");
         });
     }
 
     @Test
-    public void testStreamInvalidEnd() throws IOException {
+    public void testStreamInvalidEnd() {
         Assertions.assertThrows(BencodeException.class, () -> {
             testStreamFail("blist_invalid_end");
         });
@@ -80,13 +79,26 @@ public class BListTest extends AbstractTest<BList> {
         Assertions.assertEquals(testee.contains(eNonExistant), testee.getValue().contains(eNonExistant));
         Assertions.assertArrayEquals(testee.toArray(), testee.getValue().toArray());
         Assertions.assertArrayEquals(testee.toArray(array), testee.getValue().toArray(array));
-        Assertions.assertEquals(testee.containsAll(Collections.singletonList(eNonExistant)), testee.getValue().contains(eNonExistant));
-        Assertions.assertEquals(testee.get(0), Optional.of(e0));
-        Assertions.assertEquals(testee.get(42), Optional.empty());
+        Assertions.assertEquals(testee.contains(eNonExistant), testee.getValue().contains(eNonExistant));
+        Assertions.assertEquals(testee.get(0), e0);
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> testee.get(42));
         Assertions.assertEquals(testee.indexOf(eNonExistant), testee.getValue().indexOf(eNonExistant));
         Assertions.assertEquals(testee.lastIndexOf(eNonExistant), testee.getValue().lastIndexOf(eNonExistant));
         Assertions.assertEquals(testee.subList(0, 1), testee.getValue().subList(0, 1));
         Assertions.assertEquals(testee.subList(1, 2), testee.getValue().subList(1, 2));
+        Assertions.assertTrue(testee.containsAll(Arrays.asList(e0, BInteger.of(13))));
+
+        /* unusupported operations */
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.remove(0));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.remove(e0));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.add(eNonExistant));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.addAll(Arrays.asList(eNonExistant, BString.of("bar"))));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.addAll(1, Arrays.asList(eNonExistant, BString.of("bar"))));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.removeAll(Arrays.asList(e0, BString.of("bar"))));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.retainAll(Arrays.asList(e0, BString.of("bar"))));
+        Assertions.assertThrows(UnsupportedOperationException.class, testee::clear);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.set(0, eNonExistant));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.add(0, eNonExistant));
 
         /* test iterator */
         {
@@ -156,18 +168,18 @@ public class BListTest extends AbstractTest<BList> {
     @Test
     public void testRemove() {
         BList testee = getSampleB();
-        Assertions.assertEquals(1, testee.remove(0).size());
-        Assertions.assertEquals(1, testee.remove(1).size());
-        Assertions.assertEquals(1, testee.remove(BInteger.of(13)).size());
-        Assertions.assertSame(testee, testee.remove(BInteger.of(99)));
+        Assertions.assertEquals(1, testee.without(0).size());
+        Assertions.assertEquals(1, testee.without(1).size());
+        Assertions.assertEquals(1, testee.without(BInteger.of(13)).size());
+        Assertions.assertSame(testee, testee.without(BInteger.of(99)));
         Assertions.assertEquals(2, testee.size());
     }
 
     @Test
     public void testAdd() {
         BList testee = getSampleB();
-        Assertions.assertEquals(3, testee.add(BInteger.of(42)).size());
-        Assertions.assertEquals(4, testee.add(BInteger.of(42), BInteger.of(1)).size());
+        Assertions.assertEquals(3, testee.with(BInteger.of(42)).size());
+        Assertions.assertEquals(4, testee.with(BInteger.of(42), BInteger.of(1)).size());
         Assertions.assertEquals(2, testee.size());
     }
 
@@ -205,5 +217,10 @@ public class BListTest extends AbstractTest<BList> {
 
         Assertions.assertEquals(orig, clone);
         Assertions.assertNotSame(orig, clone);
+    }
+
+    @Test
+    public void testOfNullElement() {
+        Assertions.assertThrows(BencodeException.class, () -> BList.of(BInteger.of(1), null, BInteger.of(2)));
     }
 }

@@ -6,6 +6,11 @@
  */
 package eu.fraho.libs.beencode;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,46 +19,51 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public final class BString extends BNodeBase<byte[]> implements Comparable<BString> {
-    private static final long serialVersionUID = 100L;
     public static final int DEFAULT_MAX_READ_LEN = 33_554_432; // 32 MiB
+    private static final long serialVersionUID = 100L;
     private static final byte SEPARATOR = ':';
 
-    private BString(byte[] data) {
+    private BString(byte @NotNull [] data) {
         super(new byte[data.length]);
-        System.arraycopy(data, 0, getValue(), 0, data.length);
+        byte[] value = getValue();
+        System.arraycopy(data, 0, value, 0, data.length);
     }
 
-    public static BString of(byte[] data) {
+    @Contract(pure = true, value = "_ -> new")
+    public static @NotNull BString of(byte @NotNull [] data) {
         Objects.requireNonNull(data, "data may not be null");
         return new BString(data);
     }
 
-    public static BString of(CharSequence data) {
+    @Contract(pure = true, value = "_ -> new")
+    public static @NotNull BString of(@NotNull CharSequence data) {
         return of(data, Charset.defaultCharset());
     }
 
-    public static BString of(CharSequence data, Charset charset) {
-        Objects.requireNonNull(data, "data may not be null");
-        Objects.requireNonNull(charset, "charset may not be null");
+    @Contract(pure = true, value = "_, _ -> new")
+    public static @NotNull BString of(@NotNull CharSequence data, @NotNull Charset charset) {
         return of(data.toString().getBytes(charset));
     }
 
-    public static BString of(InputStream is) throws IOException {
+    @Contract(value = "_ -> new")
+    public static @NotNull BString of(@NotNull InputStream is) throws IOException {
         return of(is, (byte) is.read());
     }
 
-    public static BString of(InputStream is, byte prefix) throws IOException {
+    @Contract(value = "_, _ -> new")
+    public static @NotNull BString of(@NotNull InputStream is, @Range(from = '0', to = '9') byte prefix) throws IOException {
         return of(is, prefix, DEFAULT_MAX_READ_LEN);
     }
 
-    public static BString of(InputStream is, byte prefix, int maxReadLen) throws IOException {
+    @Contract(value = "_, _, _ -> new")
+    public static @NotNull BString of(@NotNull InputStream is, @Range(from = '0', to = '9') byte prefix, @Range(from = 0, to = Integer.MAX_VALUE) int maxReadLen) throws IOException {
         long length = prefix - '0';
 
         byte cur;
         while ((cur = (byte) is.read()) != SEPARATOR) {
             if (!canParsePrefix(cur)) {
                 throw new BencodeException("Unexpected data, expected an digit but got a '"
-                        + cur + "'");
+                    + cur + "'");
             }
             length = length * 10 + (cur - '0');
         }
@@ -75,44 +85,50 @@ public final class BString extends BNodeBase<byte[]> implements Comparable<BStri
                 offset += temp;
             } else {
                 throw new BencodeException("Premature end of stream, missing "
-                        + (ilength - offset) + " bytes.");
+                    + (ilength - offset) + " bytes.");
             }
         }
         return of(value);
     }
 
+    @Contract(pure = true)
     public static boolean canParsePrefix(byte prefix) {
         return prefix >= '0' && prefix <= '9';
     }
 
     @Override
-    public String toString() {
+    @Contract(pure = true)
+    public @NotNull String toString() {
         return toString(Charset.defaultCharset());
     }
 
-    public String toString(Charset encoding) {
+    @Contract(pure = true)
+    public @NotNull String toString(@NotNull Charset encoding) {
         return new String(getValue(), encoding);
     }
 
     @Override
-    public void write(OutputStream os) throws IOException {
+    public void write(@NotNull OutputStream os) throws IOException {
         os.write(String.valueOf(getValue().length).getBytes(DEFAULT_CHARSET));
         os.write(SEPARATOR);
         os.write(getValue());
     }
 
     @Override
+    @Contract(pure = true)
     public int hashCode() {
         return getClass().hashCode() + Arrays.hashCode(getValue());
     }
 
     @Override
-    public int compareTo(BString o) {
+    @Contract(pure = true)
+    public int compareTo(@NotNull BString o) {
         return toString().compareTo(o.toString());
     }
 
     @Override
-    public boolean equals(Object obj) {
+    @Contract(pure = true)
+    public boolean equals(@Nullable Object obj) {
         if (obj == null || !BString.class.isAssignableFrom(obj.getClass())) {
             return false;
         }
@@ -121,12 +137,10 @@ public final class BString extends BNodeBase<byte[]> implements Comparable<BStri
         return Arrays.equals(this.getValue(), that.getValue());
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
-    public BString clone() {
-        try {
-            return (BString) super.clone();
-        } catch (BencodeException be) {
-            return BString.of(getValue());
-        }
+    @Contract(pure = true, value = "-> new")
+    public @NotNull BString clone() {
+        return BString.of(getValue());
     }
 }

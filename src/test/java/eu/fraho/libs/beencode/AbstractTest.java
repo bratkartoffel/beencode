@@ -26,13 +26,13 @@ public abstract class AbstractTest<T extends BNode<?>> {
 
     protected void testStreamFail(String testname) throws IOException {
         try (FileInputStream fstream = new FileInputStream(new File("src/test/resources/data/",
-                testname + ".dat"))) {
+            testname + ".dat"))) {
             NodeFactory.decode(fstream);
         }
     }
 
     protected void testStreamSuccess(String testname, BNode<?> expected)
-            throws IOException {
+        throws IOException {
         try (FileInputStream fstream = new FileInputStream(new File("src/test/resources/data/", testname + ".dat"))) {
             Assertions.assertEquals(expected, NodeFactory.decode(fstream), "Received unexpected result");
         }
@@ -45,6 +45,13 @@ public abstract class AbstractTest<T extends BNode<?>> {
         T c = getSampleB();
         Assertions.assertEquals(a, b);
         Assertions.assertNotEquals(a, c);
+
+        BString x = BString.of("x123");
+        BInteger y = BInteger.of(987_654_321);
+        Assertions.assertNotEquals(a, x);
+        Assertions.assertNotEquals(a, y);
+        //noinspection ConstantValue,SimplifiableAssertion
+        Assertions.assertFalse(a.equals(null));
     }
 
     @Test

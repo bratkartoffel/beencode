@@ -6,22 +6,16 @@
  */
 package eu.fraho.libs.beencode;
 
+import org.jetbrains.annotations.NotNull;
+
 public class BencodeException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public BencodeException(String message) {
+    public BencodeException(@NotNull String message) {
         super(message);
     }
 
-    public BencodeException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public BencodeException() {
-        super();
-    }
-
-    public BencodeException(Throwable cause) {
+    public BencodeException(@NotNull Throwable cause) {
         super(cause);
     }
 }
