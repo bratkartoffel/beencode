@@ -19,9 +19,9 @@ import java.nio.file.Files;
 public class ReadmeWrite {
     public void write() throws IOException {
         BList node = BList.of(
-                BString.of("Hello"),
-                BString.of("world!"),
-                BInteger.of(42)
+            BString.of("Hello"),
+            BString.of("world!"),
+            BInteger.of(42)
         );
 
         // Write directly to a file

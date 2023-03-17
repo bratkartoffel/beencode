@@ -6,17 +6,21 @@
  */
 package eu.fraho.libs.beencode;
 
+import org.jetbrains.annotations.*;
+
 import java.util.Objects;
 
 abstract class BNodeBase<T> implements BNode<T> {
+    @NotNull
     private final T value;
 
-    public BNodeBase(T value) {
+    public BNodeBase(@NotNull T value) {
         this.value = Objects.requireNonNull(value, "value may not be null");
     }
 
     @Override
-    public boolean equals(Object obj) {
+    @Contract(pure = true)
+    public boolean equals(@Nullable Object obj) {
         if (obj == null || this.getClass() != obj.getClass()) {
             return false;
         }
@@ -26,34 +30,20 @@ abstract class BNodeBase<T> implements BNode<T> {
     }
 
     @Override
+    @Contract(pure = true)
     public int hashCode() {
-        return getClass().hashCode() + value.hashCode();
+        return Objects.hash(getClass(), value);
     }
 
     @Override
+    @Contract(pure = true, value = "-> new")
     public String toString() {
         return String.valueOf(value);
     }
 
     @Override
-    public T getValue() {
+    @Contract(pure = true)
+    public @NotNull T getValue() {
         return value;
-    }
-
-    // only for unit testing
-    @SuppressWarnings("RedundantThrows")
-    protected void preCloneForUnitTesting() throws CloneNotSupportedException {
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public BNode<T> clone() {
-        try {
-            preCloneForUnitTesting();
-            return (BNode<T>) super.clone();
-        } catch (CloneNotSupportedException cnse) {
-            // we know that this class is cloneable
-            throw new BencodeException("Clone failed", cnse);
-        }
     }
 }

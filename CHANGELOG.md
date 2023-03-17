@@ -2,7 +2,12 @@
 
 ### [unreleased]
 
-* no changes yet
+* Refactor code, breaking changes
+    * Add javadoc documentation to code
+    * Add `Jetbrains Annotations` about nullability / contracts
+    * Add JMH benchmark to track performance impact of changes
+    * `BDict` implements `Map` interface
+    * `BList` implements `List` interface
 
 ### [2.0.1] (2023-03-10)
 

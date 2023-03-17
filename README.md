@@ -16,7 +16,7 @@ This library was designed to be easy to use, lean (no external dependencies), se
 # Dependencies
 
 ```xml
-
+<!-- https://mvnrepository.com/artifact/eu.fraho.libs/beencode -->
 <dependency>
     <groupId>eu.fraho.libs</groupId>
     <artifactId>beencode</artifactId>
@@ -45,7 +45,6 @@ import eu.fraho.libs.beencode.BNode;
 import eu.fraho.libs.beencode.BString;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 public class ReadmeTypes {
     public void types() {
@@ -62,28 +61,31 @@ public class ReadmeTypes {
         BList otherlist = BList.of(BInteger.of(13));
 
         // manipulate list:
-        BList listExt = firstlist.add(ipsum);          // [lorem, 2147483648, foobar, ipsum]
-        BList listRed = firstlist.remove(largeNumber); // [lorem, foobar]
-        BList listJoined = firstlist.join(otherlist);  // [lorem, 2147483648, foobar, 13]
+        BList listExt = firstlist.with(ipsum);          // [lorem, 2147483648, foobar, ipsum]
+        BList listRed = firstlist.without(largeNumber); // [lorem, foobar]
+        BList listJoined = firstlist.join(otherlist);   // [lorem, 2147483648, foobar, 13]
 
         // get info from list
-        Optional<BNode<?>> listEntry = firstlist.get(0);   // Optional[lorem]
-        Optional<BNode<?>> listEntry2 = firstlist.get(42); // Optional.empty
+        BNode<?> listEntry = firstlist.get(0);   // BString(lorem)
+        BNode<?> listEntry2 = firstlist.get(42); // null
 
         // Dictionaries: (some kind of map):
         BDict firstdict = BDict.of(lorem, largeNumber);
         BDict otherdict = BDict.of(
-                lorem, _42,
-                ipsum, BString.of("!")
+            lorem, _42,
+            ipsum, BString.of("!")
         );
 
         // manipulate dict:
-        BDict dictExt = firstdict.put(ipsum, _42);    // {lorem=2147483648, ipsum=42}
-        BDict dictJoined = firstdict.join(otherdict); // {lorem=42, ipsum=!}
+        BDict dictExt = firstdict.with(ipsum, _42);    // {lorem=2147483648, ipsum=42}
+        BDict dictJoined = firstdict.join(otherdict);  // {lorem=42, ipsum=!}
 
         // get info from dict
-        Optional<BNode<?>> dictEntry = firstdict.get(lorem);    // Optional[2147483648]
-        Optional<BNode<?>> dictEntry2 = firstdict.get(ipsum);    // Optional.empty
+        BNode<?> dictEntry = firstdict.get(lorem);    // BInteger(2147483648)
+        BNode<?> dictEntry2 = firstdict.get(ipsum);   // null
+
+        // when using a regular string for get(), the type can be inferred (if you know what type the element has)
+        BInteger dictEntry3 = firstdict.get("lorem"); // BInteger(2147483648)
     }
 }
 ```

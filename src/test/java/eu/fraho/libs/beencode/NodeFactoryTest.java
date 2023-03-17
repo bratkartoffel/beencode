@@ -31,8 +31,8 @@ public class NodeFactoryTest {
     @Test
     public void testDecodeStreamWithBencodeException() throws IOException {
         try (InputStream bis = Mockito.mock(InputStream.class)) {
-            Mockito.when(bis.read()).thenThrow(new BencodeException());
-            Assertions.assertThrows(BencodeException.class, () -> {
+            Mockito.when(bis.read()).thenThrow(new IOException());
+            Assertions.assertThrows(IOException.class, () -> {
                 NodeFactory.decode(bis);
             });
         }
@@ -51,8 +51,8 @@ public class NodeFactoryTest {
     @Test
     public void testEncodeStreamWithBencodeExceptionOnWrite() throws IOException {
         OutputStream bos = Mockito.mock(OutputStream.class);
-        Mockito.doThrow(new BencodeException()).when(bos).write(Mockito.anyInt());
-        Assertions.assertThrows(BencodeException.class, () -> {
+        Mockito.doThrow(new IOException()).when(bos).write(Mockito.anyInt());
+        Assertions.assertThrows(IOException.class, () -> {
             NodeFactory.encode(BString.of("foobar"), bos);
         });
     }
@@ -60,7 +60,7 @@ public class NodeFactoryTest {
     @Test
     public void testEncodeBencodeException() throws IOException {
         BNodeBase<?> str = Mockito.mock(BNodeBase.class);
-        Mockito.doThrow(new BencodeException()).when(str).write(Mockito.any(OutputStream.class));
+        Mockito.doThrow(new IOException()).when(str).write(Mockito.any(OutputStream.class));
         Assertions.assertThrows(BencodeException.class, () -> {
             NodeFactory.encode(str);
         });

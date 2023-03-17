@@ -15,9 +15,9 @@ import eu.fraho.libs.beencode.NodeFactory;
 public class ReadmeConvert {
     public void convert() {
         BList node = BList.of(
-                BString.of("Hello"),
-                BString.of("world!"),
-                BInteger.of(42)
+            BString.of("Hello"),
+            BString.of("world!"),
+            BInteger.of(42)
         );
 
         // Get a human readable representation
