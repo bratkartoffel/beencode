@@ -90,7 +90,7 @@ public class BStringTest extends AbstractTest<BString> {
     @Test
     public void testStreamTooLarge() throws IOException {
         try (FileInputStream fstream = new FileInputStream(new File("src/test/resources/data/",
-                "bstring_too_long.dat"))) {
+            "bstring_too_long.dat"))) {
             Assertions.assertThrows(BencodeException.class, () -> {
                 BString.of(fstream, (byte) fstream.read(), 10);
             });

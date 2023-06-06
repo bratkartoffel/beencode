@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeMap;
 
 public class BDictTest extends AbstractTest<BDict> {
@@ -22,16 +22,16 @@ public class BDictTest extends AbstractTest<BDict> {
     @Override
     protected BDict getSampleA() {
         return BDict.of(
-                BString.of("foo"), BInteger.of(13),
-                BString.of("bar"), BString.of("test")
+            BString.of("foo"), BInteger.of(13),
+            BString.of("bar"), BString.of("test")
         );
     }
 
     @Override
     protected BDict getSampleB() {
         return BDict.of(
-                BString.of("Foo"), BInteger.of(13),
-                BString.of("baz"), BInteger.of(42)
+            BString.of("Foo"), BInteger.of(13),
+            BString.of("baz"), BInteger.of(42)
         );
     }
 
@@ -111,28 +111,34 @@ public class BDictTest extends AbstractTest<BDict> {
         Assertions.assertEquals(testee.isEmpty(), testee.getValue().isEmpty());
         Assertions.assertEquals(testee.containsKey(key), testee.getValue().containsKey(key));
         Assertions.assertEquals(testee.containsValue(key), testee.getValue().containsValue(key));
-        Assertions.assertEquals(testee.get(key), Optional.of(value));
-        Assertions.assertEquals(testee.get(key.toString()), Optional.of(value));
-        Assertions.assertEquals(testee.get("xxxxx"), Optional.empty());
+        Assertions.assertEquals(testee.get(key), value);
+        Assertions.assertEquals(testee.get(key.toString()), value);
+        Assertions.assertNull(testee.get("xxxxx"));
         Assertions.assertEquals(testee.keySet(), testee.getValue().keySet());
         Assertions.assertEquals(testee.values(), testee.getValue().values());
         Assertions.assertEquals(testee.entrySet(), testee.getValue().entrySet());
+
+        /* unusupported operations */
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.put(key, value));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.remove(key));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> testee.putAll(new HashMap<>()));
+        Assertions.assertThrows(UnsupportedOperationException.class, testee::clear);
     }
 
     @Test
     public void testRemove() {
         BDict testee = getSampleB();
-        Assertions.assertEquals(1, testee.remove("Foo").size());
-        Assertions.assertEquals(1, testee.remove("baz").size());
-        Assertions.assertEquals(1, testee.remove(BString.of("baz")).size());
-        Assertions.assertSame(testee, testee.remove(BString.of("xxx")));
+        Assertions.assertEquals(1, testee.without("Foo").size());
+        Assertions.assertEquals(1, testee.without("baz").size());
+        Assertions.assertEquals(1, testee.without(BString.of("baz")).size());
+        Assertions.assertSame(testee, testee.without(BString.of("xxx")));
         Assertions.assertEquals(2, testee.size());
     }
 
     @Test
     public void tesPut() {
         BDict testee = getSampleB();
-        Assertions.assertEquals(3, testee.put(BString.of("xxx"), BInteger.of(1)).size());
+        Assertions.assertEquals(3, testee.with(BString.of("xxx"), BInteger.of(1)).size());
         Assertions.assertEquals(2, testee.size());
     }
 
@@ -170,5 +176,11 @@ public class BDictTest extends AbstractTest<BDict> {
 
         Assertions.assertEquals(orig, clone);
         Assertions.assertNotSame(orig, clone);
+    }
+
+    @Test
+    public void testOfNullElement() {
+        Assertions.assertThrows(BencodeException.class, () -> BDict.of(BString.of("x"), null));
+        Assertions.assertThrows(BencodeException.class, () -> BDict.of(null, BString.of("x")));
     }
 }

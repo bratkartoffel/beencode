@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 public class TestWithTorrentFile {
     @Test
@@ -27,27 +26,27 @@ public class TestWithTorrentFile {
         }
 
         // check a string node
-        Optional<BString> announce = data.get("announce");
-        Assertions.assertTrue(announce.isPresent());
-        Assertions.assertEquals(BString.of("http://bttracker.debian.org:6969/announce"), announce.get());
+        BString announce = data.get("announce");
+        Assertions.assertNotNull(announce);
+        Assertions.assertEquals(BString.of("http://bttracker.debian.org:6969/announce"), announce);
 
         // check a list node
-        Optional<BList> httpseeds = data.get("httpseeds");
-        Assertions.assertTrue(httpseeds.isPresent());
-        Assertions.assertEquals(2, httpseeds.get().size());
+        BList httpseeds = data.get("httpseeds");
+        Assertions.assertNotNull(httpseeds);
+        Assertions.assertEquals(2, httpseeds.size());
         Assertions.assertEquals(BList.of(
-                BString.of("https://cdimage.debian.org/cdimage/release/9.4.0//srv/cdbuilder.debian.org/dst/deb-cd/weekly-builds/amd64/iso-dvd/debian-9.4.0-amd64-DVD-1.iso"),
-                BString.of("https://cdimage.debian.org/cdimage/archive/9.4.0//srv/cdbuilder.debian.org/dst/deb-cd/weekly-builds/amd64/iso-dvd/debian-9.4.0-amd64-DVD-1.iso")
-        ), httpseeds.get());
+            BString.of("https://cdimage.debian.org/cdimage/release/9.4.0//srv/cdbuilder.debian.org/dst/deb-cd/weekly-builds/amd64/iso-dvd/debian-9.4.0-amd64-DVD-1.iso"),
+            BString.of("https://cdimage.debian.org/cdimage/archive/9.4.0//srv/cdbuilder.debian.org/dst/deb-cd/weekly-builds/amd64/iso-dvd/debian-9.4.0-amd64-DVD-1.iso")
+        ), httpseeds);
 
         // check a dict node
-        Optional<BDict> info = data.get("info");
-        Assertions.assertTrue(info.isPresent());
+        BDict info = data.get("info");
+        Assertions.assertNotNull(info);
 
         // check a integer node
-        Optional<BInteger> length = ((BDict) info.get()).get("length");
-        Assertions.assertTrue(length.isPresent());
-        Assertions.assertEquals(BInteger.of(3977379840L), length.get());
+        BInteger length = info.get("length");
+        Assertions.assertNotNull(length);
+        Assertions.assertEquals(BInteger.of(3977379840L), length);
 
         // check serialization
         Assertions.assertArrayEquals(file, NodeFactory.encode(data));
