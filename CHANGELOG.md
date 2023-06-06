@@ -2,6 +2,10 @@
 
 ### [unreleased]
 
+* no changes yet
+
+### [3.0.0] (2023-06-06)
+
 * Refactor code, breaking changes
     * Add javadoc documentation to code
     * Add `Jetbrains Annotations` about nullability / contracts
@@ -22,8 +26,7 @@
 
 * latest release after refactoring, without changelog
 
-[unreleased]: https://github.com/bratkartoffel/beencode/compare/2.0.1..develop
-
+[unreleased]: https://github.com/bratkartoffel/beencode/compare/3.0.0...develop
+[3.0.0]: https://github.com/bratkartoffel/beencode/compare/2.0.1...3.0.0
 [2.0.1]: https://github.com/bratkartoffel/beencode/compare/2.0.0...2.0.1
-
 [2.0.0]: https://github.com/bratkartoffel/beencode/tree/2.0.0
