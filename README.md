@@ -5,6 +5,10 @@
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat)](http://doge.mit-license.org)
 [![Central Version](https://img.shields.io/maven-central/v/eu.fraho.libs/beencode)](https://mvnrepository.com/artifact/eu.fraho.libs/beencode)
 
+> [!IMPORTANT]
+> This project moved to Codeberg: https://codeberg.org/bratkartoffel/beencode
+> This repository here is archived and no longer maintained.
+
 Some java helper classes to deal with binary encoded data strings.
 This class collection can be used to parse, alter and generate bencoded data.
 The binary-encoding is primary used by the torrent protocol, but is free to use elsewhere.
